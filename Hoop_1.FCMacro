@@ -1,0 +1,263 @@
+9# -*- coding: utf-8 -*-
+
+# Macro Begin: C:\Users\alexf\AppData\Roaming\FreeCAD\Macro\Hoop_1.FCMacro +++++++++++++++++++++++++++++++++++++++++++++++++
+import FreeCAD
+import PartDesignGui
+import PartDesign
+import Sketcher
+import Part
+import math
+
+# Tomamos el archivo activo
+Plano = App.activeDocument()
+
+### Begin command Std_Part
+Pieza_H1 = Plano.addObject('App::Part','Part_H001')
+Plano.Tip = Pieza_H1
+Pieza_H1.Label = 'Parte_H001'
+Plano.recompute()
+
+### Begin command Std_Group
+Grupo_LH1 = Plano.addObject('App::DocumentObjectGroup','Group_LH001')
+Plano.Tip = Grupo_LH1
+Grupo_LH1.Label = 'Group_LH001'
+Pieza_H1.addObject(Grupo_LH1)
+Plano.recompute()
+
+### Begin command PartDesign_Body
+Cuerpo_H1 = Plano.addObject('PartDesign::Body','Body_H001')
+Cuerpo_H1.Label = 'Body_H001'
+Pieza_H1.addObject(Cuerpo_H1)
+Plano.recompute()
+
+### Begin command Sketch
+Boceto_H1 = Plano.addObject('Sketcher::SketchObject','Sketch_H001')
+Plano.Tip = Boceto_H1
+Cuerpo_H1.addObject(Boceto_H1)
+for k in Cuerpo_H1.Origin.OriginFeatures:
+	if k.Role == 'XY_Plane':
+		XY_Plano = k
+Boceto_H1.AttachmentSupport = (XY_Plano,[''])
+Boceto_H1.MapMode = 'FlatFace'
+Boceto_H1.Label = 'Sketch_H001'
+del XY_Plano
+Plano.recompute()
+
+
+
+
+### Begin command PartDesign_Body
+Cuerpo_LH1 = Plano.addObject('PartDesign::Body','Body_LH001')
+Cuerpo_LH1.Label = 'Body_Layout_H001'
+Grupo_LH1.addObject(Cuerpo_LH1)
+Plano.recompute()
+
+### Begin command Sketch
+Boceto_LVS = Plano.addObject('Sketcher::SketchObject','Sketch_LVS001')
+Plano.Tip = Boceto_LVS
+Cuerpo_LH1.addObject(Boceto_LVS)
+for k in Cuerpo_LH1.Origin.OriginFeatures:
+	if k.Role == 'XY_Plane':
+		XY_Plano = k
+Boceto_LVS.AttachmentSupport = (XY_Plano,[''])
+Boceto_LVS.MapMode = 'FlatFace'
+Boceto_LVS.Label = 'Sketch_LVS001'
+del XY_Plano
+Plano.recompute()
+
+Boceto_LVS2 = Plano.addObject('Sketcher::SketchObject','Sketch_LVS002')
+Plano.Tip = Boceto_LVS2
+Cuerpo_LH1.addObject(Boceto_LVS2)
+for k in Cuerpo_LH1.Origin.OriginFeatures:
+	if k.Role == 'XY_Plane':
+		XY_Plano = k
+Boceto_LVS2.AttachmentSupport = (XY_Plano,[''])
+Boceto_LVS2.MapMode = 'FlatFace'
+Boceto_LVS2.Label = 'Sketch_LVS002'
+del XY_Plano
+Plano.recompute()
+
+
+
+
+
+
+
+Lista_Linea = []
+
+
+def Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X, Index, Lista_X):
+	Lista_Linea.append(list(Boceto_X.addGeometry([Part.LineSegment(Pt1, Pt2)], False)))
+	Lista_X[Index][4] = Lista_Linea[-1][0]
+	Boceto_X.addConstraint(Sketcher.Constraint(Restriccion_X, Lista_X[Index][4]))
+	
+	
+def Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Index, Lista_X, Largo_X, Alto_X, Radio_X):
+
+	Lista_Linea.append(list(Boceto_X.addGeometry([Part.ArcOfCircle(Part.Circle(Pt1, Eje , Radio), Ang_Ini, Ang_Fin)], False)))
+	Lista_X[Index][6] = Lista_Linea[-1][0]
+	Boceto_X.addConstraint(Sketcher.Constraint('Radius', Lista_X[Index][6], Radio))
+	
+	
+def Unir_Puntos(Boceto_X, Index_Ini, Pnt_Ini, Index_Fin, Pnt_Fin):
+	Boceto_X.addConstraint(Sketcher.Constraint('Tangent', Index_Ini, Pnt_Ini, Index_Fin, Pnt_Fin))
+
+
+def Crear_Contorno(Largo_Total, Alto_Total, Radio_Pral, Boceto_X):
+
+
+	# Crear lineas en el boceto
+	Lista01 = [
+		[App.Vector(-(Largo_Total - 2 * Radio_Pral) / 2, Alto_Total / 2, 0), 
+		App.Vector((Largo_Total - 2 * Radio_Pral) / 2, Alto_Total / 2, 0), 
+		Boceto_X, 
+		'Horizontal', 
+		0, 1, 2],
+		
+		[App.Vector(Largo_Total / 2, (Alto_Total - 2 * Radio_Pral) / 2, 0), 
+		App.Vector(Largo_Total / 2, -(Alto_Total - 2 * Radio_Pral) / 2, 0), 
+		Boceto_X, 
+		'Vertical', 
+		1, 1, 2],
+		
+		[App.Vector(-(Largo_Total - 2 * Radio_Pral) / 2, -Alto_Total / 2, 0), 
+		App.Vector((Largo_Total - 2 * Radio_Pral) / 2, -Alto_Total / 2, 0), 
+		Boceto_X, 
+		'Horizontal', 
+		2, 2, 1],
+		
+		[App.Vector(-Largo_Total / 2, (Alto_Total - 2 * Radio_Pral) / 2, 0), 
+		App.Vector(-Largo_Total / 2, -(Alto_Total - 2 * Radio_Pral) / 2, 0), 
+		Boceto_X, 
+		'Vertical', 
+		3, 2, 1]
+	]
+
+	for j in range(0, len(Lista01)):
+		Crear_Linea(Lista01[j][0], Lista01[j][1], Lista01[j][2], Lista01[j][3], j, Lista01)
+		
+	Plano.recompute()
+
+
+	# Crear Arcos en el boceto
+	Lista02 = [
+		[App.Vector((Largo_Total - 2 * Radio_Pral) / 2, (Alto_Total - 2 * Radio_Pral) / 2, 0), 
+		App.Vector(0, 0, 1), Radio_Pral, 
+		Boceto_X, math.radians(0), math.radians(90), 
+		4, 2, 1],
+		
+		[App.Vector((Largo_Total - 2 * Radio_Pral) / 2, -(Alto_Total - 2 * Radio_Pral) / 2, 0), 
+		App.Vector(0, 0, 1), Radio_Pral, 
+		Boceto_X, math.radians(270), math.radians(360), 
+		5, 2, 1],
+		
+		[App.Vector(-(Largo_Total - 2 * Radio_Pral) / 2, -(Alto_Total - 2 * Radio_Pral) / 2, 0), 
+		App.Vector(0, 0, 1), Radio_Pral, 
+		Boceto_X, math.radians(180), math.radians(270), 
+		6, 2, 1],
+		
+		[App.Vector(-(Largo_Total - 2 * Radio_Pral) / 2, (Alto_Total - 2 * Radio_Pral) / 2, 0), 
+		App.Vector(0, 0, 1), Radio_Pral, 
+		Boceto_X, math.radians(90), math.radians(180), 
+		7, 2, 1]
+	]
+
+	for j in range(0, len(Lista02)):
+		Crear_Arco(Lista02[j][0], Lista02[j][1], Lista02[j][2], Lista02[j][3], Lista02[j][4], Lista02[j][5], j, Lista02, Largo_Total, Alto_Total, Radio_Pral)
+		
+	Plano.recompute()
+
+
+	# cerrar los puntos
+	for j in range(0, len(Lista01)):
+		Valor_Futuro = (j+1) % len(Lista01)
+		Unir_Puntos(Lista01[j][2], Lista01[j][4], Lista01[j][6], Lista02[j][6], Lista02[j][7])
+		Unir_Puntos(Lista01[j][2], Lista01[Valor_Futuro][4], Lista01[Valor_Futuro][5], Lista02[j][6], Lista02[j][8])
+		
+	Plano.recompute()
+	
+	
+# Datos principales
+Largo_Total2 = 156
+Alto_Total2 = 156
+Radio_Pral2 = 35
+
+Crear_Contorno(Largo_Total2, Alto_Total2, Radio_Pral2, Boceto_LVS)
+
+Boceto_LVS.addConstraint(Sketcher.Constraint('DistanceX',-1,1,4,3, (Largo_Total2 - 2 * Radio_Pral2) / 2))
+Boceto_LVS.addConstraint(Sketcher.Constraint('DistanceY',-1,1,4,3, (Alto_Total2 - 2 * Radio_Pral2) / 2))
+Boceto_LVS.addConstraint(Sketcher.Constraint('DistanceX',6,3,5,3, (Largo_Total2 - 2 * Radio_Pral2)))
+Boceto_LVS.addConstraint(Sketcher.Constraint('DistanceY',6,3,7,3, (Alto_Total2 - 2 * Radio_Pral2)))
+
+
+
+
+Largo_Total2 += 1 + 1
+Alto_Total2 += 1 + 1
+Radio_Pral2 += 1
+
+Crear_Contorno(Largo_Total2, Alto_Total2, Radio_Pral2, Boceto_LVS)
+
+Boceto_LVS.addConstraint(Sketcher.Constraint('Coincident',4,3,12,3))
+Boceto_LVS.addConstraint(Sketcher.Constraint('Coincident',6,3,14,3))
+
+
+
+
+Largo_Total2 += 14 + 14
+Alto_Total2 += 14 + 14
+Radio_Pral2 += 14
+
+Crear_Contorno(Largo_Total2, Alto_Total2, Radio_Pral2, Boceto_LVS)
+
+Boceto_LVS.addConstraint(Sketcher.Constraint('Coincident',4,3,20,3))
+Boceto_LVS.addConstraint(Sketcher.Constraint('Coincident',6,3,22,3))
+
+
+
+Largo_Total2 += 1 + 1
+Alto_Total2 += 1 + 1
+Radio_Pral2 += 1
+
+Crear_Contorno(Largo_Total2, Alto_Total2, Radio_Pral2, Boceto_LVS)
+
+Boceto_LVS.addConstraint(Sketcher.Constraint('Coincident',4,3,28,3))
+Boceto_LVS.addConstraint(Sketcher.Constraint('Coincident',6,3,30,3))
+
+
+
+# cambio de Boceto
+Largo_Total2 = 156
+Alto_Total2 = 156
+Radio_Pral2 = 35
+
+Largo_Total2 += 1.5 + 1.5
+Alto_Total2 += 1.5 + 1.5
+Radio_Pral2 += 1.5
+
+Crear_Contorno(Largo_Total2, Alto_Total2, Radio_Pral2, Boceto_LVS2)
+
+Boceto_LVS2.addConstraint(Sketcher.Constraint('DistanceX',-1,1,4,3, (Largo_Total2 - 2 * Radio_Pral2) / 2))
+Boceto_LVS2.addConstraint(Sketcher.Constraint('DistanceY',-1,1,4,3, (Alto_Total2 - 2 * Radio_Pral2) / 2))
+Boceto_LVS2.addConstraint(Sketcher.Constraint('DistanceX',6,3,5,3, (Largo_Total2 - 2 * Radio_Pral2)))
+Boceto_LVS2.addConstraint(Sketcher.Constraint('DistanceY',6,3,7,3, (Alto_Total2 - 2 * Radio_Pral2)))
+
+
+
+Largo_Total2 += 13 + 13
+Alto_Total2 += 13 + 13
+Radio_Pral2 += 13
+
+Crear_Contorno(Largo_Total2, Alto_Total2, Radio_Pral2, Boceto_LVS2)
+
+Boceto_LVS2.addConstraint(Sketcher.Constraint('Coincident',4,3,12,3))
+Boceto_LVS2.addConstraint(Sketcher.Constraint('Coincident',6,3,14,3))
+
+
+
+
+
+
+
+
+# Macro End: C:\Users\alexf\AppData\Roaming\FreeCAD\Macro\Hoop_1.FCMacro +++++++++++++++++++++++++++++++++++++++++++++++++
