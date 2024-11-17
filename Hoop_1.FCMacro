@@ -1,7 +1,7 @@
 9# -*- coding: utf-8 -*-
 
 # Macro Begin: C:\Users\alexf\AppData\Roaming\FreeCAD\Macro\Hoop_1.FCMacro +++++++++++++++++++++++++++++++++++++++++++++++++
-import FreeCAD
+import FreeCAD as App
 import PartDesignGui
 import PartDesign
 import Sketcher
@@ -252,8 +252,6 @@ Crear_Contorno(Largo_Total2, Alto_Total2, Radio_Pral2, Boceto_LVS2)
 
 Boceto_LVS2.addConstraint(Sketcher.Constraint('Coincident',4,3,12,3))
 Boceto_LVS2.addConstraint(Sketcher.Constraint('Coincident',6,3,14,3))
-
-
 
 
 
