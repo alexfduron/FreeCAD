@@ -97,8 +97,9 @@ Cuerpo_LH1 = Crear_Cuerpo('Body_LH001', '', Grupo_LH1)
 
 
 ### Begin command Sketch
-Boceto_LVS = Crear_Boceto('Sketch_LVS001', 'Sketch_LVS_Cuerpo', Cuerpo_LH1)
-Boceto_LVS2 = Crear_Boceto('Sketch_LVS002', 'Sketch_LVS_Tapadera', Cuerpo_LH1)
+Boceto_LVS_C = Crear_Boceto('Sketch_LVS_C', 'Sketch_LVS_Cuerpo', Cuerpo_LH1)
+Boceto_LVS_T = Crear_Boceto('Sketch_LVS_T', 'Sketch_LVS_Tapadera', Cuerpo_LH1)
+Boceto_LVS_P1 = Crear_Boceto('Sketch_LVS_P1', 'Sketch_LVS_Pieza1', Cuerpo_LH1)
 
 
 
@@ -110,48 +111,66 @@ Boceto_LVS2 = Crear_Boceto('Sketch_LVS002', 'Sketch_LVS_Tapadera', Cuerpo_LH1)
 Lista_Linea = []
 
 
-def Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X, Index, Lista_X):
+def Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Index = '', Lista_X = ''):
 	Lista_Linea.append(list(Boceto_X.addGeometry([Part.LineSegment(Pt1, Pt2)], False)))
-	Lista_X[Index][4] = Lista_Linea[-1][0]
-	Boceto_X.addConstraint(Sketcher.Constraint(Restriccion_X, Lista_X[Index][4]))
+	if Lista_X != '':
+		Lista_X[Index][4] = Lista_Linea[-1][0]
+	if Restriccion_X != '':
+		Boceto_X.addConstraint(Sketcher.Constraint(Restriccion_X, Lista_Linea[-1][0]))
+	Lista_Linea[-1].append('linea')
+	Lista_Linea[-1].append(Boceto_X.Label)
+	Pt3 = Pt2 - Pt1
+	Lista_Linea[-1].append(Pt3.Length)
 	
 	
-def Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Index, Lista_X, Largo_X, Alto_X, Radio_X):
+def Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Index = '', Lista_X = ''):
 
 	Lista_Linea.append(list(Boceto_X.addGeometry([Part.ArcOfCircle(Part.Circle(Pt1, Eje , Radio), Ang_Ini, Ang_Fin)], False)))
-	Lista_X[Index][6] = Lista_Linea[-1][0]
-	Boceto_X.addConstraint(Sketcher.Constraint('Radius', Lista_X[Index][6], Radio))
+	if Lista_X != '':
+		Lista_X[Index][6] = Lista_Linea[-1][0]
+	Boceto_X.addConstraint(Sketcher.Constraint('Radius', Lista_Linea[-1][0], Radio))
+	Lista_Linea[-1].append('arco')
+	Lista_Linea[-1].append(Boceto_X.Label)
+	Lista_Linea[-1].append(Radio)
+	
+	
+def Crear_Circulo(Pt1, Eje, Radio, Boceto_X):
+	Lista_Linea.append(list(Boceto_X.addGeometry([Part.Circle(Pt1, Eje, Radio)], False)))
+	Boceto_X.addConstraint(Sketcher.Constraint('Radius', Lista_Linea[-1][0], Radio))
+	Lista_Linea[-1].append('circulo')
+	Lista_Linea[-1].append(Boceto_X.Label)
+	Lista_Linea[-1].append(Radio)
 	
 	
 def Unir_Puntos(Boceto_X, Index_Ini, Pnt_Ini, Index_Fin, Pnt_Fin):
 	Boceto_X.addConstraint(Sketcher.Constraint('Tangent', Index_Ini, Pnt_Ini, Index_Fin, Pnt_Fin))
 
 
-def Crear_Contorno(Largo_Total, Alto_Total, Radio_Pral, Boceto_X):
+def Crear_Contorno(Largo_X, Alto_X, Radio_X, Boceto_X):
 
 
 	# Crear lineas en el boceto
 	Lista01 = [
-		[App.Vector(-(Largo_Total - 2 * Radio_Pral) / 2, Alto_Total / 2, 0), 
-		App.Vector((Largo_Total - 2 * Radio_Pral) / 2, Alto_Total / 2, 0), 
+		[App.Vector(-(Largo_X - 2 * Radio_X) / 2, Alto_X / 2, 0), 
+		App.Vector((Largo_X - 2 * Radio_X) / 2, Alto_X / 2, 0), 
 		Boceto_X, 
 		'Horizontal', 
 		0, 1, 2],
 		
-		[App.Vector(Largo_Total / 2, (Alto_Total - 2 * Radio_Pral) / 2, 0), 
-		App.Vector(Largo_Total / 2, -(Alto_Total - 2 * Radio_Pral) / 2, 0), 
+		[App.Vector(Largo_X / 2, (Alto_X - 2 * Radio_X) / 2, 0), 
+		App.Vector(Largo_X / 2, -(Alto_X - 2 * Radio_X) / 2, 0), 
 		Boceto_X, 
 		'Vertical', 
 		1, 1, 2],
 		
-		[App.Vector(-(Largo_Total - 2 * Radio_Pral) / 2, -Alto_Total / 2, 0), 
-		App.Vector((Largo_Total - 2 * Radio_Pral) / 2, -Alto_Total / 2, 0), 
+		[App.Vector(-(Largo_X - 2 * Radio_X) / 2, -Alto_X / 2, 0), 
+		App.Vector((Largo_X - 2 * Radio_X) / 2, -Alto_X / 2, 0), 
 		Boceto_X, 
 		'Horizontal', 
 		2, 2, 1],
 		
-		[App.Vector(-Largo_Total / 2, (Alto_Total - 2 * Radio_Pral) / 2, 0), 
-		App.Vector(-Largo_Total / 2, -(Alto_Total - 2 * Radio_Pral) / 2, 0), 
+		[App.Vector(-Largo_X / 2, (Alto_X - 2 * Radio_X) / 2, 0), 
+		App.Vector(-Largo_X / 2, -(Alto_X - 2 * Radio_X) / 2, 0), 
 		Boceto_X, 
 		'Vertical', 
 		3, 2, 1]
@@ -165,29 +184,29 @@ def Crear_Contorno(Largo_Total, Alto_Total, Radio_Pral, Boceto_X):
 
 	# Crear Arcos en el boceto
 	Lista02 = [
-		[App.Vector((Largo_Total - 2 * Radio_Pral) / 2, (Alto_Total - 2 * Radio_Pral) / 2, 0), 
-		App.Vector(0, 0, 1), Radio_Pral, 
+		[App.Vector((Largo_X - 2 * Radio_X) / 2, (Alto_X - 2 * Radio_X) / 2, 0), 
+		App.Vector(0, 0, 1), Radio_X, 
 		Boceto_X, math.radians(0), math.radians(90), 
 		4, 2, 1],
 		
-		[App.Vector((Largo_Total - 2 * Radio_Pral) / 2, -(Alto_Total - 2 * Radio_Pral) / 2, 0), 
-		App.Vector(0, 0, 1), Radio_Pral, 
+		[App.Vector((Largo_X - 2 * Radio_X) / 2, -(Alto_X - 2 * Radio_X) / 2, 0), 
+		App.Vector(0, 0, 1), Radio_X, 
 		Boceto_X, math.radians(270), math.radians(360), 
 		5, 2, 1],
 		
-		[App.Vector(-(Largo_Total - 2 * Radio_Pral) / 2, -(Alto_Total - 2 * Radio_Pral) / 2, 0), 
-		App.Vector(0, 0, 1), Radio_Pral, 
+		[App.Vector(-(Largo_X - 2 * Radio_X) / 2, -(Alto_X - 2 * Radio_X) / 2, 0), 
+		App.Vector(0, 0, 1), Radio_X, 
 		Boceto_X, math.radians(180), math.radians(270), 
 		6, 2, 1],
 		
-		[App.Vector(-(Largo_Total - 2 * Radio_Pral) / 2, (Alto_Total - 2 * Radio_Pral) / 2, 0), 
-		App.Vector(0, 0, 1), Radio_Pral, 
+		[App.Vector(-(Largo_X - 2 * Radio_X) / 2, (Alto_X - 2 * Radio_X) / 2, 0), 
+		App.Vector(0, 0, 1), Radio_X, 
 		Boceto_X, math.radians(90), math.radians(180), 
 		7, 2, 1]
 	]
 
 	for j in range(0, len(Lista02)):
-		Crear_Arco(Lista02[j][0], Lista02[j][1], Lista02[j][2], Lista02[j][3], Lista02[j][4], Lista02[j][5], j, Lista02, Largo_Total, Alto_Total, Radio_Pral)
+		Crear_Arco(Lista02[j][0], Lista02[j][1], Lista02[j][2], Lista02[j][3], Lista02[j][4], Lista02[j][5], j, Lista02)
 		
 	Plano.recompute()
 
@@ -201,83 +220,154 @@ def Crear_Contorno(Largo_Total, Alto_Total, Radio_Pral, Boceto_X):
 	Plano.recompute()
 	
 	
-# Datos principales
-Largo_Total2 = 156
-Alto_Total2 = 156
-Radio_Pral2 = 35
+# crear Boceto Cuerpo
+Largo_Total = 156
+Alto_Total = 156
+Radio_Pral = 35
 
-Crear_Contorno(Largo_Total2, Alto_Total2, Radio_Pral2, Boceto_LVS)
+Largo_Y = Largo_Total
+Alto_Y = Alto_Total
+Radio_Y = Radio_Pral
 
-Boceto_LVS.addConstraint(Sketcher.Constraint('DistanceX',-1,1,4,3, (Largo_Total2 - 2 * Radio_Pral2) / 2))
-Boceto_LVS.addConstraint(Sketcher.Constraint('DistanceY',-1,1,4,3, (Alto_Total2 - 2 * Radio_Pral2) / 2))
-Boceto_LVS.addConstraint(Sketcher.Constraint('DistanceX',6,3,5,3, (Largo_Total2 - 2 * Radio_Pral2)))
-Boceto_LVS.addConstraint(Sketcher.Constraint('DistanceY',6,3,7,3, (Alto_Total2 - 2 * Radio_Pral2)))
+Crear_Contorno(Largo_Y, Alto_Y, Radio_Y, Boceto_LVS_C)
 
-
-
-
-Largo_Total2 += 1 + 1
-Alto_Total2 += 1 + 1
-Radio_Pral2 += 1
-
-Crear_Contorno(Largo_Total2, Alto_Total2, Radio_Pral2, Boceto_LVS)
-
-Boceto_LVS.addConstraint(Sketcher.Constraint('Coincident',4,3,12,3))
-Boceto_LVS.addConstraint(Sketcher.Constraint('Coincident',6,3,14,3))
+Boceto_LVS_C.addConstraint(Sketcher.Constraint('DistanceX',-1,1,4,3, (Largo_Y - 2 * Radio_Y) / 2))
+Boceto_LVS_C.addConstraint(Sketcher.Constraint('DistanceY',-1,1,4,3, (Alto_Y - 2 * Radio_Y) / 2))
+Boceto_LVS_C.addConstraint(Sketcher.Constraint('DistanceX',6,3,5,3, (Largo_Y - 2 * Radio_Y)))
+Boceto_LVS_C.addConstraint(Sketcher.Constraint('DistanceY',6,3,7,3, (Alto_Y - 2 * Radio_Y)))
 
 
 
 
-Largo_Total2 += 14 + 14
-Alto_Total2 += 14 + 14
-Radio_Pral2 += 14
+Largo_Y += 1 + 1
+Alto_Y += 1 + 1
+Radio_Y += 1
 
-Crear_Contorno(Largo_Total2, Alto_Total2, Radio_Pral2, Boceto_LVS)
+Crear_Contorno(Largo_Y, Alto_Y, Radio_Y, Boceto_LVS_C)
 
-Boceto_LVS.addConstraint(Sketcher.Constraint('Coincident',4,3,20,3))
-Boceto_LVS.addConstraint(Sketcher.Constraint('Coincident',6,3,22,3))
-
-
-
-Largo_Total2 += 1 + 1
-Alto_Total2 += 1 + 1
-Radio_Pral2 += 1
-
-Crear_Contorno(Largo_Total2, Alto_Total2, Radio_Pral2, Boceto_LVS)
-
-Boceto_LVS.addConstraint(Sketcher.Constraint('Coincident',4,3,28,3))
-Boceto_LVS.addConstraint(Sketcher.Constraint('Coincident',6,3,30,3))
+Boceto_LVS_C.addConstraint(Sketcher.Constraint('Coincident',4,3,12,3))
+Boceto_LVS_C.addConstraint(Sketcher.Constraint('Coincident',6,3,14,3))
 
 
 
-# cambio de Boceto
-Largo_Total2 = 156
-Alto_Total2 = 156
-Radio_Pral2 = 35
 
-Largo_Total2 += 1.5 + 1.5
-Alto_Total2 += 1.5 + 1.5
-Radio_Pral2 += 1.5
+Largo_Y += 14 + 14
+Alto_Y += 14 + 14
+Radio_Y += 14
 
-Crear_Contorno(Largo_Total2, Alto_Total2, Radio_Pral2, Boceto_LVS2)
+Crear_Contorno(Largo_Y, Alto_Y, Radio_Y, Boceto_LVS_C)
 
-Boceto_LVS2.addConstraint(Sketcher.Constraint('DistanceX',-1,1,4,3, (Largo_Total2 - 2 * Radio_Pral2) / 2))
-Boceto_LVS2.addConstraint(Sketcher.Constraint('DistanceY',-1,1,4,3, (Alto_Total2 - 2 * Radio_Pral2) / 2))
-Boceto_LVS2.addConstraint(Sketcher.Constraint('DistanceX',6,3,5,3, (Largo_Total2 - 2 * Radio_Pral2)))
-Boceto_LVS2.addConstraint(Sketcher.Constraint('DistanceY',6,3,7,3, (Alto_Total2 - 2 * Radio_Pral2)))
+Boceto_LVS_C.addConstraint(Sketcher.Constraint('Coincident',4,3,20,3))
+Boceto_LVS_C.addConstraint(Sketcher.Constraint('Coincident',6,3,22,3))
 
 
 
-Largo_Total2 += 13 + 13
-Alto_Total2 += 13 + 13
-Radio_Pral2 += 13
+Largo_Y += 1 + 1
+Alto_Y += 1 + 1
+Radio_Y += 1
 
-Crear_Contorno(Largo_Total2, Alto_Total2, Radio_Pral2, Boceto_LVS2)
+Crear_Contorno(Largo_Y, Alto_Y, Radio_Y, Boceto_LVS_C)
 
-Boceto_LVS2.addConstraint(Sketcher.Constraint('Coincident',4,3,12,3))
-Boceto_LVS2.addConstraint(Sketcher.Constraint('Coincident',6,3,14,3))
+Boceto_LVS_C.addConstraint(Sketcher.Constraint('Coincident',4,3,28,3))
+Boceto_LVS_C.addConstraint(Sketcher.Constraint('Coincident',6,3,30,3))
 
 
+
+# crear Boceto Tapadera
+Largo_Y = Largo_Total
+Alto_Y = Alto_Total
+Radio_Y = Radio_Pral
+
+Largo_Y += 1.5 + 1.5
+Alto_Y += 1.5 + 1.5
+Radio_Y += 1.5
+
+Crear_Contorno(Largo_Y, Alto_Y, Radio_Y, Boceto_LVS_T)
+
+Boceto_LVS_T.addConstraint(Sketcher.Constraint('DistanceX',-1,1,4,3, (Largo_Y - 2 * Radio_Y) / 2))
+Boceto_LVS_T.addConstraint(Sketcher.Constraint('DistanceY',-1,1,4,3, (Alto_Y - 2 * Radio_Y) / 2))
+Boceto_LVS_T.addConstraint(Sketcher.Constraint('DistanceX',6,3,5,3, (Largo_Y - 2 * Radio_Y)))
+Boceto_LVS_T.addConstraint(Sketcher.Constraint('DistanceY',6,3,7,3, (Alto_Y - 2 * Radio_Y)))
+
+
+
+Largo_Y += 13 + 13
+Alto_Y += 13 + 13
+Radio_Y += 13
+
+Crear_Contorno(Largo_Y, Alto_Y, Radio_Y, Boceto_LVS_T)
+
+Boceto_LVS_T.addConstraint(Sketcher.Constraint('Coincident',4,3,12,3))
+Boceto_LVS_T.addConstraint(Sketcher.Constraint('Coincident',6,3,14,3))
+
+
+def Fijar_Circulo_Origen(Pt1, Boceto_X, Index_Obj):
+	if list(Pt1)[0] >= 0:
+		Boceto_X.addConstraint(Sketcher.Constraint('DistanceX', -1,1,Index_Obj,3, abs(list(Pt1)[0])))
+	else:
+		Boceto_X.addConstraint(Sketcher.Constraint('DistanceX', Index_Obj,3,-1,1, abs(list(Pt1)[0])))
+	if list(Pt1)[1] >= 0:
+		Boceto_X.addConstraint(Sketcher.Constraint('DistanceY', -1,1,Index_Obj,3, abs(list(Pt1)[1])))
+	else:
+		Boceto_X.addConstraint(Sketcher.Constraint('DistanceY', Index_Obj,3,-1,1, abs(list(Pt1)[1])))
+
+
+#Crear_Agujeros()
+val_x = (Largo_Total / 2) + 1 + 14 / 2
+val_y = (Alto_Total / 2) + 1 + 14 / 2
+
+Lista03 = [
+[App.Vector(38, val_y, 0), App.Vector(0, 0, 1), 1.5],
+[App.Vector(val_x, 38, 0), App.Vector(0, 0, 1), 1.5],
+[App.Vector(val_x, -38, 0), App.Vector(0, 0, 1), 1.5],
+[App.Vector(38, -val_y, 0), App.Vector(0, 0, 1), 1.5],
+[App.Vector(-38, -val_y, 0), App.Vector(0, 0, 1), 1.5],
+[App.Vector(-val_x, -38, 0), App.Vector(0, 0, 1), 1.5],
+[App.Vector(-val_x, 38, 0), App.Vector(0, 0, 1), 1.5],
+[App.Vector(-38, val_y, 0), App.Vector(0, 0, 1), 1.5]
+]
+
+for k in range(0, len(Lista03)):
+	Crear_Circulo(Lista03[k][0], Lista03[k][1], Lista03[k][2], Boceto_LVS_T)
+	Fijar_Circulo_Origen(Lista03[k][0], Boceto_LVS_T, Lista_Linea[-1][0])
+
+for k in range(0, len(Lista03)):
+	Crear_Circulo(Lista03[k][0], Lista03[k][1], Lista03[k][2], Boceto_LVS_C)
+	Fijar_Circulo_Origen(Lista03[k][0], Boceto_LVS_C, Lista_Linea[-1][0])
+
+
+# crear Boceto Pieza 1
+Origen_Y = -(Alto_Total / 2) - 1 - 14 - 1 + 1
+Origen_X = 0
+
+Lista04 = [
+['linea', 'Horizontal', Origen_X, Origen_Y, Origen_X + 33, Origen_Y],
+['linea', 'Vertical', Origen_X + 33, Origen_Y, Origen_X + 33, Origen_Y - 1],
+['arco', Origen_X + 33, Origen_Y - 6, App.Vector(0, 0, 1), 5, math.radians(90), math.radians(180)],
+['linea', 'Vertical', Origen_X + 28, Origen_Y - 6, Origen_X + 28, Origen_Y - 16],
+['arco', Origen_X + 23, Origen_Y - 16, App.Vector(0, 0, 1), 5, math.radians(270), math.radians(360)],
+['linea', 'Horizontal', Origen_X + 23, Origen_Y - 21, Origen_X, Origen_Y - 21]
+]
+
+for k in range(0, len(Lista04)):
+	if Lista04[k][0] == 'linea':
+		Crear_Linea(App.Vector(Lista04[k][2], Lista04[k][3], 0), App.Vector(Lista04[k][4], Lista04[k][5], 0), Boceto_LVS_P1, Lista04[k][1])
+	if Lista04[k][0] == 'arco':
+		Crear_Arco(App.Vector(Lista04[k][1],Lista04[k][2], 0), Lista04[k][3], Lista04[k][4], Boceto_LVS_P1, Lista04[k][5], Lista04[k][6])
+
+for k in range(0, len(Lista04)):
+	if Lista04[::-1][k][0] == 'linea':
+		Crear_Linea(App.Vector(-Lista04[::-1][k][2], Lista04[::-1][k][3], 0), App.Vector(-Lista04[::-1][k][4], Lista04[::-1][k][5], 0), Boceto_LVS_P1, Lista04[::-1][k][1])
+	if Lista04[::-1][k][0] == 'arco':
+		Crear_Arco(App.Vector(-Lista04[::-1][k][1],Lista04[::-1][k][2], 0), Lista04[::-1][k][3], Lista04[::-1][k][4], Boceto_LVS_P1, Lista04[::-1][k][5] - math.radians(90), Lista04[::-1][k][6] - math.radians(90))
+
+
+
+
+
+print(len(Lista_Linea))
+for l in Lista_Linea:
+	print(l)
 
 
 
