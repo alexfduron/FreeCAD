@@ -122,20 +122,28 @@ def Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Indice = '', Simetria = 
 		elif Indice == 1:
 			if Lista_Linea[-2][2] == 2:
 				if Lista_Linea[-2][7] == Pt1:
+					if Simetria == False:
+						Lista_Linea[-2][1] = 1
+						Lista_Linea[-2][2] = 2
 					Lista_Linea[-1].append(1)
 					Lista_Linea[-1].append(2)
 				elif Lista_Linea[-2][7] == Pt2:
+					if Simetria == False:
+						Lista_Linea[-2][1] = 1
+						Lista_Linea[-2][2] = 2
 					Lista_Linea[-1].append(2)
 					Lista_Linea[-1].append(1)
 			elif Lista_Linea[-2][2] == 1:
 				if Lista_Linea[-2][6] == Pt1:
-					Lista_Linea[-2].append(2)
-					Lista_Linea[-2].append(1)
+					if Simetria == False:
+						Lista_Linea[-2][1] = 2
+						Lista_Linea[-2][2] = 1
 					Lista_Linea[-1].append(1)
 					Lista_Linea[-1].append(2)
 				elif Lista_Linea[-2][6] == Pt2:
-					Lista_Linea[-2].append(2)
-					Lista_Linea[-2].append(1)
+					if Simetria == False:
+						Lista_Linea[-2][1] = 2
+						Lista_Linea[-2][2] = 1
 					Lista_Linea[-1].append(2)
 					Lista_Linea[-1].append(1)
 		else:
@@ -159,6 +167,7 @@ def Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Indice = '', Simetria = 
 	Lista_Linea[-1].append(Pt3.Length)
 	Lista_Linea[-1].append(Pt1)
 	Lista_Linea[-1].append(Pt2)
+	Lista_Linea[-1].append(0)
 	
 	
 def Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = '', Simetria = False):
@@ -173,20 +182,28 @@ def Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = '', Simetri
 		elif Indice == 1:
 			if Lista_Linea[-2][2] == 2:
 				if Lista_Linea[-2][7] == Pt1_Temp:
+					if Simetria == False:
+						Lista_Linea[-2][1] = 1
+						Lista_Linea[-2][2] = 2
 					Lista_Linea[-1].append(1)
 					Lista_Linea[-1].append(2)
 				elif Lista_Linea[-2][7] == Pt2_Temp:
+					if Simetria == False:
+						Lista_Linea[-2][1] = 1
+						Lista_Linea[-2][2] = 2
 					Lista_Linea[-1].append(2)
 					Lista_Linea[-1].append(1)
 			elif Lista_Linea[-2][2] == 1:
 				if Lista_Linea[-2][6] == Pt1_Temp:
-					Lista_Linea[-2].append(2)
-					Lista_Linea[-2].append(1)
+					if Simetria == False:
+						Lista_Linea[-2][1] = 2
+						Lista_Linea[-2][2] = 1
 					Lista_Linea[-1].append(1)
 					Lista_Linea[-1].append(2)
 				elif Lista_Linea[-2][6] == Pt2_Temp:
-					Lista_Linea[-2].append(2)
-					Lista_Linea[-2].append(1)
+					if Simetria == False:
+						Lista_Linea[-2][1] = 2
+						Lista_Linea[-2][2] = 1
 					Lista_Linea[-1].append(2)
 					Lista_Linea[-1].append(1)
 		else:
@@ -209,16 +226,90 @@ def Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = '', Simetri
 	Lista_Linea[-1].append(Radio)
 	Lista_Linea[-1].append(Pt1_Temp)
 	Lista_Linea[-1].append(Pt2_Temp)
+	Lista_Linea[-1].append(Pt1)
 	
 	
 def Crear_Circulo(Pt1, Eje, Radio, Boceto_X):
 	Lista_Linea.append(list(Boceto_X.addGeometry([Part.Circle(Pt1, Eje, Radio)], False)))
 	Boceto_X.addConstraint(Sketcher.Constraint('Radius', Lista_Linea[-1][0], Radio))
+	Lista_Linea[-1].append(0)
+	Lista_Linea[-1].append(0)
 	Lista_Linea[-1].append('circulo')
 	Lista_Linea[-1].append(Boceto_X.Label)
 	Lista_Linea[-1].append(Radio)
+	Lista_Linea[-1].append(0)
+	Lista_Linea[-1].append(0)
+	Lista_Linea[-1].append(Pt1)
 	
 	
+
+
+
+def Unir_Lineas(Boceto_X, Total_Lista):
+	for j in range(0, Total_Lista)[::-1]:
+		Valor_Futuro = (j - 1) % Total_Lista
+		
+		if Lista_Linea[::-1][j][3] == 'linea' and Lista_Linea[::-1][Valor_Futuro][3] == 'linea':
+			Vector01 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][j][6]
+			Vector02 = Lista_Linea[::-1][Valor_Futuro][7] - Lista_Linea[::-1][Valor_Futuro][6]
+			Vec3 = Vector01.cross(Vector02)
+			if abs(round(Vec3.Length, 5)) == 0:
+				Opcion = 'paralelo'
+			else:
+				Opcion = 'perpendicular'
+			
+		if Lista_Linea[::-1][j][3] == 'linea' and Lista_Linea[::-1][Valor_Futuro][3] == 'arco':
+			Vector01 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][j][6]
+			if Lista_Linea[::-1][Valor_Futuro][1] == 1:
+				Vector02 = Lista_Linea[::-1][Valor_Futuro][6] - Lista_Linea[::-1][Valor_Futuro][8]
+			elif Lista_Linea[::-1][Valor_Futuro][1] == 2:
+				Vector02 = Lista_Linea[::-1][Valor_Futuro][7] - Lista_Linea[::-1][Valor_Futuro][8]
+			Vec3 = Vector01.dot(Vector02)
+			if abs(round(Vec3, 5)) == 0:
+				Opcion = 'paralelo'
+			else:
+				Opcion = 'perpendicular'
+			
+		if Lista_Linea[::-1][j][3] == 'arco' and Lista_Linea[::-1][Valor_Futuro][3] == 'linea':
+			if Lista_Linea[::-1][j][2] == 1:
+				Vector01 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][j][8]
+			elif Lista_Linea[::-1][j][2] == 2:
+				Vector01 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][j][8]
+			Vector02 = Lista_Linea[::-1][Valor_Futuro][7] - Lista_Linea[::-1][Valor_Futuro][6]
+			Vec3 = Vector01.dot(Vector02)
+			if abs(round(Vec3, 5)) == 0:
+				Opcion = 'paralelo'
+			else:
+				Opcion = 'perpendicular'
+			
+		if Lista_Linea[::-1][j][3] == 'arco' and Lista_Linea[::-1][Valor_Futuro][3] == 'arco':
+			if Lista_Linea[::-1][j][2] == 1:
+				Vector01 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][j][8]
+			elif Lista_Linea[::-1][j][2] == 2:
+				Vector01 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][j][8]
+			if Lista_Linea[::-1][Valor_Futuro][1] == 1:
+				Vector02 = Lista_Linea[::-1][Valor_Futuro][6] - Lista_Linea[::-1][Valor_Futuro][8]
+			elif Lista_Linea[::-1][Valor_Futuro][1] == 2:
+				Vector02 = Lista_Linea[::-1][Valor_Futuro][7] - Lista_Linea[::-1][Valor_Futuro][8]
+			Vec3 = Vector01.cross(Vector02)
+			if abs(round(Vec3.Length, 5)) == 0:
+				Opcion = 'paralelo'
+			else:
+				Opcion = 'perpendicular'
+		
+		'''
+		print(Lista_Linea[::-1][j][3] + ' + ' + Lista_Linea[::-1][Valor_Futuro][3] + ' = ' + Opcion)
+		Vec3 = Vector01.dot(Vector02)
+		Vec4 = Vector01.cross(Vector02)
+		print([Vector01, Vector02, Vec3, Vec4.Length])
+		'''
+		
+		
+		if Opcion == 'paralelo':
+			Boceto_X.addConstraint(Sketcher.Constraint('Tangent', Lista_Linea[::-1][j][0], Lista_Linea[::-1][j][2], Lista_Linea[::-1][Valor_Futuro][0], Lista_Linea[::-1][Valor_Futuro][1]))
+		if Opcion == 'perpendicular':
+			Boceto_X.addConstraint(Sketcher.Constraint('Coincident', Lista_Linea[::-1][j][0], Lista_Linea[::-1][j][2], Lista_Linea[::-1][Valor_Futuro][0], Lista_Linea[::-1][Valor_Futuro][1]))
+
 
 def Crear_Contorno(Largo_X, Alto_X, Radio_X, Boceto_X):
 
@@ -290,14 +381,26 @@ def Crear_Contorno(Largo_X, Alto_X, Radio_X, Boceto_X):
 	Plano.recompute()
 	
 	
-	
+	'''
 	# cerrar los puntos
 	for j in range(0, len(Lista01))[::-1]:
 		Valor_Futuro = (j - 1) % len(Lista01)
 		Boceto_X.addConstraint(Sketcher.Constraint('Tangent', Lista_Linea[::-1][j][0], Lista_Linea[::-1][j][2], Lista_Linea[::-1][Valor_Futuro][0], Lista_Linea[::-1][Valor_Futuro][1]))
-		
-		
+	
+	
 	Plano.recompute()
+	'''
+	
+	
+	
+	# Unir_Lineas(Boceto_X, Total_Lista):
+	Unir_Lineas(Boceto_X, len(Lista01))
+	
+	Plano.recompute()
+	
+	
+	
+	
 	
 
 # crear Boceto Cuerpo
@@ -435,13 +538,13 @@ for k in range(0, len(Lista04)):
 	if Lista04[k][0] == 'linea':
 		Crear_Linea(App.Vector(Lista04[k][2], Lista04[k][3], 0), App.Vector(Lista04[k][4], Lista04[k][5], 0), Boceto_LVS_P1, Lista04[k][1], k)
 	if Lista04[k][0] == 'arco':
-		Crear_Arco(App.Vector(Lista04[k][1],Lista04[k][2], 0), Lista04[k][3], Lista04[k][4], Boceto_LVS_P1, Lista04[k][5], Lista04[k][6], k)
+		Crear_Arco(App.Vector(Lista04[k][1], Lista04[k][2], 0), Lista04[k][3], Lista04[k][4], Boceto_LVS_P1, Lista04[k][5], Lista04[k][6], k)
 
 for k in range(0, len(Lista04)):
 	if Lista04[::-1][k][0] == 'linea':
 		Crear_Linea(App.Vector(-Lista04[::-1][k][2], Lista04[::-1][k][3], 0), App.Vector(-Lista04[::-1][k][4], Lista04[::-1][k][5], 0), Boceto_LVS_P1, Lista04[::-1][k][1], k, True)
 	if Lista04[::-1][k][0] == 'arco':
-		Crear_Arco(App.Vector(-Lista04[::-1][k][1],Lista04[::-1][k][2], 0), Lista04[::-1][k][3], Lista04[::-1][k][4], Boceto_LVS_P1, Lista04[::-1][k][5] - math.radians(90), Lista04[::-1][k][6] - math.radians(90), k, True)
+		Crear_Arco(App.Vector(-Lista04[::-1][k][1], Lista04[::-1][k][2], 0), Lista04[::-1][k][3], Lista04[::-1][k][4], Boceto_LVS_P1, Lista04[::-1][k][5] - math.radians(90), Lista04[::-1][k][6] - math.radians(90), k, True)
 
 '''
 # cerrar los puntos
@@ -452,6 +555,12 @@ for j in range(0, 2 * len(Lista04))[::-1]:
 	
 Plano.recompute()
 '''
+
+# Unir_Lineas(Boceto_X, Total_Lista):
+Unir_Lineas(Boceto_LVS_P1, 2 * len(Lista04))
+
+Plano.recompute()
+
 
 
 print(len(Lista_Linea))
