@@ -112,13 +112,19 @@ Lista_Linea = []
 
 
 def Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Indice = '', Simetria = False):
+	# aqui guardamos el ID de la linea.
 	Lista_Linea.append(list(Boceto_X.addGeometry([Part.LineSegment(Pt1, Pt2)], False)))
+	# aqui creamos la restriccion Horizontal o Vertical de la linea.
 	if Restriccion_X != '':
 		Boceto_X.addConstraint(Sketcher.Constraint(Restriccion_X, Lista_Linea[-1][0]))
+	# aqui guardamos el punto inicial => (1) y punto final => (2) de la linea.
 	if Indice != '':
+		# aqui el Indice cero nos indica que es la primera linea de la figura cerrada.
 		if Indice == 0 and Simetria == False:
 			Lista_Linea[-1].append(1)
 			Lista_Linea[-1].append(2)
+		# aqui el Indice uno nos indica que es la segunda linea de la figura cerrada,
+		# tambien tiene la opcion de modificar la primera linea en caso de estar invertida.
 		elif Indice == 1:
 			if Lista_Linea[-2][2] == 2:
 				if Lista_Linea[-2][7] == Pt1:
@@ -146,6 +152,7 @@ def Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Indice = '', Simetria = 
 						Lista_Linea[-2][2] = 1
 					Lista_Linea[-1].append(2)
 					Lista_Linea[-1].append(1)
+		# aqui el Indice nos indica que son todas las lineas de la figura cerrada.
 		else:
 			if Lista_Linea[-2][2] == 1:
 				if Lista_Linea[-2][6] == Pt1:
@@ -161,24 +168,36 @@ def Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Indice = '', Simetria = 
 				elif Lista_Linea[-2][7] == Pt2:
 					Lista_Linea[-1].append(2)
 					Lista_Linea[-1].append(1)
+	# aqui guardamos el nombre de la linea.
 	Lista_Linea[-1].append('linea')
+	# aqui guardamos el Boceto que contiene la linea.
 	Lista_Linea[-1].append(Boceto_X.Label)
+	# aqui guardamos la marnitud de la linea.
 	Pt3 = Pt2 - Pt1
 	Lista_Linea[-1].append(Pt3.Length)
+	# aqui guardamos el punto inicial de la linea.
 	Lista_Linea[-1].append(Pt1)
+	# aqui guardamos el punto final de la linea.
 	Lista_Linea[-1].append(Pt2)
+	# aqui guardamos el punto centro => N/A.
 	Lista_Linea[-1].append(0)
 	
 	
 def Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = '', Simetria = False):
+	# aqui guardamos el ID del arco.
 	Lista_Linea.append(list(Boceto_X.addGeometry([Part.ArcOfCircle(Part.Circle(Pt1, Eje , Radio), Ang_Ini, Ang_Fin)], False)))
+	# aqui creamos la restriccion Radio del arco.
 	Boceto_X.addConstraint(Sketcher.Constraint('Radius', Lista_Linea[-1][0], Radio))
 	Pt1_Temp = Pt1 + App.Vector(round(Radio * math.cos(Ang_Ini), 5), round(Radio * math.sin(Ang_Ini), 5), 0)
 	Pt2_Temp = Pt1 + App.Vector(round(Radio * math.cos(Ang_Fin), 5), round(Radio * math.sin(Ang_Fin), 5), 0)
+	# aqui guardamos el punto inicial => (1) y punto final => (2) del arco.
 	if Indice != '':
+		# aqui el Indice cero nos indica que es el primer arco de la figura cerrada.
 		if Indice == 0 and Simetria == False:
 			Lista_Linea[-1].append(2)
 			Lista_Linea[-1].append(1)
+		# aqui el Indice uno nos indica que es el segundo arco de la figura cerrada,
+		# tambien tiene la opcion de modificar el primer arco en caso de estar invertido.
 		elif Indice == 1:
 			if Lista_Linea[-2][2] == 2:
 				if Lista_Linea[-2][7] == Pt1_Temp:
@@ -206,6 +225,7 @@ def Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = '', Simetri
 						Lista_Linea[-2][2] = 1
 					Lista_Linea[-1].append(2)
 					Lista_Linea[-1].append(1)
+		# aqui el Indice nos indica que son todas los arcos de la figura cerrada.
 		else:
 			if Lista_Linea[-2][2] == 1:
 				if Lista_Linea[-2][6] == Pt1_Temp:
@@ -221,24 +241,39 @@ def Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = '', Simetri
 				elif Lista_Linea[-2][7] == Pt2_Temp:
 					Lista_Linea[-1].append(2)
 					Lista_Linea[-1].append(1)
+	# aqui guardamos el nombre del arco.
 	Lista_Linea[-1].append('arco')
+	# aqui guardamos el Boceto que contiene al arco.
 	Lista_Linea[-1].append(Boceto_X.Label)
+	# aqui guardamos el radio del arco.
 	Lista_Linea[-1].append(Radio)
+	# aqui guardamos el punto inicial del arco.
 	Lista_Linea[-1].append(Pt1_Temp)
+	# aqui guardamos el punto final del arco.
 	Lista_Linea[-1].append(Pt2_Temp)
+	# aqui guardamos el punto central del arco.
 	Lista_Linea[-1].append(Pt1)
 	
 	
 def Crear_Circulo(Pt1, Eje, Radio, Boceto_X):
+	# aqui guardamos el ID del circulo.
 	Lista_Linea.append(list(Boceto_X.addGeometry([Part.Circle(Pt1, Eje, Radio)], False)))
+	# aqui creamos la restriccion Radio del circulo.
 	Boceto_X.addConstraint(Sketcher.Constraint('Radius', Lista_Linea[-1][0], Radio))
+	# aqui guardamos el punto inicial => (1) y punto final => (2) del circulo => N/A.
 	Lista_Linea[-1].append(0)
 	Lista_Linea[-1].append(0)
+	# aqui guardamos el nombre del circulo.
 	Lista_Linea[-1].append('circulo')
+	# aqui guardamos el Boceto que contiene al circulo.
 	Lista_Linea[-1].append(Boceto_X.Label)
+	# aqui guardamos el radio del circulo.
 	Lista_Linea[-1].append(Radio)
+	# aqui guardamos el punto inicial del circulo => N/A.
 	Lista_Linea[-1].append(0)
+	# aqui guardamos el punto final del circulo => N/A.
 	Lista_Linea[-1].append(0)
+	# aqui guardamos el punto central del circulo.
 	Lista_Linea[-1].append(Pt1)
 	
 	
@@ -246,63 +281,167 @@ def Crear_Circulo(Pt1, Eje, Radio, Boceto_X):
 
 
 def Unir_Lineas(Boceto_X, Total_Lista):
+	# aqui seleccionamos los 'n' ultimos elementos de la lista.
 	for j in range(0, Total_Lista)[::-1]:
+		# aqui seleccionamos el 'n + 1' elemento de la lista
 		Valor_Futuro = (j - 1) % Total_Lista
 		
+		# aqui analizamos los vectores de dos lineas
 		if Lista_Linea[::-1][j][3] == 'linea' and Lista_Linea[::-1][Valor_Futuro][3] == 'linea':
 			Vector01 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][j][6]
 			Vector02 = Lista_Linea[::-1][Valor_Futuro][7] - Lista_Linea[::-1][Valor_Futuro][6]
+			# calculamos el producto cruz entre los vectores linea
 			Vec3 = Vector01.cross(Vector02)
-			if abs(round(Vec3.Length, 5)) == 0:
-				Opcion = 'paralelo'
-			else:
-				Opcion = 'perpendicular'
-			
-		if Lista_Linea[::-1][j][3] == 'linea' and Lista_Linea[::-1][Valor_Futuro][3] == 'arco':
-			Vector01 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][j][6]
-			if Lista_Linea[::-1][Valor_Futuro][1] == 1:
-				Vector02 = Lista_Linea[::-1][Valor_Futuro][6] - Lista_Linea[::-1][Valor_Futuro][8]
-			elif Lista_Linea[::-1][Valor_Futuro][1] == 2:
-				Vector02 = Lista_Linea[::-1][Valor_Futuro][7] - Lista_Linea[::-1][Valor_Futuro][8]
-			Vec3 = Vector01.dot(Vector02)
-			if abs(round(Vec3, 5)) == 0:
-				Opcion = 'paralelo'
-			else:
-				Opcion = 'perpendicular'
-			
-		if Lista_Linea[::-1][j][3] == 'arco' and Lista_Linea[::-1][Valor_Futuro][3] == 'linea':
-			if Lista_Linea[::-1][j][2] == 1:
-				Vector01 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][j][8]
-			elif Lista_Linea[::-1][j][2] == 2:
-				Vector01 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][j][8]
-			Vector02 = Lista_Linea[::-1][Valor_Futuro][7] - Lista_Linea[::-1][Valor_Futuro][6]
-			Vec3 = Vector01.dot(Vector02)
-			if abs(round(Vec3, 5)) == 0:
-				Opcion = 'paralelo'
-			else:
-				Opcion = 'perpendicular'
-			
-		if Lista_Linea[::-1][j][3] == 'arco' and Lista_Linea[::-1][Valor_Futuro][3] == 'arco':
-			if Lista_Linea[::-1][j][2] == 1:
-				Vector01 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][j][8]
-			elif Lista_Linea[::-1][j][2] == 2:
-				Vector01 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][j][8]
-			if Lista_Linea[::-1][Valor_Futuro][1] == 1:
-				Vector02 = Lista_Linea[::-1][Valor_Futuro][6] - Lista_Linea[::-1][Valor_Futuro][8]
-			elif Lista_Linea[::-1][Valor_Futuro][1] == 2:
-				Vector02 = Lista_Linea[::-1][Valor_Futuro][7] - Lista_Linea[::-1][Valor_Futuro][8]
-			Vec3 = Vector01.cross(Vector02)
+			# si el producto cruz es igual a cero esto significa 
+			# que las dos lineas estan alineados, los vectores son paralelos
 			if abs(round(Vec3.Length, 5)) == 0:
 				Opcion = 'paralelo'
 			else:
 				Opcion = 'perpendicular'
 		
-		'''
-		print(Lista_Linea[::-1][j][3] + ' + ' + Lista_Linea[::-1][Valor_Futuro][3] + ' = ' + Opcion)
-		Vec3 = Vector01.dot(Vector02)
-		Vec4 = Vector01.cross(Vector02)
-		print([Vector01, Vector02, Vec3, Vec4.Length])
-		'''
+		# aqui analizamos los vectores de una linea y un arco
+		if Lista_Linea[::-1][j][3] == 'linea' and Lista_Linea[::-1][Valor_Futuro][3] == 'arco':
+			# calculamos el vector de la linea
+			Vector01 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][j][6]
+			# calculamos el vector del arco desde el centro al extremo inicial
+			if Lista_Linea[::-1][Valor_Futuro][1] == 1:
+				Vector02 = Lista_Linea[::-1][Valor_Futuro][6] - Lista_Linea[::-1][Valor_Futuro][8]
+			elif Lista_Linea[::-1][Valor_Futuro][1] == 2:
+				Vector02 = Lista_Linea[::-1][Valor_Futuro][7] - Lista_Linea[::-1][Valor_Futuro][8]
+			# calculamos el vector k desde la linea punto inicial hasta el arco extremo final
+			if Lista_Linea[::-1][j][1] == 1:
+				if Lista_Linea[::-1][Valor_Futuro][2] == 1:
+					Vector03 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][Valor_Futuro][6]
+				elif Lista_Linea[::-1][Valor_Futuro][2] == 2:
+					Vector03 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][Valor_Futuro][7]
+				Vector04 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][Valor_Futuro][8]
+			elif Lista_Linea[::-1][j][1] == 2:
+				if Lista_Linea[::-1][Valor_Futuro][2] == 1:
+					Vector03 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][Valor_Futuro][6]
+				elif Lista_Linea[::-1][Valor_Futuro][2] == 2:
+					Vector03 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][Valor_Futuro][7]
+				Vector04 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][Valor_Futuro][8]
+			# calculamos distancia entre el vector k y el vector linea mas el vector arco centro
+			Distancia_k = Vector03.Length
+			Distancia_c = Vector04.Length
+			# calculamos el producto punto entre el vector linea y el vector arco
+			Vec3 = Vector01.dot(Vector02)
+			# si el producto punto es igual a cero esto significa que la linea y el arco estan alineados
+			# ahora analizamos la distancia al extremo final del arco es mayor a la distancia al centro del arco.
+			if abs(round(Vec3, 5)) == 0:
+				if Distancia_k > Distancia_c:
+					Opcion = 'paralelo'
+				else:
+					Opcion = 'perpendicular'
+			else:
+				Opcion = 'perpendicular'
+			
+			'''
+			print(f'linea + arco => ID={Lista_Linea[::-1][j][0]}')
+			print(f'Vector01 = {Vector01}')
+			print(f'Vector02 = {Vector02}')
+			print(f'Vector03 = {Vector03}')
+			print(f'Vector04 = {Vector04}')
+			print(f'Distancia k = {Distancia_k}')
+			print(f'Distancia c = {Distancia_c}')
+			print(f'Producto punto = {Vec3}')
+			print()
+			'''
+			
+			
+		if Lista_Linea[::-1][j][3] == 'arco' and Lista_Linea[::-1][Valor_Futuro][3] == 'linea':
+			# calculamos el vector del arco desde el centro al extremo inicial
+			if Lista_Linea[::-1][j][2] == 1:
+				Vector01 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][j][8]
+			elif Lista_Linea[::-1][j][2] == 2:
+				Vector01 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][j][8]
+			# calculamos el vector de la linea
+			Vector02 = Lista_Linea[::-1][Valor_Futuro][7] - Lista_Linea[::-1][Valor_Futuro][6]
+			# calculamos el vector k desde el arco extremo inicial hasta la linea punto final
+			if Lista_Linea[::-1][j][1] == 1:
+				if Lista_Linea[::-1][Valor_Futuro][2] == 1:
+					Vector03 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][Valor_Futuro][6]
+					Vector04 = Lista_Linea[::-1][j][8] - Lista_Linea[::-1][Valor_Futuro][6]
+				elif Lista_Linea[::-1][Valor_Futuro][2] == 2:
+					Vector03 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][Valor_Futuro][7]
+					Vector04 = Lista_Linea[::-1][j][8] - Lista_Linea[::-1][Valor_Futuro][7]
+			elif Lista_Linea[::-1][j][1] == 2:
+				if Lista_Linea[::-1][Valor_Futuro][2] == 1:
+					Vector03 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][Valor_Futuro][6]
+					Vector04 = Lista_Linea[::-1][j][8] - Lista_Linea[::-1][Valor_Futuro][6]
+				elif Lista_Linea[::-1][Valor_Futuro][2] == 2:
+					Vector03 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][Valor_Futuro][7]
+					Vector04 = Lista_Linea[::-1][j][8] - Lista_Linea[::-1][Valor_Futuro][7]
+			# calculamos distancia entre el vector k y el vector arco centro mas el vector linea
+			Distancia_k = Vector03.Length
+			Distancia_c = Vector04.Length
+			# calculamos el producto punto entre el vector arco y el vector linea
+			Vec3 = Vector01.dot(Vector02)
+			# si el producto punto es igual a cero esto significa que el arco y la linea estan alineados
+			# ahora analizamos si la distancia al extremo final del arco es mayor a la distancia al centro del arco.
+			if abs(round(Vec3, 5)) == 0:
+				if Distancia_k > Distancia_c:
+					Opcion = 'paralelo'
+				else:
+					Opcion = 'perpendicular'
+			else:
+				Opcion = 'perpendicular'
+			
+			'''
+			print(f'arco + linea => ID={Lista_Linea[::-1][j][0]}')
+			print(f'Vector01 = {Vector01}')
+			print(f'Vector02 = {Vector02}')
+			print(f'Vector03 = {Vector03}')
+			print(f'Vector04 = {Vector04}')
+			print(f'Distancia k = {Distancia_k}')
+			print(f'Distancia c = {Distancia_c}')
+			print(f'Producto punto = {Vec3}')
+			print()
+			'''
+		
+		# aqui analizamos los vectores de dos arcos
+		if Lista_Linea[::-1][j][3] == 'arco' and Lista_Linea[::-1][Valor_Futuro][3] == 'arco':
+			# calculamos el vector del arco desde el centro al extremo final
+			if Lista_Linea[::-1][j][2] == 1:
+				Vector01 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][j][8]
+			elif Lista_Linea[::-1][j][2] == 2:
+				Vector01 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][j][8]
+			# calculamos el vector del arco desde el centro al extremo inicial
+			if Lista_Linea[::-1][Valor_Futuro][1] == 1:
+				Vector02 = Lista_Linea[::-1][Valor_Futuro][6] - Lista_Linea[::-1][Valor_Futuro][8]
+			elif Lista_Linea[::-1][Valor_Futuro][1] == 2:
+				Vector02 = Lista_Linea[::-1][Valor_Futuro][7] - Lista_Linea[::-1][Valor_Futuro][8]
+			# calculamos el vector k del arco desde el extremo inicial al extremo final
+			if Lista_Linea[::-1][j][1] == 1:
+				if Lista_Linea[::-1][Valor_Futuro][2] == 1:
+					Vector03 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][Valor_Futuro][6]
+				elif Lista_Linea[::-1][Valor_Futuro][2] == 2:
+					Vector03 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][Valor_Futuro][7]
+			elif Lista_Linea[::-1][j][1] == 2:
+				if Lista_Linea[::-1][Valor_Futuro][2] == 1:
+					Vector03 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][Valor_Futuro][6]
+				elif Lista_Linea[::-1][Valor_Futuro][2] == 2:
+					Vector03 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][Valor_Futuro][7]
+			# calculamos el vector c del arco desde el extremo inicial al centro del arco
+			if Lista_Linea[::-1][j][1] == 1:
+				Vector04 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][Valor_Futuro][8]
+			elif Lista_Linea[::-1][j][1] == 2:
+				Vector04 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][Valor_Futuro][8]
+			# calculamos la distancia del vector k y del vector c
+			Distancia_k = Vector03.Length
+			Distancia_c = Vector04.Length
+			# calculamos el producto cruz entre los vectores arco
+			Vec3 = Vector01.cross(Vector02)
+			# si el producto cruz es igual a cero y si la distancia k es mayor a la distancia c
+			# es verdadero significa que los extremos de los arcos estan alineados.
+			if abs(round(Vec3.Length, 5)) == 0:
+				if Distancia_k > Distancia_c:
+					Opcion = 'paralelo'
+				else:
+					Opcion = 'perpendicular'
+			else:
+				Opcion = 'perpendicular'
+		
 		
 		
 		if Opcion == 'paralelo':
@@ -379,17 +518,6 @@ def Crear_Contorno(Largo_X, Alto_X, Radio_X, Boceto_X):
 	
 	
 	Plano.recompute()
-	
-	
-	'''
-	# cerrar los puntos
-	for j in range(0, len(Lista01))[::-1]:
-		Valor_Futuro = (j - 1) % len(Lista01)
-		Boceto_X.addConstraint(Sketcher.Constraint('Tangent', Lista_Linea[::-1][j][0], Lista_Linea[::-1][j][2], Lista_Linea[::-1][Valor_Futuro][0], Lista_Linea[::-1][Valor_Futuro][1]))
-	
-	
-	Plano.recompute()
-	'''
 	
 	
 	
@@ -546,15 +674,7 @@ for k in range(0, len(Lista04)):
 	if Lista04[::-1][k][0] == 'arco':
 		Crear_Arco(App.Vector(-Lista04[::-1][k][1], Lista04[::-1][k][2], 0), Lista04[::-1][k][3], Lista04[::-1][k][4], Boceto_LVS_P1, Lista04[::-1][k][5] - math.radians(90), Lista04[::-1][k][6] - math.radians(90), k, True)
 
-'''
-# cerrar los puntos
-for j in range(0, 2 * len(Lista04))[::-1]:
-	Valor_Futuro = (j - 1) % (2 * len(Lista04))
-	Boceto_LVS_P1.addConstraint(Sketcher.Constraint('Tangent', Lista_Linea[::-1][j][0], Lista_Linea[::-1][j][2], Lista_Linea[::-1][Valor_Futuro][0], Lista_Linea[::-1][Valor_Futuro][1]))
-	
-	
-Plano.recompute()
-'''
+
 
 # Unir_Lineas(Boceto_X, Total_Lista):
 Unir_Lineas(Boceto_LVS_P1, 2 * len(Lista04))
