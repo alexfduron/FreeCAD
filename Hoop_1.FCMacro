@@ -336,18 +336,6 @@ def Unir_Lineas(Boceto_X, Total_Lista):
 			else:
 				Opcion = 'perpendicular'
 			
-			'''
-			print(f'linea + arco => ID={Lista_Linea[::-1][j][0]}')
-			print(f'Vector01 = {Vector01}')
-			print(f'Vector02 = {Vector02}')
-			print(f'Vector03 = {Vector03}')
-			print(f'Vector04 = {Vector04}')
-			print(f'Distancia k = {Distancia_k}')
-			print(f'Distancia c = {Distancia_c}')
-			print(f'Producto punto = {Vec3}')
-			print()
-			'''
-			
 			
 		if Lista_Linea[::-1][j][3] == 'arco' and Lista_Linea[::-1][Valor_Futuro][3] == 'linea':
 			# calculamos el vector del arco desde el centro al extremo inicial
@@ -386,18 +374,7 @@ def Unir_Lineas(Boceto_X, Total_Lista):
 					Opcion = 'perpendicular'
 			else:
 				Opcion = 'perpendicular'
-			
-			'''
-			print(f'arco + linea => ID={Lista_Linea[::-1][j][0]}')
-			print(f'Vector01 = {Vector01}')
-			print(f'Vector02 = {Vector02}')
-			print(f'Vector03 = {Vector03}')
-			print(f'Vector04 = {Vector04}')
-			print(f'Distancia k = {Distancia_k}')
-			print(f'Distancia c = {Distancia_c}')
-			print(f'Producto punto = {Vec3}')
-			print()
-			'''
+
 		
 		# aqui analizamos los vectores de dos arcos
 		if Lista_Linea[::-1][j][3] == 'arco' and Lista_Linea[::-1][Valor_Futuro][3] == 'arco':
@@ -448,6 +425,11 @@ def Unir_Lineas(Boceto_X, Total_Lista):
 			Boceto_X.addConstraint(Sketcher.Constraint('Tangent', Lista_Linea[::-1][j][0], Lista_Linea[::-1][j][2], Lista_Linea[::-1][Valor_Futuro][0], Lista_Linea[::-1][Valor_Futuro][1]))
 		if Opcion == 'perpendicular':
 			Boceto_X.addConstraint(Sketcher.Constraint('Coincident', Lista_Linea[::-1][j][0], Lista_Linea[::-1][j][2], Lista_Linea[::-1][Valor_Futuro][0], Lista_Linea[::-1][Valor_Futuro][1]))
+
+
+def Bloquear_Lineas(Boceto_X, Total_Lista):
+	for j in range(0, Total_Lista)[::-1]:
+		Boceto_X.addConstraint(Sketcher.Constraint('Block', Lista_Linea[::-1][j][0]))
 
 
 def Crear_Contorno(Largo_X, Alto_X, Radio_X, Boceto_X):
@@ -647,8 +629,11 @@ for k in range(0, len(Lista03)):
 	Fijar_Circulo_Origen(Lista03[k][0], Boceto_LVS_C, Lista_Linea[-1][0])
 
 
+
+
+
 # crear Boceto Pieza 1
-Origen_Y = -(Alto_Total / 2) - 1 - 14 - 1 + 1
+Origen_Y = -(Alto_Total / 2) - 15
 Origen_X = 0
 
 Lista04 = [
@@ -660,26 +645,68 @@ Lista04 = [
 ['linea', 'Horizontal', Origen_X + 23, Origen_Y - 21, Origen_X, Origen_Y - 21]
 ]
 
+
 #Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Indice = '', Simetria = False):
 #Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = '', Simetria = False):
 for k in range(0, len(Lista04)):
 	if Lista04[k][0] == 'linea':
-		Crear_Linea(App.Vector(Lista04[k][2], Lista04[k][3], 0), App.Vector(Lista04[k][4], Lista04[k][5], 0), Boceto_LVS_P1, Lista04[k][1], k)
+		Crear_Linea(App.Vector(Lista04[k][2], Lista04[k][3], 0), App.Vector(Lista04[k][4], Lista04[k][5], 0), Boceto_LVS_P1, '', k)
 	if Lista04[k][0] == 'arco':
 		Crear_Arco(App.Vector(Lista04[k][1], Lista04[k][2], 0), Lista04[k][3], Lista04[k][4], Boceto_LVS_P1, Lista04[k][5], Lista04[k][6], k)
 
 for k in range(0, len(Lista04)):
 	if Lista04[::-1][k][0] == 'linea':
-		Crear_Linea(App.Vector(-Lista04[::-1][k][2], Lista04[::-1][k][3], 0), App.Vector(-Lista04[::-1][k][4], Lista04[::-1][k][5], 0), Boceto_LVS_P1, Lista04[::-1][k][1], k, True)
+		Crear_Linea(App.Vector(-Lista04[::-1][k][2], Lista04[::-1][k][3], 0), App.Vector(-Lista04[::-1][k][4], Lista04[::-1][k][5], 0), Boceto_LVS_P1, '', k, True)
 	if Lista04[::-1][k][0] == 'arco':
 		Crear_Arco(App.Vector(-Lista04[::-1][k][1], Lista04[::-1][k][2], 0), Lista04[::-1][k][3], Lista04[::-1][k][4], Boceto_LVS_P1, Lista04[::-1][k][5] - math.radians(90), Lista04[::-1][k][6] - math.radians(90), k, True)
-
 
 
 # Unir_Lineas(Boceto_X, Total_Lista):
 Unir_Lineas(Boceto_LVS_P1, 2 * len(Lista04))
 
+# Bloquear_Lineas(Boceto_X, Total_Lista)
+Bloquear_Lineas(Boceto_LVS_P1, 2 * len(Lista04))
+
 Plano.recompute()
+
+
+
+
+
+
+Lista05 = [
+['linea', 'Horizontal', Origen_X + 2, Origen_Y - 11, Origen_X + 25, Origen_Y - 11],
+['arco', Origen_X + 25, Origen_Y - 12, App.Vector(0, 0, 1), 1, math.radians(0), math.radians(90)],
+['linea', 'Vertical', Origen_X + 26, Origen_Y - 12, Origen_X + 26, Origen_Y - 16],
+['arco', Origen_X + 23, Origen_Y - 16, App.Vector(0, 0, 1), 3, math.radians(270), math.radians(360)],
+['linea', 'Horizontal', Origen_X + 23, Origen_Y - 19, Origen_X + 2, Origen_Y - 19],
+['arco', Origen_X + 2, Origen_Y - 18, App.Vector(0, 0, 1), 1, math.radians(180), math.radians(270)],
+['linea', 'Vertical', Origen_X + 1, Origen_Y - 18, Origen_X + 1, Origen_Y - 12],
+['arco', Origen_X + 2, Origen_Y - 12, App.Vector(0, 0, 1), 1, math.radians(90), math.radians(180)]
+]
+
+
+#Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Indice = '', Simetria = False):
+#Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = '', Simetria = False):
+for k in range(0, len(Lista05)):
+	if Lista05[k][0] == 'linea':
+		Crear_Linea(App.Vector(Lista05[k][2], Lista05[k][3], 0), App.Vector(Lista05[k][4], Lista05[k][5], 0), Boceto_LVS_P1, '', k)
+	if Lista05[k][0] == 'arco':
+		Crear_Arco(App.Vector(Lista05[k][1], Lista05[k][2], 0), Lista05[k][3], Lista05[k][4], Boceto_LVS_P1, Lista05[k][5], Lista05[k][6], k)
+
+
+# Unir_Lineas(Boceto_X, Total_Lista):
+Unir_Lineas(Boceto_LVS_P1, len(Lista05))
+
+
+# Bloquear_Lineas(Boceto_X, Total_Lista)
+Bloquear_Lineas(Boceto_LVS_P1, len(Lista05))
+
+Plano.recompute()
+
+
+
+
 
 
 
