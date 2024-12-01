@@ -294,8 +294,14 @@ def Unir_Lineas(Boceto_X, Total_Lista):
 		
 		# aqui analizamos los vectores de dos lineas
 		if Lista_Linea[::-1][j][3] == 'linea' and Lista_Linea[::-1][Valor_Futuro][3] == 'linea':
-			Vector01 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][j][6]
-			Vector02 = Lista_Linea[::-1][Valor_Futuro][7] - Lista_Linea[::-1][Valor_Futuro][6]
+			if Lista_Linea[::-1][j][2] == 1:
+				Vector01 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][j][7]
+			else:
+				Vector01 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][j][6]
+			if Lista_Linea[::-1][Valor_Futuro][2] == 1:
+				Vector02 = Lista_Linea[::-1][Valor_Futuro][6] - Lista_Linea[::-1][Valor_Futuro][7]
+			else:
+				Vector02 = Lista_Linea[::-1][Valor_Futuro][7] - Lista_Linea[::-1][Valor_Futuro][6]
 			# calculamos el producto cruz entre los vectores linea
 			Vec3 = Vector01.cross(Vector02)
 			# si el producto cruz es igual a cero esto significa 
@@ -308,34 +314,50 @@ def Unir_Lineas(Boceto_X, Total_Lista):
 		# aqui analizamos los vectores de una linea y un arco
 		if Lista_Linea[::-1][j][3] == 'linea' and Lista_Linea[::-1][Valor_Futuro][3] == 'arco':
 			# calculamos el vector de la linea
-			Vector01 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][j][6]
-			# calculamos el vector del arco desde el centro al extremo inicial
+			if Lista_Linea[::-1][j][2] == 1:
+				Vector01 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][j][7]
+			else:
+				Vector01 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][j][6]
+			
+			# Si el punto inicial esta en la misma ubicacion del angulo inicial 
+			# entonces el giro del angulo es en contra de las manecillas del reloj
+			# por lo tanto su Normal Esperado es positiva.
 			if Lista_Linea[::-1][Valor_Futuro][1] == 1:
-				Vector02 = Lista_Linea[::-1][Valor_Futuro][6] - Lista_Linea[::-1][Valor_Futuro][8]
-			elif Lista_Linea[::-1][Valor_Futuro][1] == 2:
-				Vector02 = Lista_Linea[::-1][Valor_Futuro][7] - Lista_Linea[::-1][Valor_Futuro][8]
-			# calculamos el vector k desde la linea punto inicial hasta el arco extremo final
-			if Lista_Linea[::-1][j][1] == 1:
-				if Lista_Linea[::-1][Valor_Futuro][2] == 1:
-					Vector03 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][Valor_Futuro][6]
-				elif Lista_Linea[::-1][Valor_Futuro][2] == 2:
-					Vector03 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][Valor_Futuro][7]
-				Vector04 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][Valor_Futuro][8]
-			elif Lista_Linea[::-1][j][1] == 2:
-				if Lista_Linea[::-1][Valor_Futuro][2] == 1:
-					Vector03 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][Valor_Futuro][6]
-				elif Lista_Linea[::-1][Valor_Futuro][2] == 2:
-					Vector03 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][Valor_Futuro][7]
-				Vector04 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][Valor_Futuro][8]
-			# calculamos distancia entre el vector k y el vector linea mas el vector arco centro
-			Distancia_k = Vector03.Length
-			Distancia_c = Vector04.Length
-			# calculamos el producto punto entre el vector linea y el vector arco
-			Vec3 = Vector01.dot(Vector02)
-			# si el producto punto es igual a cero esto significa que la linea y el arco estan alineados
-			# ahora analizamos la distancia al extremo final del arco es mayor a la distancia al centro del arco.
-			if abs(round(Vec3, 5)) == 0:
-				if Distancia_k > Distancia_c:
+				Normal02_Esperada = App.Vector(0, 0, 1)
+			else:
+				Normal02_Esperada = App.Vector(0, 0, -1)
+			# ahora se calcula el vector centro a extremo inicial del arco
+			if Lista_Linea[::-1][Valor_Futuro][1] == 1:
+				Vector02_CE = Lista_Linea[::-1][Valor_Futuro][6] - Lista_Linea[::-1][Valor_Futuro][8]
+			else:
+				Vector02_CE = Lista_Linea[::-1][Valor_Futuro][7] - Lista_Linea[::-1][Valor_Futuro][8]
+			# ahora se calculan los vectores perpendiculares al extremo inicial del arco
+			Vector02_P1 = App.Vector(-Vector02_CE.y, Vector02_CE.x, 0)
+			Vector02_P2 = App.Vector(Vector02_CE.y, -Vector02_CE.x, 0)
+			# ahora calculamos la normal entre los vectores perpendiculares y el vector centro del arco
+			Normal02_P1 = Vector02_CE.cross(Vector02_P1)
+			Normal02_P2 = Vector02_CE.cross(Vector02_P2)
+			# ahora calculamos la Normal Unitaria
+			Normal02_P1 = Normal02_P1 / Normal02_P1.Length
+			Normal02_P2 = Normal02_P2 / Normal02_P2.Length
+			# ahora se compara el signo de la Normal Esperada con
+			# el signo de la Normal perpendicular,
+			# si ambos son iguales significa que el vector perpendicular el es correcto.
+			if Normal02_Esperada == Normal02_P1:
+				Vector02_P = Vector02_P1
+			elif Normal02_Esperada == Normal02_P2:
+				Vector02_P = Vector02_P2
+			
+			# calculamos el producto cruz entre los vectores linea y tangente del arco
+			Vec3 = Vector01.cross(Vector02_P)
+			# Ahora sumamos los dos vectores perpendiculares de los arcos
+			Vector_T = Vector01 + Vector02_P
+			# si el producto cruz es igual a cero
+			# significa que los extremos de los arcos estan alineados.
+			if abs(round(Vec3.Length, 5)) == 0:
+				# si ambos vectores se suman y la magnitud es mayor al vector inicial
+				# significa que los vectores estan en el mismo sentido.
+				if Vector_T.Length > Vector01.Length:
 					Opcion = 'paralelo'
 				else:
 					Opcion = 'perpendicular'
@@ -344,88 +366,134 @@ def Unir_Lineas(Boceto_X, Total_Lista):
 			
 			
 		if Lista_Linea[::-1][j][3] == 'arco' and Lista_Linea[::-1][Valor_Futuro][3] == 'linea':
-			# calculamos el vector del arco desde el centro al extremo inicial
-			if Lista_Linea[::-1][j][2] == 1:
-				Vector01 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][j][8]
-			elif Lista_Linea[::-1][j][2] == 2:
-				Vector01 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][j][8]
-			# calculamos el vector de la linea
-			Vector02 = Lista_Linea[::-1][Valor_Futuro][7] - Lista_Linea[::-1][Valor_Futuro][6]
-			# calculamos el vector k desde el arco extremo inicial hasta la linea punto final
+			# Si el punto inicial esta en la misma ubicacion del angulo inicial 
+			# entonces el giro del angulo es en contra de las manecillas del reloj
+			# por lo tanto su Normal Esperado es positiva.
 			if Lista_Linea[::-1][j][1] == 1:
-				if Lista_Linea[::-1][Valor_Futuro][2] == 1:
-					Vector03 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][Valor_Futuro][6]
-					Vector04 = Lista_Linea[::-1][j][8] - Lista_Linea[::-1][Valor_Futuro][6]
-				elif Lista_Linea[::-1][Valor_Futuro][2] == 2:
-					Vector03 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][Valor_Futuro][7]
-					Vector04 = Lista_Linea[::-1][j][8] - Lista_Linea[::-1][Valor_Futuro][7]
-			elif Lista_Linea[::-1][j][1] == 2:
-				if Lista_Linea[::-1][Valor_Futuro][2] == 1:
-					Vector03 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][Valor_Futuro][6]
-					Vector04 = Lista_Linea[::-1][j][8] - Lista_Linea[::-1][Valor_Futuro][6]
-				elif Lista_Linea[::-1][Valor_Futuro][2] == 2:
-					Vector03 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][Valor_Futuro][7]
-					Vector04 = Lista_Linea[::-1][j][8] - Lista_Linea[::-1][Valor_Futuro][7]
-			# calculamos distancia entre el vector k y el vector arco centro mas el vector linea
-			Distancia_k = Vector03.Length
-			Distancia_c = Vector04.Length
-			# calculamos el producto punto entre el vector arco y el vector linea
-			Vec3 = Vector01.dot(Vector02)
-			# si el producto punto es igual a cero esto significa que el arco y la linea estan alineados
-			# ahora analizamos si la distancia al extremo final del arco es mayor a la distancia al centro del arco.
-			if abs(round(Vec3, 5)) == 0:
-				if Distancia_k > Distancia_c:
+				Normal01_Esperada = App.Vector(0, 0, 1)
+			else:
+				Normal01_Esperada = App.Vector(0, 0, -1)
+			# ahora se calcula el vector centro a extremo final del arco
+			if Lista_Linea[::-1][j][2] == 1:
+				Vector01_CE = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][j][8]
+			else:
+				Vector01_CE = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][j][8]
+			# ahora se calculan los vectores perpendiculares al extremo final del arco
+			Vector01_P1 = App.Vector(-Vector01_CE.y, Vector01_CE.x, 0)
+			Vector01_P2 = App.Vector(Vector01_CE.y, -Vector01_CE.x, 0)
+			# ahora calculamos la normal entre los vectores perpendiculares y el vector centro del arco
+			Normal01_P1 = Vector01_CE.cross(Vector01_P1)
+			Normal01_P2 = Vector01_CE.cross(Vector01_P2)
+			# ahora calculamos la Normal Unitaria
+			Normal01_P1 = Normal01_P1 / Normal01_P1.Length
+			Normal01_P2 = Normal01_P2 / Normal01_P2.Length
+			# ahora se compara el signo de la Normal Esperada con
+			# el signo de la Normal perpendicular,
+			# si ambos son iguales significa que el vector perpendicular el es correcto.
+			if Normal01_Esperada == Normal01_P1:
+				Vector01_P = Vector01_P1
+			elif Normal01_Esperada == Normal01_P2:
+				Vector01_P = Vector01_P2
+			
+			# calculamos el vector de la linea
+			if Lista_Linea[::-1][Valor_Futuro][2] == 1:
+				Vector02 = Lista_Linea[::-1][Valor_Futuro][6] - Lista_Linea[::-1][Valor_Futuro][7]
+			else:
+				Vector02 = Lista_Linea[::-1][Valor_Futuro][7] - Lista_Linea[::-1][Valor_Futuro][6]
+			
+			# calculamos el producto cruz entre los vectores tangente del arco y linea
+			Vec3 = Vector01_P.cross(Vector02)
+			# Ahora sumamos los dos vectores perpendiculares de los arcos
+			Vector_T = Vector01_P + Vector02
+			# si el producto cruz es igual a cero
+			# significa que los extremos de los arcos estan alineados.
+			if abs(round(Vec3.Length, 5)) == 0:
+				# si ambos vectores se suman y la magnitud es mayor al vector inicial
+				# significa que los vectores estan en el mismo sentido.
+				if Vector_T.Length > Vector01_P.Length:
 					Opcion = 'paralelo'
 				else:
 					Opcion = 'perpendicular'
 			else:
 				Opcion = 'perpendicular'
-
+		
 		
 		# aqui analizamos los vectores de dos arcos
 		if Lista_Linea[::-1][j][3] == 'arco' and Lista_Linea[::-1][Valor_Futuro][3] == 'arco':
-			# calculamos el vector del arco desde el centro al extremo final
+			# Si el punto inicial esta en la misma ubicacion del angulo inicial 
+			# entonces el giro del angulo es en contra de las manecillas del reloj
+			# por lo tanto su Normal Esperado es positiva.
+			if Lista_Linea[::-1][j][1] == 1:
+				Normal01_Esperada = App.Vector(0, 0, 1)
+			else:
+				Normal01_Esperada = App.Vector(0, 0, -1)
+			# ahora se calcula el vector centro a extremo final del arco
 			if Lista_Linea[::-1][j][2] == 1:
-				Vector01 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][j][8]
-			elif Lista_Linea[::-1][j][2] == 2:
-				Vector01 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][j][8]
-			# calculamos el vector del arco desde el centro al extremo inicial
+				Vector01_CE = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][j][8]
+			else:
+				Vector01_CE = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][j][8]
+			# ahora se calculan los vectores perpendiculares al extremo final del arco
+			Vector01_P1 = App.Vector(-Vector01_CE.y, Vector01_CE.x, 0)
+			Vector01_P2 = App.Vector(Vector01_CE.y, -Vector01_CE.x, 0)
+			# ahora calculamos la normal entre los vectores perpendiculares y el vector centro del arco
+			Normal01_P1 = Vector01_CE.cross(Vector01_P1)
+			Normal01_P2 = Vector01_CE.cross(Vector01_P2)
+			# ahora calculamos la Normal Unitaria
+			Normal01_P1 = Normal01_P1 / Normal01_P1.Length
+			Normal01_P2 = Normal01_P2 / Normal01_P2.Length
+			# ahora se compara el signo de la Normal Esperada con
+			# el signo de la Normal perpendicular,
+			# si ambos son iguales significa que el vector perpendicular el es correcto.
+			if Normal01_Esperada == Normal01_P1:
+				Vector01_P = Vector01_P1
+			elif Normal01_Esperada == Normal01_P2:
+				Vector01_P = Vector01_P2
+			
+			# Si el punto inicial esta en la misma ubicacion del angulo inicial 
+			# entonces el giro del angulo es en contra de las manecillas del reloj
+			# por lo tanto su Normal Esperado es positiva.
 			if Lista_Linea[::-1][Valor_Futuro][1] == 1:
-				Vector02 = Lista_Linea[::-1][Valor_Futuro][6] - Lista_Linea[::-1][Valor_Futuro][8]
-			elif Lista_Linea[::-1][Valor_Futuro][1] == 2:
-				Vector02 = Lista_Linea[::-1][Valor_Futuro][7] - Lista_Linea[::-1][Valor_Futuro][8]
-			# calculamos el vector k del arco desde el extremo inicial al extremo final
-			if Lista_Linea[::-1][j][1] == 1:
-				if Lista_Linea[::-1][Valor_Futuro][2] == 1:
-					Vector03 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][Valor_Futuro][6]
-				elif Lista_Linea[::-1][Valor_Futuro][2] == 2:
-					Vector03 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][Valor_Futuro][7]
-			elif Lista_Linea[::-1][j][1] == 2:
-				if Lista_Linea[::-1][Valor_Futuro][2] == 1:
-					Vector03 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][Valor_Futuro][6]
-				elif Lista_Linea[::-1][Valor_Futuro][2] == 2:
-					Vector03 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][Valor_Futuro][7]
-			# calculamos el vector c del arco desde el extremo inicial al centro del arco
-			if Lista_Linea[::-1][j][1] == 1:
-				Vector04 = Lista_Linea[::-1][j][6] - Lista_Linea[::-1][Valor_Futuro][8]
-			elif Lista_Linea[::-1][j][1] == 2:
-				Vector04 = Lista_Linea[::-1][j][7] - Lista_Linea[::-1][Valor_Futuro][8]
-			# calculamos la distancia del vector k y del vector c
-			Distancia_k = Vector03.Length
-			Distancia_c = Vector04.Length
-			# calculamos el producto cruz entre los vectores arco
-			Vec3 = Vector01.cross(Vector02)
-			# si el producto cruz es igual a cero y si la distancia k es mayor a la distancia c
-			# es verdadero significa que los extremos de los arcos estan alineados.
+				Normal02_Esperada = App.Vector(0, 0, 1)
+			else:
+				Normal02_Esperada = App.Vector(0, 0, -1)
+			# ahora se calcula el vector centro a extremo inicial del arco
+			if Lista_Linea[::-1][Valor_Futuro][1] == 1:
+				Vector02_CE = Lista_Linea[::-1][Valor_Futuro][6] - Lista_Linea[::-1][Valor_Futuro][8]
+			else:
+				Vector02_CE = Lista_Linea[::-1][Valor_Futuro][7] - Lista_Linea[::-1][Valor_Futuro][8]
+			# ahora se calculan los vectores perpendiculares al extremo inicial del arco
+			Vector02_P1 = App.Vector(-Vector02_CE.y, Vector02_CE.x, 0)
+			Vector02_P2 = App.Vector(Vector02_CE.y, -Vector02_CE.x, 0)
+			# ahora calculamos la normal entre los vectores perpendiculares y el vector centro del arco
+			Normal02_P1 = Vector02_CE.cross(Vector02_P1)
+			Normal02_P2 = Vector02_CE.cross(Vector02_P2)
+			# ahora calculamos la Normal Unitaria
+			Normal02_P1 = Normal02_P1 / Normal02_P1.Length
+			Normal02_P2 = Normal02_P2 / Normal02_P2.Length
+			# ahora se compara el signo de la Normal Esperada con
+			# el signo de la Normal perpendicular,
+			# si ambos son iguales significa que el vector perpendicular el es correcto.
+			if Normal02_Esperada == Normal02_P1:
+				Vector02_P = Vector02_P1
+			elif Normal02_Esperada == Normal02_P2:
+				Vector02_P = Vector02_P2
+				
+			# calculamos el producto cruz entre los vectores centro de cada arco
+			Vec3 = Vector01_CE.cross(Vector02_CE)
+			# Ahora sumamos los dos vectores perpendiculares de los arcos
+			Vector_T = Vector01_P + Vector02_P
+			# si el producto cruz es igual a cero
+			# significa que los extremos de los arcos estan alineados.
 			if abs(round(Vec3.Length, 5)) == 0:
-				if Distancia_k > Distancia_c:
+				# si ambos vectores se suman y la magnitud es mayor al vector inicial
+				# significa que los vectores estan en el mismo sentido.
+				if Vector_T.Length > Vector01_P.Length:
 					Opcion = 'paralelo'
 				else:
 					Opcion = 'perpendicular'
 			else:
 				Opcion = 'perpendicular'
-		
-		
+			
 		
 		if Opcion == 'paralelo':
 			Boceto_X.addConstraint(Sketcher.Constraint('Tangent', Lista_Linea[::-1][j][0], Lista_Linea[::-1][j][2], Lista_Linea[::-1][Valor_Futuro][0], Lista_Linea[::-1][Valor_Futuro][1]))
@@ -435,7 +503,36 @@ def Unir_Lineas(Boceto_X, Total_Lista):
 
 def Bloquear_Lineas(Boceto_X, Total_Lista):
 	for j in range(0, Total_Lista)[::-1]:
-		Boceto_X.addConstraint(Sketcher.Constraint('Block', Lista_Linea[::-1][j][0]))
+		if Lista_Linea[::-1][j][3] == 'linea':
+			Boceto_X.addConstraint(Sketcher.Constraint('Block', Lista_Linea[::-1][j][0]))
+
+
+def Bloquear_Arcos(Boceto_X, Total_Lista):
+	for j in range(0, Total_Lista)[::-1]:
+		if Lista_Linea[::-1][j][3] == 'arco':
+			Boceto_X.addConstraint(Sketcher.Constraint('Block', Lista_Linea[::-1][j][0]))
+
+
+def Bloquear_Circulos(Boceto_X, Total_Lista):
+	for j in range(0, Total_Lista)[::-1]:
+		if Lista_Linea[::-1][j][3] == 'circulo':
+			Boceto_X.addConstraint(Sketcher.Constraint('Block', Lista_Linea[::-1][j][0]))
+
+
+def Fijar_Circulo_Origen(Pt1, Boceto_X, Index_Obj):
+	if list(Pt1)[0] >= 0:
+		Boceto_X.addConstraint(Sketcher.Constraint('DistanceX', -1,1,Index_Obj,3, abs(list(Pt1)[0])))
+	else:
+		Boceto_X.addConstraint(Sketcher.Constraint('DistanceX', Index_Obj,3,-1,1, abs(list(Pt1)[0])))
+	if list(Pt1)[1] >= 0:
+		Boceto_X.addConstraint(Sketcher.Constraint('DistanceY', -1,1,Index_Obj,3, abs(list(Pt1)[1])))
+	else:
+		Boceto_X.addConstraint(Sketcher.Constraint('DistanceY', Index_Obj,3,-1,1, abs(list(Pt1)[1])))
+
+
+
+
+
 
 
 def Crear_Contorno(Largo_X, Alto_X, Radio_X, Boceto_X):
@@ -508,12 +605,14 @@ def Crear_Contorno(Largo_X, Alto_X, Radio_X, Boceto_X):
 	Plano.recompute()
 	
 	
+	# Bloquear_Lineas(Boceto_X, Total_Lista):
+	Bloquear_Lineas(Boceto_X, len(Lista01))
 	
 	# Unir_Lineas(Boceto_X, Total_Lista):
 	Unir_Lineas(Boceto_X, len(Lista01))
 	
-	# Bloquear_Lineas(Boceto_X, Total_Lista):
-	Bloquear_Lineas(Boceto_X, len(Lista01))
+	# Bloquear_Arcos(Boceto_X, Total_Lista):
+	Bloquear_Arcos(Boceto_X, len(Lista01))
 	
 	Plano.recompute()
 	
@@ -579,18 +678,6 @@ Crear_Contorno(Largo_Y, Alto_Y, Radio_Y, Boceto_LVS_T)
 
 
 
-
-def Fijar_Circulo_Origen(Pt1, Boceto_X, Index_Obj):
-	if list(Pt1)[0] >= 0:
-		Boceto_X.addConstraint(Sketcher.Constraint('DistanceX', -1,1,Index_Obj,3, abs(list(Pt1)[0])))
-	else:
-		Boceto_X.addConstraint(Sketcher.Constraint('DistanceX', Index_Obj,3,-1,1, abs(list(Pt1)[0])))
-	if list(Pt1)[1] >= 0:
-		Boceto_X.addConstraint(Sketcher.Constraint('DistanceY', -1,1,Index_Obj,3, abs(list(Pt1)[1])))
-	else:
-		Boceto_X.addConstraint(Sketcher.Constraint('DistanceY', Index_Obj,3,-1,1, abs(list(Pt1)[1])))
-
-
 #Crear_Agujeros()
 val_x = (Largo_Total / 2) + 1 + 14 / 2
 val_y = (Alto_Total / 2) + 1 + 14 / 2
@@ -606,19 +693,22 @@ Lista03 = [
 [App.Vector(-38, val_y, 0), App.Vector(0, 0, 1), 1.5]
 ]
 
-for k in range(0, len(Lista03)):
-	Crear_Circulo(Lista03[k][0], Lista03[k][1], Lista03[k][2], Boceto_LVS_T)
-	#Fijar_Circulo_Origen(Lista03[k][0], Boceto_LVS_T, Lista_Linea[-1][0])
-
-# Bloquear_Lineas(Boceto_X, Total_Lista):
-Bloquear_Lineas(Boceto_LVS_T, len(Lista03))
 
 for k in range(0, len(Lista03)):
 	Crear_Circulo(Lista03[k][0], Lista03[k][1], Lista03[k][2], Boceto_LVS_C)
-	#Fijar_Circulo_Origen(Lista03[k][0], Boceto_LVS_C, Lista_Linea[-1][0])
 
-# Bloquear_Lineas(Boceto_X, Total_Lista):
-Bloquear_Lineas(Boceto_LVS_C, len(Lista03))
+# Bloquear_Circulos(Boceto_X, Total_Lista):
+Bloquear_Circulos(Boceto_LVS_C, len(Lista03))
+
+
+for k in range(0, len(Lista03)):
+	Crear_Circulo(Lista03[k][0], Lista03[k][1], Lista03[k][2], Boceto_LVS_T)
+	
+# Bloquear_Circulos(Boceto_X, Total_Lista):
+Bloquear_Circulos(Boceto_LVS_T, len(Lista03))
+
+
+
 
 
 
@@ -631,6 +721,8 @@ Bloquear_Lineas(Boceto_LVS_C, len(Lista03))
 # crear Boceto Pieza 1
 Origen_Y = -(Alto_Total / 2) - 15
 Origen_X = 0
+
+
 
 Lista04 = [
 ['linea', 'Horizontal', Origen_X, Origen_Y, Origen_X + 33, Origen_Y],
@@ -657,11 +749,17 @@ for k in range(0, len(Lista04)):
 		Crear_Arco(App.Vector(-Lista04[::-1][k][1], Lista04[::-1][k][2], 0), Lista04[::-1][k][3], Lista04[::-1][k][4], Boceto_LVS_P1, Lista04[::-1][k][5] - math.radians(90), Lista04[::-1][k][6] - math.radians(90), k, True)
 
 
+# Bloquear_Lineas(Boceto_X, Total_Lista)
+Bloquear_Lineas(Boceto_LVS_P1, 2 * len(Lista04))
+
+
 # Unir_Lineas(Boceto_X, Total_Lista):
 Unir_Lineas(Boceto_LVS_P1, 2 * len(Lista04))
 
-# Bloquear_Lineas(Boceto_X, Total_Lista)
-Bloquear_Lineas(Boceto_LVS_P1, 2 * len(Lista04))
+
+# Bloquear_Arcos(Boceto_X, Total_Lista)
+Bloquear_Arcos(Boceto_LVS_P1, 2 * len(Lista04))
+
 
 Plano.recompute()
 
@@ -691,12 +789,17 @@ for k in range(0, len(Lista05)):
 		Crear_Arco(App.Vector(Lista05[k][1], Lista05[k][2], 0), Lista05[k][3], Lista05[k][4], Boceto_LVS_P1, Lista05[k][5], Lista05[k][6], k)
 
 
+# Bloquear_Lineas(Boceto_X, Total_Lista)
+Bloquear_Lineas(Boceto_LVS_P1, len(Lista05))
+
+
 # Unir_Lineas(Boceto_X, Total_Lista):
 Unir_Lineas(Boceto_LVS_P1, len(Lista05))
 
 
-# Bloquear_Lineas(Boceto_X, Total_Lista)
-Bloquear_Lineas(Boceto_LVS_P1, len(Lista05))
+# Bloquear_Arcos(Boceto_X, Total_Lista)
+Bloquear_Arcos(Boceto_LVS_P1, len(Lista05))
+
 
 Plano.recompute()
 
@@ -710,12 +813,17 @@ for k in range(0, len(Lista05)):
 		Crear_Arco(App.Vector(-Lista05[k][1], Lista05[k][2], 0), Lista05[k][3], Lista05[k][4], Boceto_LVS_P1, Lista05[k][5] + (-1)**(math.floor(k / 2)) * math.radians(90), Lista05[k][6] + (-1)**(math.floor(k / 2)) * math.radians(90), k)
 		
 
+# Bloquear_Lineas(Boceto_X, Total_Lista)
+Bloquear_Lineas(Boceto_LVS_P1, len(Lista05))
+
+
 # Unir_Lineas(Boceto_X, Total_Lista):
 Unir_Lineas(Boceto_LVS_P1, len(Lista05))
 
 
-# Bloquear_Lineas(Boceto_X, Total_Lista)
-Bloquear_Lineas(Boceto_LVS_P1, len(Lista05))
+# Bloquear_Arcos(Boceto_X, Total_Lista)
+Bloquear_Arcos(Boceto_LVS_P1, len(Lista05))
+
 
 Plano.recompute()
 
@@ -747,12 +855,16 @@ for k in range(0, len(Lista06)):
 		Crear_Arco(App.Vector(Lista06[k][1], Lista06[k][2], 0), Lista06[k][3], Lista06[k][4], Boceto_LVS_P1, Lista06[k][5], Lista06[k][6], k)
 
 
+# Bloquear_Lineas(Boceto_X, Total_Lista)
+Bloquear_Lineas(Boceto_LVS_P1, len(Lista06))
+
+
 # Unir_Lineas(Boceto_X, Total_Lista):
 Unir_Lineas(Boceto_LVS_P1, len(Lista06))
 
 
-# Bloquear_Lineas(Boceto_X, Total_Lista)
-#Bloquear_Lineas(Boceto_LVS_P1, len(Lista06))
+# Bloquear_Arcos(Boceto_X, Total_Lista)
+Bloquear_Arcos(Boceto_LVS_P1, len(Lista06))
 
 
 Plano.recompute()
