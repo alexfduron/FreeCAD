@@ -78,16 +78,11 @@ Pieza_H1.Label = 'Parte_H001'
 Plano.recompute()
 
 
+
+
+#! Estos son los planos en 2D
 ### Begin command Std_Group
 Grupo_LH1 = Crear_Grupo('Group_LH001', '', Pieza_H1)
-	
-	
-### Begin command PartDesign_Body
-Cuerpo_H1 = Crear_Cuerpo('Body_H001', '', Pieza_H1)
-
-
-### Begin command Sketch
-Boceto_H1 = Crear_Boceto('Sketch_H001', '', Cuerpo_H1)
 
 
 ### Begin command PartDesign_Body
@@ -95,10 +90,21 @@ Cuerpo_LH1 = Crear_Cuerpo('Body_LH001', '', Grupo_LH1)
 
 
 ### Begin command Sketch
-Boceto_LVS_C = Crear_Boceto('Sketch_LVS_C', 'Sketch_LVS_Cuerpo', Cuerpo_LH1)
-Boceto_LVS_T = Crear_Boceto('Sketch_LVS_T', 'Sketch_LVS_Tapadera', Cuerpo_LH1)
-Boceto_LVS_P1 = Crear_Boceto('Sketch_LVS_P1', 'Sketch_LVS_Pieza1', Cuerpo_LH1)
+Boceto_LVS_C = Crear_Boceto('Sketch_LVS_C001', 'Sketch_LVS_Cuerpo', Cuerpo_LH1)
+Boceto_LVS_T = Crear_Boceto('Sketch_LVS_T001', 'Sketch_LVS_Tapadera', Cuerpo_LH1)
+Boceto_LVS_P1 = Crear_Boceto('Sketch_LVS_P1001', 'Sketch_LVS_Pieza1', Cuerpo_LH1)
+Boceto_LVS_H_P1 = Crear_Boceto('Sketch_LVS_H_P1001', 'Sketch_LVS_Hoyo_Pieza1', Cuerpo_LH1)
+Boceto_LVS_P2 = Crear_Boceto('Sketch_LVS_P2001', 'Sketch_LVS_Pieza2', Cuerpo_LH1)
+Boceto_LVS_H_P2 = Crear_Boceto('Sketch_LVS_H_P2001', 'Sketch_LVS_Hoyo_Pieza2', Cuerpo_LH1)
 
+
+#! Estos son los planos en 3D
+### Begin command PartDesign_Body
+Cuerpo_H1 = Crear_Cuerpo('Body_H001', '', Pieza_H1)
+
+
+### Begin command Sketch
+Boceto_H1 = Crear_Boceto('Sketch_H001', '', Cuerpo_H1)
 
 
 
@@ -766,7 +772,7 @@ Plano.recompute()
 
 
 
-
+#! crear Boceto Hoyo Pieza 1
 Lista05 = [
 ['linea', 'Horizontal', Origen_X + 2, Origen_Y - 11, Origen_X + 25, Origen_Y - 11],
 ['arco', Origen_X + 25, Origen_Y - 12, App.Vector(0, 0, 1), 1, math.radians(0), math.radians(90)],
@@ -783,21 +789,21 @@ Lista05 = [
 #Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = '', Simetria = False):
 for k in range(0, len(Lista05)):
 	if Lista05[k][0] == 'linea':
-		Crear_Linea(App.Vector(Lista05[k][2], Lista05[k][3], 0), App.Vector(Lista05[k][4], Lista05[k][5], 0), Boceto_LVS_P1, '', k)
+		Crear_Linea(App.Vector(Lista05[k][2], Lista05[k][3], 0), App.Vector(Lista05[k][4], Lista05[k][5], 0), Boceto_LVS_H_P1, '', k)
 	if Lista05[k][0] == 'arco':
-		Crear_Arco(App.Vector(Lista05[k][1], Lista05[k][2], 0), Lista05[k][3], Lista05[k][4], Boceto_LVS_P1, Lista05[k][5], Lista05[k][6], k)
+		Crear_Arco(App.Vector(Lista05[k][1], Lista05[k][2], 0), Lista05[k][3], Lista05[k][4], Boceto_LVS_H_P1, Lista05[k][5], Lista05[k][6], k)
 
 
 # Bloquear_Lineas(Boceto_X, Total_Lista)
-Bloquear_Lineas(Boceto_LVS_P1, len(Lista05))
+Bloquear_Lineas(Boceto_LVS_H_P1, len(Lista05))
 
 
 # Unir_Lineas(Boceto_X, Total_Lista):
-Unir_Lineas(Boceto_LVS_P1, len(Lista05))
+Unir_Lineas(Boceto_LVS_H_P1, len(Lista05))
 
 
 # Bloquear_Arcos(Boceto_X, Total_Lista)
-Bloquear_Arcos(Boceto_LVS_P1, len(Lista05))
+Bloquear_Arcos(Boceto_LVS_H_P1, len(Lista05))
 
 
 Plano.recompute()
@@ -808,21 +814,21 @@ Plano.recompute()
 #$ Objeto Espejo
 for k in range(0, len(Lista05)):
 	if Lista05[k][0] == 'linea':
-		Crear_Linea(App.Vector(-Lista05[k][2], Lista05[k][3], 0), App.Vector(-Lista05[k][4], Lista05[k][5], 0), Boceto_LVS_P1, '', k)
+		Crear_Linea(App.Vector(-Lista05[k][2], Lista05[k][3], 0), App.Vector(-Lista05[k][4], Lista05[k][5], 0), Boceto_LVS_H_P1, '', k)
 	if Lista05[k][0] == 'arco':
-		Crear_Arco(App.Vector(-Lista05[k][1], Lista05[k][2], 0), Lista05[k][3], Lista05[k][4], Boceto_LVS_P1, math.radians(180) - Lista05[k][6], math.radians(180) - Lista05[k][5], k)
+		Crear_Arco(App.Vector(-Lista05[k][1], Lista05[k][2], 0), Lista05[k][3], Lista05[k][4], Boceto_LVS_H_P1, math.radians(180) - Lista05[k][6], math.radians(180) - Lista05[k][5], k)
 		
 
 # Bloquear_Lineas(Boceto_X, Total_Lista)
-Bloquear_Lineas(Boceto_LVS_P1, len(Lista05))
+Bloquear_Lineas(Boceto_LVS_H_P1, len(Lista05))
 
 
 # Unir_Lineas(Boceto_X, Total_Lista):
-Unir_Lineas(Boceto_LVS_P1, len(Lista05))
+Unir_Lineas(Boceto_LVS_H_P1, len(Lista05))
 
 
 # Bloquear_Arcos(Boceto_X, Total_Lista)
-Bloquear_Arcos(Boceto_LVS_P1, len(Lista05))
+Bloquear_Arcos(Boceto_LVS_H_P1, len(Lista05))
 
 
 Plano.recompute()
@@ -849,21 +855,21 @@ Lista06 = [
 #Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = '', Simetria = False):
 for k in range(0, len(Lista06)):
 	if Lista06[k][0] == 'linea':
-		Crear_Linea(App.Vector(Lista06[k][2], Lista06[k][3], 0), App.Vector(Lista06[k][4], Lista06[k][5], 0), Boceto_LVS_P1, '', k)
+		Crear_Linea(App.Vector(Lista06[k][2], Lista06[k][3], 0), App.Vector(Lista06[k][4], Lista06[k][5], 0), Boceto_LVS_H_P1, '', k)
 	if Lista06[k][0] == 'arco':
-		Crear_Arco(App.Vector(Lista06[k][1], Lista06[k][2], 0), Lista06[k][3], Lista06[k][4], Boceto_LVS_P1, Lista06[k][5], Lista06[k][6], k)
+		Crear_Arco(App.Vector(Lista06[k][1], Lista06[k][2], 0), Lista06[k][3], Lista06[k][4], Boceto_LVS_H_P1, Lista06[k][5], Lista06[k][6], k)
 
 
 # Bloquear_Lineas(Boceto_X, Total_Lista)
-Bloquear_Lineas(Boceto_LVS_P1, len(Lista06))
+Bloquear_Lineas(Boceto_LVS_H_P1, len(Lista06))
 
 
 # Unir_Lineas(Boceto_X, Total_Lista):
-Unir_Lineas(Boceto_LVS_P1, len(Lista06))
+Unir_Lineas(Boceto_LVS_H_P1, len(Lista06))
 
 
 # Bloquear_Arcos(Boceto_X, Total_Lista)
-Bloquear_Arcos(Boceto_LVS_P1, len(Lista06))
+Bloquear_Arcos(Boceto_LVS_H_P1, len(Lista06))
 
 
 Plano.recompute()
@@ -877,21 +883,72 @@ Plano.recompute()
 #$ Objeto Espejo
 for k in range(0, len(Lista06)):
 	if Lista06[k][0] == 'linea':
-		Crear_Linea(App.Vector(-Lista06[k][2], Lista06[k][3], 0), App.Vector(-Lista06[k][4], Lista06[k][5], 0), Boceto_LVS_P1, '', k)
+		Crear_Linea(App.Vector(-Lista06[k][2], Lista06[k][3], 0), App.Vector(-Lista06[k][4], Lista06[k][5], 0), Boceto_LVS_H_P1, '', k)
 	if Lista06[k][0] == 'arco':
-		Crear_Arco(App.Vector(-Lista06[k][1], Lista06[k][2], 0), Lista06[k][3], Lista06[k][4], Boceto_LVS_P1, math.radians(180) - Lista06[k][6], math.radians(180) - Lista06[k][5], k)
+		Crear_Arco(App.Vector(-Lista06[k][1], Lista06[k][2], 0), Lista06[k][3], Lista06[k][4], Boceto_LVS_H_P1, math.radians(180) - Lista06[k][6], math.radians(180) - Lista06[k][5], k)
 
 
 # Bloquear_Lineas(Boceto_X, Total_Lista)
-Bloquear_Lineas(Boceto_LVS_P1, len(Lista06))
+Bloquear_Lineas(Boceto_LVS_H_P1, len(Lista06))
 
 
 # Unir_Lineas(Boceto_X, Total_Lista):
-Unir_Lineas(Boceto_LVS_P1, len(Lista06))
+Unir_Lineas(Boceto_LVS_H_P1, len(Lista06))
 
 
 # Bloquear_Arcos(Boceto_X, Total_Lista)
-Bloquear_Arcos(Boceto_LVS_P1, len(Lista06))
+Bloquear_Arcos(Boceto_LVS_H_P1, len(Lista06))
+
+
+Plano.recompute()
+
+
+
+
+
+#! crear Boceto Pieza 2
+Origen_Y = (Alto_Total / 2) + 15
+Origen_X = 0
+
+Lista07 = [
+['linea', 'Horizontal', Origen_X, Origen_Y, Origen_X + 45, Origen_Y],
+['linea', 'Vertical', Origen_X + 45, Origen_Y, Origen_X + 45, Origen_Y + 1],
+['arco', Origen_X + 45, Origen_Y + 3, App.Vector(0, 0, 1), 2, math.radians(180), math.radians(270)],
+['linea', 'Vertical', Origen_X + 43, Origen_Y + 3, Origen_X + 43, Origen_Y + 5],
+['arco', Origen_X + 41, Origen_Y + 5, App.Vector(0, 0, 1), 2, math.radians(0), math.radians(90)],
+['linea', 'Horizontal', Origen_X + 41, Origen_Y + 7, Origen_X, Origen_Y + 7]
+]
+
+
+#Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Indice = '', Simetria = False):
+#Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = '', Simetria = False):
+for k in range(0, len(Lista07)):
+	if Lista07[k][0] == 'linea':
+		Crear_Linea(App.Vector(Lista07[k][2], Lista07[k][3], 0), App.Vector(Lista07[k][4], Lista07[k][5], 0), Boceto_LVS_P2, '', k)
+	if Lista07[k][0] == 'arco':
+		Crear_Arco(App.Vector(Lista07[k][1], Lista07[k][2], 0), Lista07[k][3], Lista07[k][4], Boceto_LVS_P2, Lista07[k][5], Lista07[k][6], k)
+
+
+#Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Indice = '', Simetria = False):
+#Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = '', Simetria = False):
+#$ Objeto Espejo
+for k in range(0, len(Lista07)):
+	if Lista07[::-1][k][0] == 'linea':
+		Crear_Linea(App.Vector(-Lista07[::-1][k][2], Lista07[::-1][k][3], 0), App.Vector(-Lista07[::-1][k][4], Lista07[::-1][k][5], 0), Boceto_LVS_P2, '', k, True)
+	if Lista07[::-1][k][0] == 'arco':
+		Crear_Arco(App.Vector(-Lista07[::-1][k][1], Lista07[::-1][k][2], 0), Lista07[::-1][k][3], Lista07[::-1][k][4], Boceto_LVS_P2, math.radians(180) - Lista07[::-1][k][6], math.radians(180) - Lista07[::-1][k][5], k, True)
+
+
+# Bloquear_Lineas(Boceto_X, Total_Lista)
+Bloquear_Lineas(Boceto_LVS_P2, 2 * len(Lista07))
+
+
+# Unir_Lineas(Boceto_X, Total_Lista):
+Unir_Lineas(Boceto_LVS_P2, 2 * len(Lista07))
+
+
+# Bloquear_Arcos(Boceto_X, Total_Lista)
+Bloquear_Arcos(Boceto_LVS_P2, 2 * len(Lista07))
 
 
 Plano.recompute()
