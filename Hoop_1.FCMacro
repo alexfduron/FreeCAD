@@ -910,14 +910,33 @@ Plano.recompute()
 Origen_Y = (Alto_Total / 2) + 15
 Origen_X = 0
 
-Lista07 = [
-['linea', 'Horizontal', Origen_X, Origen_Y, Origen_X + 45, Origen_Y],
-['linea', 'Vertical', Origen_X + 45, Origen_Y, Origen_X + 45, Origen_Y + 1],
-['arco', Origen_X + 45, Origen_Y + 3, App.Vector(0, 0, 1), 2, math.radians(180), math.radians(270)],
-['linea', 'Vertical', Origen_X + 43, Origen_Y + 3, Origen_X + 43, Origen_Y + 5],
-['arco', Origen_X + 41, Origen_Y + 5, App.Vector(0, 0, 1), 2, math.radians(0), math.radians(90)],
-['linea', 'Horizontal', Origen_X + 41, Origen_Y + 7, Origen_X, Origen_Y + 7]
-]
+if ((Largo_Total - 2 * Radio_Pral) / 2) > 45:
+
+	Lista07 = [
+	['linea', 'Horizontal', Origen_X, Origen_Y + 7, Origen_X + 41, Origen_Y + 7],
+	['arco', Origen_X + 41, Origen_Y + 5, App.Vector(0, 0, 1), 2, math.radians(0), math.radians(90)],
+	['linea', 'Vertical', Origen_X + 43, Origen_Y + 5, Origen_X + 43, Origen_Y + 3],
+	['arco', Origen_X + 45, Origen_Y + 3, App.Vector(0, 0, 1), 2, math.radians(180), math.radians(270)],
+	['linea', 'Vertical', Origen_X + 45, Origen_Y + 1, Origen_X + 45, Origen_Y],
+	['linea', 'Horizontal', Origen_X + 45, Origen_Y, Origen_X, Origen_Y]
+	]
+	
+else:
+	
+	Desface_X = 45 - (Largo_Total - 2 * Radio_Pral) / 2
+	Radio_CC = Radio_Pral + (1 + 14 + 1) + 2
+	Desface_Y = Radio_CC - math.sqrt(Radio_CC**2 - Desface_X**2)
+	Angulo_Desface = math.acos(Desface_X / Radio_CC)
+	
+	Lista07 = [
+	['linea', 'Horizontal', Origen_X, Origen_Y + 7, Origen_X + 41, Origen_Y + 7],
+	['arco', Origen_X + 41, Origen_Y + 5, App.Vector(0, 0, 1), 2, math.radians(0), math.radians(90)],
+	['linea', 'Vertical', Origen_X + 43, Origen_Y + 5, Origen_X + 43, Origen_Y + 3 - Desface_Y],
+	['arco', Origen_X + 45, Origen_Y + 3 - Desface_Y, App.Vector(0, 0, 1), 2, math.radians(180), math.radians(180) + Angulo_Desface],
+	['linea', '', Origen_X + 45 - 2 * math.cos(Angulo_Desface), Origen_Y + 3 - Desface_Y - 2 * math.sin(Angulo_Desface), Origen_X + 45 - 3 * math.cos(Angulo_Desface), Origen_Y + 3 - Desface_Y - 3 * math.sin(Angulo_Desface)],
+	['arco', (Largo_Total - 2 * Radio_Pral) / 2, (Alto_Total - 2 * Radio_Pral) / 2, App.Vector(0, 0, 1), Radio_CC - 3, Angulo_Desface, math.radians(90)],
+	['linea', 'Horizontal', (Largo_Total - 2 * Radio_Pral) / 2, Origen_Y, Origen_X, Origen_Y]
+	]
 
 
 #Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Indice = '', Simetria = False):
@@ -952,6 +971,14 @@ Bloquear_Arcos(Boceto_LVS_P2, 2 * len(Lista07))
 
 
 Plano.recompute()
+
+
+
+
+
+#! crear Boceto Hoyo Pieza 2
+
+
 
 
 
