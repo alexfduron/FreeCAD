@@ -131,34 +131,33 @@ def Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Indice = '', Simetria = 
 			Lista_Linea[-1].append(1)
 			Lista_Linea[-1].append(2)
 		# aqui el Indice uno nos indica que es la segunda linea de la figura cerrada,
-		# tambien tiene la opcion de modificar la primera linea en caso de estar invertida.
+		# tambien tiene la opcion de modificar la primera linea en caso
+		# de que los puntos esten invertidos.
 		elif Indice == 1:
-			if Lista_Linea[-2][2] == 2:
-				if Lista_Linea[-2][7] == Pt1_Temp:
-					if Simetria == False:
-						Lista_Linea[-2][1] = 1
-						Lista_Linea[-2][2] = 2
-					Lista_Linea[-1].append(1)
-					Lista_Linea[-1].append(2)
-				elif Lista_Linea[-2][7] == Pt2_Temp:
-					if Simetria == False:
-						Lista_Linea[-2][1] = 1
-						Lista_Linea[-2][2] = 2
-					Lista_Linea[-1].append(2)
-					Lista_Linea[-1].append(1)
-			elif Lista_Linea[-2][2] == 1:
-				if Lista_Linea[-2][6] == Pt1_Temp:
-					if Simetria == False:
-						Lista_Linea[-2][1] = 2
-						Lista_Linea[-2][2] = 1
-					Lista_Linea[-1].append(1)
-					Lista_Linea[-1].append(2)
-				elif Lista_Linea[-2][6] == Pt2_Temp:
-					if Simetria == False:
-						Lista_Linea[-2][1] = 2
-						Lista_Linea[-2][2] = 1
-					Lista_Linea[-1].append(2)
-					Lista_Linea[-1].append(1)
+			if Lista_Linea[-2][7] == Pt1_Temp:
+				if Simetria == False:
+					Lista_Linea[-2][1] = 1
+					Lista_Linea[-2][2] = 2
+				Lista_Linea[-1].append(1)
+				Lista_Linea[-1].append(2)
+			elif Lista_Linea[-2][7] == Pt2_Temp:
+				if Simetria == False:
+					Lista_Linea[-2][1] = 1
+					Lista_Linea[-2][2] = 2
+				Lista_Linea[-1].append(2)
+				Lista_Linea[-1].append(1)
+			elif Lista_Linea[-2][6] == Pt1_Temp:
+				if Simetria == False:
+					Lista_Linea[-2][1] = 2
+					Lista_Linea[-2][2] = 1
+				Lista_Linea[-1].append(1)
+				Lista_Linea[-1].append(2)
+			elif Lista_Linea[-2][6] == Pt2_Temp:
+				if Simetria == False:
+					Lista_Linea[-2][1] = 2
+					Lista_Linea[-2][2] = 1
+				Lista_Linea[-1].append(2)
+				Lista_Linea[-1].append(1)
 		# aqui el Indice nos indica que son todas las lineas de la figura cerrada.
 		else:
 			if Lista_Linea[-2][2] == 1:
@@ -205,34 +204,33 @@ def Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = '', Simetri
 			Lista_Linea[-1].append(2)
 			Lista_Linea[-1].append(1)
 		# aqui el Indice uno nos indica que es el segundo arco de la figura cerrada,
-		# tambien tiene la opcion de modificar el primer arco en caso de estar invertido.
+		# tambien tiene la opcion de modificar el primer arco en caso
+		# de que los puntos esten invertidos.
 		elif Indice == 1:
-			if Lista_Linea[-2][2] == 2:
-				if Lista_Linea[-2][7] == Pt1_Temp:
-					if Simetria == False:
-						Lista_Linea[-2][1] = 1
-						Lista_Linea[-2][2] = 2
-					Lista_Linea[-1].append(1)
-					Lista_Linea[-1].append(2)
-				elif Lista_Linea[-2][7] == Pt2_Temp:
-					if Simetria == False:
-						Lista_Linea[-2][1] = 1
-						Lista_Linea[-2][2] = 2
-					Lista_Linea[-1].append(2)
-					Lista_Linea[-1].append(1)
-			elif Lista_Linea[-2][2] == 1:
-				if Lista_Linea[-2][6] == Pt1_Temp:
-					if Simetria == False:
-						Lista_Linea[-2][1] = 2
-						Lista_Linea[-2][2] = 1
-					Lista_Linea[-1].append(1)
-					Lista_Linea[-1].append(2)
-				elif Lista_Linea[-2][6] == Pt2_Temp:
-					if Simetria == False:
-						Lista_Linea[-2][1] = 2
-						Lista_Linea[-2][2] = 1
-					Lista_Linea[-1].append(2)
-					Lista_Linea[-1].append(1)
+			if Lista_Linea[-2][7] == Pt1_Temp:
+				if Simetria == False:
+					Lista_Linea[-2][1] = 1
+					Lista_Linea[-2][2] = 2
+				Lista_Linea[-1].append(1)
+				Lista_Linea[-1].append(2)
+			elif Lista_Linea[-2][7] == Pt2_Temp:
+				if Simetria == False:
+					Lista_Linea[-2][1] = 1
+					Lista_Linea[-2][2] = 2
+				Lista_Linea[-1].append(2)
+				Lista_Linea[-1].append(1)
+			elif Lista_Linea[-2][6] == Pt1_Temp:
+				if Simetria == False:
+					Lista_Linea[-2][1] = 2
+					Lista_Linea[-2][2] = 1
+				Lista_Linea[-1].append(1)
+				Lista_Linea[-1].append(2)
+			elif Lista_Linea[-2][6] == Pt2_Temp:
+				if Simetria == False:
+					Lista_Linea[-2][1] = 2
+					Lista_Linea[-2][2] = 1
+				Lista_Linea[-1].append(2)
+				Lista_Linea[-1].append(1)	
 		# aqui el Indice nos indica que son todas los arcos de la figura cerrada.
 		else:
 			if Lista_Linea[-2][2] == 1:
@@ -977,6 +975,30 @@ Plano.recompute()
 
 
 #! crear Boceto Hoyo Pieza 2
+Lista08 = [
+['linea', 'Horizontal', Origen_X + 2, Origen_Y + 5, Origen_X + 35, Origen_Y + 5],
+['arco', Origen_X + 2, Origen_Y + 4, App.Vector(0, 0, 1), 1, math.radians(90), math.radians(180)],
+['linea', 'Vertical', Origen_X + 1, Origen_Y + 4, Origen_X + 1, Origen_Y + 2],
+['arco', Origen_X + 2, Origen_Y + 2, App.Vector(0, 0, 1), 1, math.radians(180), math.radians(270)],
+['linea', 'Horizontal', Origen_X + 2, Origen_Y + 1, Origen_X + 35, Origen_Y + 1],
+['arco', Origen_X + 35, Origen_Y + 2, App.Vector(0, 0, 1), 1, math.radians(270), math.radians(360)],
+['linea', 'Vertical', Origen_X + 36, Origen_Y + 2, Origen_X + 36, Origen_Y + 4],
+['arco', Origen_X + 35, Origen_Y + 4, App.Vector(0, 0, 1), 1, math.radians(0), math.radians(90)]
+]
+
+
+#Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Indice = '', Simetria = False):
+#Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = '', Simetria = False):
+for k in range(0, len(Lista08)):
+	if Lista08[k][0] == 'linea':
+		Crear_Linea(App.Vector(Lista08[k][2], Lista08[k][3], 0), App.Vector(Lista08[k][4], Lista08[k][5], 0), Boceto_LVS_H_P2, '', k)
+	if Lista08[k][0] == 'arco':
+		Crear_Arco(App.Vector(Lista08[k][1], Lista08[k][2], 0), Lista08[k][3], Lista08[k][4], Boceto_LVS_H_P2, Lista08[k][5], Lista08[k][6], k)
+
+
+# Bloquear_Lineas(Boceto_X, Total_Lista)
+Bloquear_Lineas(Boceto_LVS_H_P2, len(Lista08))
+
 
 
 
