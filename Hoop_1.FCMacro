@@ -612,6 +612,18 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
 
 
 
+def Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
+	Lista01 = [
+		['linea', 'Horizontal', -(Largo_X - 2 * Radio_X) / 2, Alto_X / 2, (Largo_X - 2 * Radio_X) / 2, Alto_X / 2],
+		['arco', (Largo_X - 2 * Radio_X) / 2, (Alto_X - 2 * Radio_X) / 2, App.Vector(0, 0, 1), Radio_X, math.radians(0), math.radians(90)],
+		['linea', 'Vertical', Largo_X / 2, (Alto_X - 2 * Radio_X) / 2, Largo_X / 2, -(Alto_X - 2 * Radio_X) / 2],
+		['arco', (Largo_X - 2 * Radio_X) / 2, -(Alto_X - 2 * Radio_X) / 2, App.Vector(0, 0, 1), Radio_X, math.radians(270), math.radians(360)],
+		['linea', 'Horizontal', (Largo_X - 2 * Radio_X) / 2, -Alto_X / 2, -(Largo_X - 2 * Radio_X) / 2, -Alto_X / 2],
+		['arco', -(Largo_X - 2 * Radio_X) / 2, -(Alto_X - 2 * Radio_X) / 2, App.Vector(0, 0, 1), Radio_X, math.radians(180), math.radians(270)],
+		['linea', 'Vertical', -Largo_X / 2, -(Alto_X - 2 * Radio_X) / 2, -Largo_X / 2, (Alto_X - 2 * Radio_X) / 2],
+		['arco', -(Largo_X - 2 * Radio_X) / 2, (Alto_X - 2 * Radio_X) / 2, App.Vector(0, 0, 1), Radio_X, math.radians(90), math.radians(180)]
+	]
+	return Lista01
 
 
 
@@ -624,48 +636,42 @@ Largo_Total = 156
 Alto_Total = 156
 Radio_Pral = 35
 
-Largo_X = Largo_Total
-Alto_X = Alto_Total
-Radio_X = Radio_Pral
+Largo_Y = Largo_Total
+Alto_Y = Alto_Total
+Radio_Y = Radio_Pral
 
-# Crear lineas y arcos en el boceto
-Lista01 = [
-	['linea', 'Horizontal', -(Largo_X - 2 * Radio_X) / 2, Alto_X / 2, (Largo_X - 2 * Radio_X) / 2, Alto_X / 2],
-	['arco', (Largo_X - 2 * Radio_X) / 2, (Alto_X - 2 * Radio_X) / 2, App.Vector(0, 0, 1), Radio_X, math.radians(0), math.radians(90)],
-	['linea', 'Vertical', Largo_X / 2, (Alto_X - 2 * Radio_X) / 2, Largo_X / 2, -(Alto_X - 2 * Radio_X) / 2],
-	['arco', (Largo_X - 2 * Radio_X) / 2, -(Alto_X - 2 * Radio_X) / 2, App.Vector(0, 0, 1), Radio_X, math.radians(270), math.radians(360)],
-	['linea', 'Horizontal', (Largo_X - 2 * Radio_X) / 2, -Alto_X / 2, -(Largo_X - 2 * Radio_X) / 2, -Alto_X / 2],
-	['arco', -(Largo_X - 2 * Radio_X) / 2, -(Alto_X - 2 * Radio_X) / 2, App.Vector(0, 0, 1), Radio_X, math.radians(180), math.radians(270)],
-	['linea', 'Vertical', -Largo_X / 2, -(Alto_X - 2 * Radio_X) / 2, -Largo_X / 2, (Alto_X - 2 * Radio_X) / 2],
-	['arco', -(Largo_X - 2 * Radio_X) / 2, (Alto_X - 2 * Radio_X) / 2, App.Vector(0, 0, 1), Radio_X, math.radians(90), math.radians(180)]
-]
-
-# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
-Crear_Contorno(Lista01, Boceto_LVS_C)
-
-# FIXME la lista01 no actualiza las variables Largo_X, Alto_X, Radio_X
-# TODO revisar la posibilidad de crear listas separadas
-
-Largo_X += 1 + 1
-Alto_X += 1 + 1
-Radio_X += 1
-
+# Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
+Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
 # Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
 Crear_Contorno(Lista01, Boceto_LVS_C)
 
 
-Largo_X += 14 + 14
-Alto_X += 14 + 14
-Radio_X += 14
+Largo_Y += 1 + 1
+Alto_Y += 1 + 1
+Radio_Y += 1
 
+# Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
+Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
 # Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
 Crear_Contorno(Lista01, Boceto_LVS_C)
 
 
-Largo_X += 1 + 1
-Alto_X += 1 + 1
-Radio_X += 1
+Largo_Y += 14 + 14
+Alto_Y += 14 + 14
+Radio_Y += 14
 
+# Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
+Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
+# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
+Crear_Contorno(Lista01, Boceto_LVS_C)
+
+
+Largo_Y += 1 + 1
+Alto_Y += 1 + 1
+Radio_Y += 1
+
+# Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
+Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
 # Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
 Crear_Contorno(Lista01, Boceto_LVS_C)
 
@@ -673,22 +679,26 @@ Crear_Contorno(Lista01, Boceto_LVS_C)
 
 
 #! crear Boceto Tapadera
-Largo_X = Largo_Total
-Alto_X = Alto_Total
-Radio_X = Radio_Pral
+Largo_Y = Largo_Total
+Alto_Y = Alto_Total
+Radio_Y = Radio_Pral
 
-Largo_X += 1.5 + 1.5
-Alto_X += 1.5 + 1.5
-Radio_X += 1.5
+Largo_Y += 1.5 + 1.5
+Alto_Y += 1.5 + 1.5
+Radio_Y += 1.5
 
+# Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
+Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
 # Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
 Crear_Contorno(Lista01, Boceto_LVS_T)
 
 
-Largo_X += 13 + 13
-Alto_X += 13 + 13
-Radio_X += 13
+Largo_Y += 13 + 13
+Alto_Y += 13 + 13
+Radio_Y += 13
 
+# Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
+Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
 # Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
 Crear_Contorno(Lista01, Boceto_LVS_T)
 
