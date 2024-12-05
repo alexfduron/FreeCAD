@@ -744,20 +744,41 @@ Bloquear_Circulos(Boceto_LVS_T, len(Lista03))
 
 
 
+
+
 #! crear Boceto Pieza 1
 Origen_Y = -(Alto_Total / 2) - 15
 Origen_X = 0
 
+if ((Largo_Total - 2 * Radio_Pral) / 2) > 33:
 
-
-Lista04 = [
-['linea', 'Horizontal', Origen_X, Origen_Y, Origen_X + 33, Origen_Y],
-['linea', 'Vertical', Origen_X + 33, Origen_Y, Origen_X + 33, Origen_Y - 1],
-['arco', Origen_X + 33, Origen_Y - 6, App.Vector(0, 0, 1), 5, math.radians(90), math.radians(180)],
-['linea', 'Vertical', Origen_X + 28, Origen_Y - 6, Origen_X + 28, Origen_Y - 16],
-['arco', Origen_X + 23, Origen_Y - 16, App.Vector(0, 0, 1), 5, math.radians(270), math.radians(360)],
-['linea', 'Horizontal', Origen_X + 23, Origen_Y - 21, Origen_X, Origen_Y - 21]
-]
+	Lista04 = [
+	['linea', 'Horizontal', Origen_X, Origen_Y, Origen_X + 33, Origen_Y],
+	['linea', 'Vertical', Origen_X + 33, Origen_Y, Origen_X + 33, Origen_Y - 1],
+	['arco', Origen_X + 33, Origen_Y - 6, App.Vector(0, 0, 1), 5, math.radians(90), math.radians(180)],
+	['linea', 'Vertical', Origen_X + 28, Origen_Y - 6, Origen_X + 28, Origen_Y - 16],
+	['arco', Origen_X + 23, Origen_Y - 16, App.Vector(0, 0, 1), 5, math.radians(270), math.radians(360)],
+	['linea', 'Horizontal', Origen_X + 23, Origen_Y - 21, Origen_X, Origen_Y - 21]
+	]
+	
+else:
+	
+	Desfase_X = 33 - (Largo_Total - 2 * Radio_Pral) / 2
+	Radio_CC = Radio_Pral + (1 + 14 + 1) + 5
+	Desfase_Y = Radio_CC - math.sqrt(Radio_CC**2 - Desfase_X**2)
+	Angulo_Desfase = math.acos(Desfase_X / Radio_CC)
+	
+	
+	Lista04 = [
+	['linea', 'Horizontal', Origen_X, Origen_Y - 21, Origen_X + 23, Origen_Y - 21],
+	['arco', Origen_X + 23, Origen_Y - 16, App.Vector(0, 0, 1), 5, math.radians(270), math.radians(360)],
+	['linea', 'Vertical', Origen_X + 28, Origen_Y - 16, Origen_X + 28, Origen_Y - 6 + Desfase_Y],
+	['arco', Origen_X + 33, Origen_Y - 6 + Desfase_Y, App.Vector(0, 0, 1), 5, math.radians(180) - Angulo_Desfase, math.radians(180)],
+	['linea', 'Oblicua', Origen_X + 33 - 5 * math.cos(Angulo_Desfase), Origen_Y - 6 + Desfase_Y + 5 * math.sin(Angulo_Desfase), Origen_X + 33 - 6 * math.cos(Angulo_Desfase), Origen_Y - 6 + Desfase_Y + 6 * math.sin(Angulo_Desfase)],
+	['arco', (Largo_Total - 2 * Radio_Pral) / 2, -(Alto_Total - 2 * Radio_Pral) / 2, App.Vector(0, 0, 1), Radio_CC - 6, math.radians(270), math.radians(360) - Angulo_Desfase],
+	['linea', 'Horizontal', (Largo_Total - 2 * Radio_Pral) / 2, Origen_Y, Origen_X, Origen_Y]
+	]
+	
 
 
 # Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
@@ -802,6 +823,11 @@ Crear_Contorno(Lista06, Boceto_LVS_H_P1, False, True)
 
 
 
+
+
+
+
+
 #! crear Boceto Pieza 2
 Origen_Y = (Alto_Total / 2) + 15
 Origen_X = 0
@@ -819,18 +845,18 @@ if ((Largo_Total - 2 * Radio_Pral) / 2) > 45:
 	
 else:
 	
-	Desface_X = 45 - (Largo_Total - 2 * Radio_Pral) / 2
+	Desfase_X = 45 - (Largo_Total - 2 * Radio_Pral) / 2
 	Radio_CC = Radio_Pral + (1 + 14 + 1) + 2
-	Desface_Y = Radio_CC - math.sqrt(Radio_CC**2 - Desface_X**2)
-	Angulo_Desface = math.acos(Desface_X / Radio_CC)
+	Desfase_Y = Radio_CC - math.sqrt(Radio_CC**2 - Desfase_X**2)
+	Angulo_Desfase = math.acos(Desfase_X / Radio_CC)
 	
 	Lista07 = [
 	['linea', 'Horizontal', Origen_X, Origen_Y + 7, Origen_X + 41, Origen_Y + 7],
 	['arco', Origen_X + 41, Origen_Y + 5, App.Vector(0, 0, 1), 2, math.radians(0), math.radians(90)],
-	['linea', 'Vertical', Origen_X + 43, Origen_Y + 5, Origen_X + 43, Origen_Y + 3 - Desface_Y],
-	['arco', Origen_X + 45, Origen_Y + 3 - Desface_Y, App.Vector(0, 0, 1), 2, math.radians(180), math.radians(180) + Angulo_Desface],
-	['linea', '', Origen_X + 45 - 2 * math.cos(Angulo_Desface), Origen_Y + 3 - Desface_Y - 2 * math.sin(Angulo_Desface), Origen_X + 45 - 3 * math.cos(Angulo_Desface), Origen_Y + 3 - Desface_Y - 3 * math.sin(Angulo_Desface)],
-	['arco', (Largo_Total - 2 * Radio_Pral) / 2, (Alto_Total - 2 * Radio_Pral) / 2, App.Vector(0, 0, 1), Radio_CC - 3, Angulo_Desface, math.radians(90)],
+	['linea', 'Vertical', Origen_X + 43, Origen_Y + 5, Origen_X + 43, Origen_Y + 3 - Desfase_Y],
+	['arco', Origen_X + 45, Origen_Y + 3 - Desfase_Y, App.Vector(0, 0, 1), 2, math.radians(180), math.radians(180) + Angulo_Desfase],
+	['linea', 'Oblicua', Origen_X + 45 - 2 * math.cos(Angulo_Desfase), Origen_Y + 3 - Desfase_Y - 2 * math.sin(Angulo_Desfase), Origen_X + 45 - 3 * math.cos(Angulo_Desfase), Origen_Y + 3 - Desfase_Y - 3 * math.sin(Angulo_Desfase)],
+	['arco', (Largo_Total - 2 * Radio_Pral) / 2, (Alto_Total - 2 * Radio_Pral) / 2, App.Vector(0, 0, 1), Radio_CC - 3, Angulo_Desfase, math.radians(90)],
 	['linea', 'Horizontal', (Largo_Total - 2 * Radio_Pral) / 2, Origen_Y, Origen_X, Origen_Y]
 	]
 
