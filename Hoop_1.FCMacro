@@ -707,19 +707,72 @@ Crear_Contorno(Lista01, Boceto_LVS_T)
 
 
 #! Crear_Agujeros
-val_x = (Largo_Total / 2) + 1 + 14 / 2
-val_y = (Alto_Total / 2) + 1 + 14 / 2
+Val_X = (Largo_Total / 2) + 1 + 14 / 2
+Val_Y = (Alto_Total / 2) + 1 + 14 / 2
+Delta_X = (Largo_Total - 2 * Radio_Pral) / 2
+Delta_Y = (Alto_Total - 2 * Radio_Pral) / 2
+Multi_X = math.floor(Delta_X / 38)
+Multi_Y = math.floor(Delta_Y / 38)
 
-Lista03 = [
-[App.Vector(38, val_y, 0), App.Vector(0, 0, 1), 1.5],
-[App.Vector(val_x, 38, 0), App.Vector(0, 0, 1), 1.5],
-[App.Vector(val_x, -38, 0), App.Vector(0, 0, 1), 1.5],
-[App.Vector(38, -val_y, 0), App.Vector(0, 0, 1), 1.5],
-[App.Vector(-38, -val_y, 0), App.Vector(0, 0, 1), 1.5],
-[App.Vector(-val_x, -38, 0), App.Vector(0, 0, 1), 1.5],
-[App.Vector(-val_x, 38, 0), App.Vector(0, 0, 1), 1.5],
-[App.Vector(-38, val_y, 0), App.Vector(0, 0, 1), 1.5]
+if Multi_X == 0:
+	DeltaVal_X = [Delta_X]
+elif Multi_X == 1:
+	DeltaVal_X = [38]
+else:
+	Multi_X = math.floor((Delta_X - 38) / (38 * 2))
+	DeltaVal_X = [38]
+	Ciclo = 38
+	for k in range(Multi_X):
+		Ciclo += 38 * 2
+		DeltaVal_X.append(Ciclo)
+	if math.floor(((Delta_X - 38) - 38 * 2 * Multi_X) / 38) >= 1:
+		DeltaVal_X.append(Delta_X)
+		
+if Multi_Y == 0:
+	DeltaVal_Y = [Delta_Y]
+elif Multi_Y == 1:
+	DeltaVal_Y = [38]
+else:
+	Multi_Y = math.floor((Delta_Y - 38) / (38 * 2))
+	DeltaVal_Y = [38]
+	Ciclo = 38
+	for k in range(Multi_Y):
+		Ciclo += 38 * 2
+		DeltaVal_Y.append(Ciclo)
+	if math.floor(((Delta_Y - 38) - 38 * 2 * Multi_Y) / 38) >= 1:
+		DeltaVal_Y.append(Delta_Y)
+
+
+Lista02 = [
+['Arriba',     1, Val_Y, 'Derecha',    1],
+['Derecha',    1, Val_X, 'Arriba',     1],
+['Derecha',    1, Val_X, 'Abajo',     -1],
+['Abajo',     -1, Val_Y, 'Derecha',    1],
+['Abajo',     -1, Val_Y, 'Izquierda', -1],
+['Izquierda', -1, Val_X, 'Abajo',     -1],
+['Izquierda', -1, Val_X, 'Arriba',     1],
+['Arriba',     1, Val_Y, 'Izquierda', -1]
 ]
+
+
+Lista03 = []
+for j in range(0, len(Lista02)):
+	if Lista02[j][0] == 'Arriba':
+		for k in range(0, len(DeltaVal_X)):
+			Lista_Temp = [App.Vector(Lista02[j][4] * DeltaVal_X[k], Lista02[j][1] * Lista02[j][2], 0), App.Vector(0, 0, 1), 1.5]
+			Lista03.append(Lista_Temp)
+	elif Lista02[j][0] == 'Abajo':
+		for k in range(0, len(DeltaVal_X)):
+			Lista_Temp = [App.Vector(Lista02[j][4] * DeltaVal_X[k], Lista02[j][1] * Lista02[j][2], 0), App.Vector(0, 0, 1), 1.5]
+			Lista03.append(Lista_Temp)
+	elif Lista02[j][0] == 'Derecha':
+		for k in range(0, len(DeltaVal_Y)):
+			Lista_Temp = [App.Vector(Lista02[j][1] * Lista02[j][2],Lista02[j][4] * DeltaVal_Y[k], 0), App.Vector(0, 0, 1), 1.5]
+			Lista03.append(Lista_Temp)
+	elif Lista02[j][0] == 'Izquierda':
+		for k in range(0, len(DeltaVal_Y)):
+			Lista_Temp = [App.Vector(Lista02[j][1] * Lista02[j][2],Lista02[j][4] * DeltaVal_Y[k], 0), App.Vector(0, 0, 1), 1.5]
+			Lista03.append(Lista_Temp)
 
 
 for k in range(0, len(Lista03)):
@@ -750,7 +803,7 @@ Bloquear_Circulos(Boceto_LVS_T, len(Lista03))
 Origen_Y = -(Alto_Total / 2) - 15
 Origen_X = 0
 
-if ((Largo_Total - 2 * Radio_Pral) / 2) > 33:
+if ((Largo_Total - 2 * Radio_Pral) / 2) >= 33:
 
 	Lista04 = [
 	['linea', 'Horizontal', Origen_X, Origen_Y, Origen_X + 33, Origen_Y],
@@ -760,14 +813,13 @@ if ((Largo_Total - 2 * Radio_Pral) / 2) > 33:
 	['arco', Origen_X + 23, Origen_Y - 16, App.Vector(0, 0, 1), 5, math.radians(270), math.radians(360)],
 	['linea', 'Horizontal', Origen_X + 23, Origen_Y - 21, Origen_X, Origen_Y - 21]
 	]
-	
+
 else:
 	
 	Desfase_X = 33 - (Largo_Total - 2 * Radio_Pral) / 2
 	Radio_CC = Radio_Pral + (1 + 14 + 1) + 5
 	Desfase_Y = Radio_CC - math.sqrt(Radio_CC**2 - Desfase_X**2)
 	Angulo_Desfase = math.acos(Desfase_X / Radio_CC)
-	
 	
 	Lista04 = [
 	['linea', 'Horizontal', Origen_X, Origen_Y - 21, Origen_X + 23, Origen_Y - 21],
@@ -779,7 +831,6 @@ else:
 	['linea', 'Horizontal', (Largo_Total - 2 * Radio_Pral) / 2, Origen_Y, Origen_X, Origen_Y]
 	]
 	
-
 
 # Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
 Crear_Contorno(Lista04, Boceto_LVS_P1, True)
@@ -910,13 +961,13 @@ Crear_Contorno(Lista09, Boceto_LVS_H_P2, False, True)
 
 
 
-
+'''
 
 print(len(Lista_Linea))
 for l in Lista_Linea:
 	print(l)
 
-
+'''
 
 
 # Macro End: C:\Users\OWNER\AppData\Roaming\FreeCAD\Macro\Hoop_1.FCMacro +++++++++++++++++++++++++++++++++++++++++++++++++
