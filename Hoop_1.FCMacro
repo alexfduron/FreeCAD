@@ -971,21 +971,26 @@ def Crear_Boceto_P2(Largo_Total, Alto_Total, Radio_Pral):
 
 
 #! Estas son las funciones para las partes que forman el Hoop
-def Crear_Hoop(Largo_Total, Alto_Total, Radio_Pral):
+def Crear_Hoop(Largo_Total = '156 mm', Alto_Total = '156 mm', Radio_Pral = '35 mm'):
+	
+	# aqui convertimos el texto a numero con las unidades por defecto en FreeCAD
+	LT = Units.Quantity(Largo_Total).Value
+	AT = Units.Quantity(Alto_Total).Value
+	RP = Units.Quantity(Radio_Pral).Value
 	
 	Crear_Contenedor_2D()
 	
 	# Crear_Boceto_Cuerpo(Largo_Total, Alto_Total, Radio_Pral):
-	Crear_Boceto_Cuerpo(Largo_Total, Alto_Total, Radio_Pral)
+	Crear_Boceto_Cuerpo(LT, AT, RP)
 	
 	# Crear_Boceto_Tapadera(Largo_Total, Alto_Total, Radio_Pral):
-	Crear_Boceto_Tapadera(Largo_Total, Alto_Total, Radio_Pral)
+	Crear_Boceto_Tapadera(LT, AT, RP)
 	
 	# Crear_Boceto_P1(Largo_Total, Alto_Total, Radio_Pral):
-	Crear_Boceto_P1(Largo_Total, Alto_Total, Radio_Pral)
+	Crear_Boceto_P1(LT, AT, RP)
 	
 	# Crear_Boceto_P2(Largo_Total, Alto_Total, Radio_Pral):
-	Crear_Boceto_P2(Largo_Total, Alto_Total, Radio_Pral)
+	Crear_Boceto_P2(LT, AT, RP)
 
 
 
@@ -1000,7 +1005,7 @@ Lista_Linea = []
 
 #! Esta es la funcion que inicia la Macro
 # Crear_Hoop(Largo_Total, Alto_Total, Radio_Pral):
-Crear_Hoop(156, 156, 35)
+Crear_Hoop('156 mm', '156 mm', '35 mm')
 
 
 
