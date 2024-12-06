@@ -1,4 +1,25 @@
-9# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
+
+'''
+copyright (c) 2024
+AFD
+
+This program is free software, you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public Licence (LGPL)
+as published by the Free Software Fundation; either version 2 of 
+the Licence, or (at your option) any Later version.
+for detail see the LICENCE text file.
+
+Thi program is distributed in the hope that it will be useful
+but WITHOUT ANY WARRANTY, without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+GNU Library General Public Licence for more details.
+
+You should have received a copy of the GNU Library General Public
+Licence along with this program, if not, write to the Free Software 
+Foundation Inc. 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+
+'''
 
 # Macro Begin: C:\Users\OWNER\AppData\Roaming\FreeCAD\Macro\Hoop_1.FCMacro +++++++++++++++++++++++++++++++++++++++++++++++++
 import FreeCAD as App
@@ -7,11 +28,25 @@ import PartDesign
 import Sketcher
 import Part
 import math
+from FreeCAD import Units
 
-# Tomamos el archivo activo
-Plano = App.activeDocument()
+
+
+# ejemplo: def create(rad) 
+# el vector no admite las unidades de: 5 mm ó 10 m ó 6 ft
+# si no tienes que pasar un numero que son las unidades por defecto de FreeCAD
+# para eso se hace la conversion: Units.Quantity(rad).Value
+
+
+
 
 #! Estos son las funciones para las Piezas, Cuerpos, Grupos, Bocetos
+def Crear_Plano():
+	# Tomamos el archivo activo
+	Plano_X = App.activeDocument()
+	return Plano_X
+
+
 def Crear_Grupo(Titulo, Etiqueta = '', Objeto_X = ''):
 	Grupo_X = Plano.addObject('App::DocumentObjectGroup', Titulo)
 	Plano.Tip = Grupo_X
@@ -71,16 +106,25 @@ def Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = '', Plano_X = ''):
 	return Boceto_X	
 
 
-### Begin command Std_Part
-Pieza_H1 = Plano.addObject('App::Part','Part_H001')
-Plano.Tip = Pieza_H1
-Pieza_H1.Label = 'Parte_H001'
-Plano.recompute()
+def Crear_Pieza(Plano_X):
+	Pieza_X = Plano_X.addObject('App::Part','Part_H001')
+	Plano_X.Tip = Pieza_X
+	Pieza_X.Label = 'Parte_H001'
+	Plano_X.recompute()
+	return Pieza_X
+
 
 
 
 
 #! Estos son los planos en 2D
+### Begin command doc
+Plano = Crear_Plano()
+Plano.recompute()
+
+### Begin command Std_Part
+Pieza_H1 = Crear_Pieza(Plano)
+
 ### Begin command Std_Group
 Grupo_LH1 = Crear_Grupo('Group_LH001', '', Pieza_H1)
 
