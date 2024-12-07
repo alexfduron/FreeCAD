@@ -149,6 +149,8 @@ def Crear_Contenedor_2D():
 	Boceto_LVS_P2 = Crear_Boceto('Sketch_LVS_P2001', 'Sketch_LVS_Pieza2', Cuerpo_LH1)
 	global Boceto_LVS_H_P2
 	Boceto_LVS_H_P2 = Crear_Boceto('Sketch_LVS_H_P2001', 'Sketch_LVS_Hoyo_Pieza2', Cuerpo_LH1)
+	global Boceto_LVS_I
+	Boceto_LVS_I = Crear_Boceto('Sketch_LVS_I001', 'Sketch_LVS_Iman', Cuerpo_LH1)
 	
 	
 	
@@ -649,41 +651,42 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
 	Plano.recompute()
 
 
-def Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X):
+def Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero = 1.5, Separacion = 76):
 	
+	Separacion = Separacion / 2
 	Val_X = (Largo_Total / 2) + 1 + 14 / 2
 	Val_Y = (Alto_Total / 2) + 1 + 14 / 2
 	Delta_X = (Largo_Total - 2 * Radio_Pral) / 2
 	Delta_Y = (Alto_Total - 2 * Radio_Pral) / 2
-	Multi_X = math.floor(Delta_X / 38)
-	Multi_Y = math.floor(Delta_Y / 38)
+	Multi_X = math.floor(Delta_X / Separacion)
+	Multi_Y = math.floor(Delta_Y / Separacion)
 	
 	if Multi_X == 0:
 		DeltaVal_X = [Delta_X]
 	elif Multi_X == 1:
-		DeltaVal_X = [38]
+		DeltaVal_X = [Separacion]
 	else:
-		Multi_X = math.floor((Delta_X - 38) / (38 * 2))
-		DeltaVal_X = [38]
-		Ciclo = 38
+		Multi_X = math.floor((Delta_X - Separacion) / (Separacion * 2))
+		DeltaVal_X = [Separacion]
+		Ciclo = Separacion
 		for k in range(Multi_X):
-			Ciclo += 38 * 2
+			Ciclo += Separacion * 2
 			DeltaVal_X.append(Ciclo)
-		if math.floor(((Delta_X - 38) - 38 * 2 * Multi_X) / 38) >= 1:
+		if math.floor(((Delta_X - Separacion) - Separacion * 2 * Multi_X) / Separacion) >= 1:
 			DeltaVal_X.append(Delta_X)
 			
 	if Multi_Y == 0:
 		DeltaVal_Y = [Delta_Y]
 	elif Multi_Y == 1:
-		DeltaVal_Y = [38]
+		DeltaVal_Y = [Separacion]
 	else:
-		Multi_Y = math.floor((Delta_Y - 38) / (38 * 2))
-		DeltaVal_Y = [38]
-		Ciclo = 38
+		Multi_Y = math.floor((Delta_Y - Separacion) / (Separacion * 2))
+		DeltaVal_Y = [Separacion]
+		Ciclo = Separacion
 		for k in range(Multi_Y):
-			Ciclo += 38 * 2
+			Ciclo += Separacion * 2
 			DeltaVal_Y.append(Ciclo)
-		if math.floor(((Delta_Y - 38) - 38 * 2 * Multi_Y) / 38) >= 1:
+		if math.floor(((Delta_Y - Separacion) - Separacion * 2 * Multi_Y) / Separacion) >= 1:
 			DeltaVal_Y.append(Delta_Y)
 	
 	
@@ -703,19 +706,19 @@ def Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X):
 	for j in range(0, len(Lista02)):
 		if Lista02[j][0] == 'Arriba':
 			for k in range(0, len(DeltaVal_X)):
-				Lista_Temp = [App.Vector(Lista02[j][4] * DeltaVal_X[k], Lista02[j][1] * Lista02[j][2], 0), App.Vector(0, 0, 1), 1.5]
+				Lista_Temp = [App.Vector(Lista02[j][4] * DeltaVal_X[k], Lista02[j][1] * Lista02[j][2], 0), App.Vector(0, 0, 1), Radio_Agujero]
 				Lista03.append(Lista_Temp)
 		elif Lista02[j][0] == 'Abajo':
 			for k in range(0, len(DeltaVal_X)):
-				Lista_Temp = [App.Vector(Lista02[j][4] * DeltaVal_X[k], Lista02[j][1] * Lista02[j][2], 0), App.Vector(0, 0, 1), 1.5]
+				Lista_Temp = [App.Vector(Lista02[j][4] * DeltaVal_X[k], Lista02[j][1] * Lista02[j][2], 0), App.Vector(0, 0, 1), Radio_Agujero]
 				Lista03.append(Lista_Temp)
 		elif Lista02[j][0] == 'Derecha':
 			for k in range(0, len(DeltaVal_Y)):
-				Lista_Temp = [App.Vector(Lista02[j][1] * Lista02[j][2],Lista02[j][4] * DeltaVal_Y[k], 0), App.Vector(0, 0, 1), 1.5]
+				Lista_Temp = [App.Vector(Lista02[j][1] * Lista02[j][2],Lista02[j][4] * DeltaVal_Y[k], 0), App.Vector(0, 0, 1), Radio_Agujero]
 				Lista03.append(Lista_Temp)
 		elif Lista02[j][0] == 'Izquierda':
 			for k in range(0, len(DeltaVal_Y)):
-				Lista_Temp = [App.Vector(Lista02[j][1] * Lista02[j][2],Lista02[j][4] * DeltaVal_Y[k], 0), App.Vector(0, 0, 1), 1.5]
+				Lista_Temp = [App.Vector(Lista02[j][1] * Lista02[j][2],Lista02[j][4] * DeltaVal_Y[k], 0), App.Vector(0, 0, 1), Radio_Agujero]
 				Lista03.append(Lista_Temp)
 	
 	
@@ -784,8 +787,8 @@ def Crear_Boceto_Cuerpo(Largo_Total, Alto_Total, Radio_Pral):
 	Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
 	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
 	Crear_Contorno(Lista01, Boceto_LVS_C)
-	# Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X):
-	Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_LVS_C)
+	# Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero = 1.5, Separacion = 76):
+	Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_LVS_C, 1.5)
 	
 
 
@@ -814,8 +817,8 @@ def Crear_Boceto_Tapadera(Largo_Total, Alto_Total, Radio_Pral):
 	Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
 	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
 	Crear_Contorno(Lista01, Boceto_LVS_T)
-	# Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X):
-	Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_LVS_T)
+	# Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero = 1.5, Separacion = 76):
+	Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_LVS_T, 1.5)
 	
 	
 
@@ -968,6 +971,23 @@ def Crear_Boceto_P2(Largo_Total, Alto_Total, Radio_Pral):
 	
 
 
+#! Crear_Boceto_Iman
+def Crear_Boceto_Iman(Largo_Total, Alto_Total, Radio_Pral):
+	
+	Lista10 = [
+	[App.Vector(0, (Alto_Total / 2) + 1 + 14 / 2, 0), App.Vector(0, 0, 1), 7],
+	[App.Vector((Largo_Total / 2) + 1 + 14 / 2, 0, 0), App.Vector(0, 0, 1), 7],
+	[App.Vector(0, -(Alto_Total / 2) - 1 - 14 / 2, 0), App.Vector(0, 0, 1), 7],
+	[App.Vector(-(Largo_Total / 2) - 1 - 14 / 2, 0, 0), App.Vector(0, 0, 1), 7]
+	]
+	
+	for k in range(0, len(Lista10)):
+		# Crear_Circulo(Pt1, Eje, Radio, Boceto_X):
+		Crear_Circulo(Lista10[k][0], Lista10[k][1], Lista10[k][2], Boceto_LVS_I)
+	
+	# Bloquear_Circulos(Boceto_X, Total_Lista):
+	Bloquear_Circulos(Boceto_LVS_I, len(Lista10))
+
 
 
 #! Estas son las funciones para las partes que forman el Hoop
@@ -991,7 +1011,9 @@ def Crear_Hoop(Largo_Total = '156 mm', Alto_Total = '156 mm', Radio_Pral = '35 m
 	
 	# Crear_Boceto_P2(Largo_Total, Alto_Total, Radio_Pral):
 	Crear_Boceto_P2(LT, AT, RP)
-
+	
+	# Crear_Boceto_Iman(Largo_Total, Alto_Total, Radio_Pral):
+	Crear_Boceto_Iman(LT, AT, RP)
 
 
 
