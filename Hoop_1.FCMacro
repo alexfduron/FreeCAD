@@ -23,6 +23,7 @@ Foundation Inc. 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 
 # Macro Begin: C:\Users\OWNER\AppData\Roaming\FreeCAD\Macro\Hoop_1.FCMacro +++++++++++++++++++++++++++++++++++++++++++++++++
 import FreeCAD as App
+import FreeCADGui as Gui
 import PartDesignGui
 import PartDesign
 import Sketcher
