@@ -17,8 +17,9 @@ def Cuerpo_X(Nombre):
 	
 	
 	
-def Validar_Colision(Obj01_X, Obj02_X, Pintar = 'Cuerpo', Contador = 1):
+def Pintar_Colision(Obj01_X, Obj02_X, Pintar = 'Cuerpo', Contador = 1):
 	
+	# aqui declaramos las variables locales
 	Lista_Vertices = []
 	Lista_Caras = []
 	Lista_Colores = []
@@ -30,7 +31,7 @@ def Validar_Colision(Obj01_X, Obj02_X, Pintar = 'Cuerpo', Contador = 1):
 		Memo_Colores = Obj01.ViewObject.DiffuseColor
 
 	
-	# aqui revisamos que las caras del objeto 2 tienen interseccion con las caras del objeto 1 (en colision)
+	# aqui revisamos que las caras del objeto 1 tienen interseccion con las caras del objeto 2 (en colision)
 	for f1 in range(0, len(Obj01.Shape.Faces)):
 		for f2 in range(0, len(Obj02.Shape.Faces)):
 			if Obj01.Shape.Faces[f1].BoundBox.intersect(Obj02.Shape.Faces[f2].BoundBox) == True:
@@ -68,87 +69,146 @@ def Validar_Colision(Obj01_X, Obj02_X, Pintar = 'Cuerpo', Contador = 1):
 			Obj01.ViewObject.DiffuseColor = Lista_Colores
 
 		
+def Procesar_Objetos():
 
-
-
-Obj_Seleccion = Gui.Selection.getSelection()
-
-Lista_Body = []
-Lista_Index = []
-
-# Limpiar_Pantalla():
-Limpiar_Pantalla()
-
-
-if len(Obj_Seleccion) > 0:
-	for myObj in Obj_Seleccion:
-		
-		try:
-			if 'Body' in myObj.Name:
-				Lista_Body.append(myObj.Name)
-				Lista_Index.append(1)
-		except:
-			pass
-			
-		try:
-			if 'Body' in myObj.getParent().Name:
-				Lista_Body.append(myObj.getParent().Name)
-				Lista_Index.append(2)
-		except:
-			pass
-			
-		try:
-			for k in range(0, len(myObj.Group)):
-				if 'Body' in myObj.Group[k].Name:
-					Lista_Body.append(myObj.Group[k].Name)
-					Lista_Index.append(3)
-		except:
-			pass
-		
+	# aqui tomamos los objetos seleccionados por el usuario
+	Obj_Seleccion = Gui.Selection.getSelection()
 	
-		#Gui.ActiveDocument.getObject(myObj.Name).ShapeColor = (0.0, 1.0, 0.0))
-		#Gui.ActiveDocument.getObject(myObj.Name).ShapeAppearance = App.Material(DiffuseColor = (0.0, 1.0, 0.0))
-		if Lista_Index[-1] == 1:
-			Gui.ActiveDocument.getObject(myObj.Name).DiffuseColor = [(0.0, 1.0, 0.0)]
-		if Lista_Index[-1] == 2:
-			Gui.ActiveDocument.getObject(myObj.getParent().Name).DiffuseColor = [(0.0, 1.0, 0.0)]
-		if Lista_Index[-1] == 3:
-			for k in range(0, len(myObj.Group)):
-				Gui.ActiveDocument.getObject(myObj.Group[k].Name).DiffuseColor = [(0.0, 1.0, 0.0)]
-			
+	Lista_Body = []
+	Lista_Index = []
 	
-	print()
+	# Limpiar_Pantalla():
+	Limpiar_Pantalla()
 	
-	
-		
-	for Actor in Lista_Body:
-		
-		Vueltas = 0
-		
-		# Cuerpo_X(Nombre):
-		print('Actor = ' + Cuerpo_X(Actor).Label)
-		
-		for Obstaculo in Lista_Body:
-			if Actor == Obstaculo:
-				continue
-			print('--Obstaculo = ' + Cuerpo_X(Obstaculo).Label)
+	# aqui buscamos los Cuerpos usando varios casos de busqueda
+	if len(Obj_Seleccion) > 0:
+		for myObj in Obj_Seleccion:
 			
+			Existe_Body = False
 			
-			if Cuerpo_X(Actor).Shape.BoundBox.intersect(Cuerpo_X(Obstaculo).Shape.BoundBox) == True:
-				
-				Vueltas += 1
-				
-				# Validar_Colision(Obj01, Obj02, Pintar = 'Cuerpo', Contador = 1):
-				Validar_Colision(Actor, Obstaculo, 'Cara', Vueltas)
+			# Caso 1: el objeto seleccionado es el cuerpo
+			if Existe_Body == False:
+				try:
+					if 'Body' in myObj.Name:
+						Lista_Body.append(myObj.Name)
+						Lista_Index.append(1)
+						Existe_Body = True
+				except:
+					pass
+			
+			# Caso 2: el objeto seleccionado es un sub elemento del cuerpo
+			if Existe_Body == False:
+				try:
+					if 'Body' in myObj.getParent().Name:
+						Lista_Body.append(myObj.getParent().Name)
+						Lista_Index.append(2)
+						Existe_Body = True
+				except:
+					pass
+			
+			# Caso 3: el objeto seleccionado es una Pieza y el cuerpo es un sub elemento
+			if Existe_Body == False:
+				try:
+					for k in range(0, len(myObj.Group)):
+						if 'Body' in myObj.Group[k].Name:
+							Lista_Body.append(myObj.Group[k].Name)
+							Lista_Index.append(3)
+							Existe_Body = True
+				except:
+					pass
+			
+			# Caso 4: el objeto seleccionado es un sub elemento de un sub elemento del cuerpo
+			if Existe_Body == False:
+				try:
+					if 'Body' in myObj.getParent().getParent().Name:
+						Lista_Body.append(myObj.getParent().getParent().Name)
+						Lista_Index.append(4)
+						Existe_Body = True
+				except:
+					pass
+			
+			# Caso 5: el objeto seleccionado es un sub elemento de la Pieza y el cuerpo es un sub elemento
+			if Existe_Body == False:
+				try:
+					if 'Part' in myObj.getParent().Name:
+						for k in range(0, len(myObj.getParent().Group)):
+							if 'Body' in myObj.getParent().Group[k].Name:
+								Lista_Body.append(myObj.getParent().Group[k].Name)
+								Lista_Index.append(5)
+								Existe_Body = True
+				except:
+					pass
 					
-				print('-- -- En Colision')
+			# Caso 6: el objeto seleccionado es un sub elemento de un sub elemento de la Pieza y el cuerpo es un sub elemento
+			if Existe_Body == False:
+				try:
+					if 'Part' in myObj.getParent().getParent().Name:
+						for k in range(0, len(myObj.getParent().getParent().Group)):
+							if 'Body' in myObj.getParent().getParent().Group[k].Name:
+								Lista_Body.append(myObj.getParent().getParent().Group[k].Name)
+								Lista_Index.append(6)
+								Existe_Body = True
+				except:
+					pass
 				
+			
+			# aqui pintamos los objetos de color verde en funcion del caso de busqueda
+			if Lista_Index[-1] == 1:
+				Gui.ActiveDocument.getObject(myObj.Name).DiffuseColor = [(0.0, 1.0, 0.0)]
+			if Lista_Index[-1] == 2:
+				Gui.ActiveDocument.getObject(myObj.getParent().Name).DiffuseColor = [(0.0, 1.0, 0.0)]
+			if Lista_Index[-1] == 3:
+				for k in range(0, len(myObj.Group)):
+					Gui.ActiveDocument.getObject(myObj.Group[k].Name).DiffuseColor = [(0.0, 1.0, 0.0)]
+			if Lista_Index[-1] == 4:
+				Gui.ActiveDocument.getObject(myObj.getParent().getParent().Name).DiffuseColor = [(0.0, 1.0, 0.0)]
+			if Lista_Index[-1] == 5:
+				for k in range(0, len(myObj.getParent().Group)):
+					Gui.ActiveDocument.getObject(myObj.getParent().Group[k].Name).DiffuseColor = [(0.0, 1.0, 0.0)]
+			if Lista_Index[-1] == 6:
+				for k in range(0, len(myObj.getParent().getParent().Group)):
+					Gui.ActiveDocument.getObject(myObj.getParent().getParent().Group[k].Name).DiffuseColor = [(0.0, 1.0, 0.0)]
+			
+			
 		print()
 		
-else:
+		
+		# aqui revidamos cada objeto de la seleccion
+		for Actor in Lista_Body:
+			
+			Vueltas = 0
+			
+			# Cuerpo_X(Nombre):
+			print('Actor = ' + Cuerpo_X(Actor).Label)
+			
+			# aqui revisamos los objetos restantes de la seleccion
+			for Obstaculo in Lista_Body:
+				if Actor == Obstaculo:
+					continue
+				print('--Obstaculo = ' + Cuerpo_X(Obstaculo).Label)
+				
+				# aqui validamos si hay colosion entre los objetos seleccionados
+				if Cuerpo_X(Actor).Shape.BoundBox.intersect(Cuerpo_X(Obstaculo).Shape.BoundBox) == True:
+					
+					Vueltas += 1
+					
+					# aqui pintamos las caras de los objetos que estan en colision
+					# Pintar_Colision(Obj01, Obj02, Pintar = 'Cuerpo', Contador = 1):
+					Pintar_Colision(Actor, Obstaculo, 'Cara', Vueltas)
+					
+					print('-- -- En Colision')
+					
+			print()
+			
+	else:
+		
+		App.Console.PrintMessage('No hay seleccion')
 	
-	App.Console.PrintMessage('No hay seleccion')
+	# aqui quitamos la seleccion de los objetos
+	Gui.Selection.clearSelection()
 
-	
 
+#! Comienzo de la Macro
+# Procesar_Objetos():
+Procesar_Objetos()
 
