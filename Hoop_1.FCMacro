@@ -28,14 +28,8 @@ import PartDesign
 import Sketcher
 import Part
 import math
-from FreeCAD import Units
+from PySide import QtGui
 
-
-
-# ejemplo: def create(rad) 
-# el vector no admite las unidades de: 5 mm ó 10 m ó 6 ft
-# si no tienes que pasar un numero que son las unidades por defecto de FreeCAD
-# para eso se hace la conversion: Units.Quantity(rad).Value
 
 
 
@@ -66,7 +60,7 @@ def Crear_Pieza():
 	Crear_Plano()
 	Pieza_X = Plano.addObject('App::Part','Part_H001')
 	Plano.Tip = Pieza_X
-	Pieza_X.Label = 'Parte_H001'
+	Pieza_X.Label = 'Pieza_H001'
 	Plano.recompute()
 	return Pieza_X
 
@@ -690,6 +684,40 @@ def Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero 
 			DeltaVal_Y.append(Delta_Y)
 	
 	
+	# Actualizar_Lista02(Val_X, Val_Y):
+	Lista02 = Actualizar_Lista02(Val_X, Val_Y)
+		
+	# Actualizar_Lista03(Lista02, DeltaVal_X, DeltaVal_Y, Radio_Agujero):
+	Lista03 = Actualizar_Lista03(Lista02, DeltaVal_X, DeltaVal_Y, Radio_Agujero)
+	
+	
+	for k in range(0, len(Lista03)):
+		# Crear_Circulo(Pt1, Eje, Radio, Boceto_X):
+		Crear_Circulo(Lista03[k][0], Lista03[k][1], Lista03[k][2], Boceto_X)
+	
+	# Bloquear_Circulos(Boceto_X, Total_Lista):
+	Bloquear_Circulos(Boceto_X, len(Lista03))
+
+
+def Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
+	
+	# Contorno circular
+	Lista01 = [
+		['linea', 'Horizontal', -(Largo_X - 2 * Radio_X) / 2, Alto_X / 2, (Largo_X - 2 * Radio_X) / 2, Alto_X / 2],
+		['arco', (Largo_X - 2 * Radio_X) / 2, (Alto_X - 2 * Radio_X) / 2, App.Vector(0, 0, 1), Radio_X, math.radians(0), math.radians(90)],
+		['linea', 'Vertical', Largo_X / 2, (Alto_X - 2 * Radio_X) / 2, Largo_X / 2, -(Alto_X - 2 * Radio_X) / 2],
+		['arco', (Largo_X - 2 * Radio_X) / 2, -(Alto_X - 2 * Radio_X) / 2, App.Vector(0, 0, 1), Radio_X, math.radians(270), math.radians(360)],
+		['linea', 'Horizontal', (Largo_X - 2 * Radio_X) / 2, -Alto_X / 2, -(Largo_X - 2 * Radio_X) / 2, -Alto_X / 2],
+		['arco', -(Largo_X - 2 * Radio_X) / 2, -(Alto_X - 2 * Radio_X) / 2, App.Vector(0, 0, 1), Radio_X, math.radians(180), math.radians(270)],
+		['linea', 'Vertical', -Largo_X / 2, -(Alto_X - 2 * Radio_X) / 2, -Largo_X / 2, (Alto_X - 2 * Radio_X) / 2],
+		['arco', -(Largo_X - 2 * Radio_X) / 2, (Alto_X - 2 * Radio_X) / 2, App.Vector(0, 0, 1), Radio_X, math.radians(90), math.radians(180)]
+	]
+	return Lista01
+
+
+def Actualizar_Lista02(Val_X, Val_Y):
+	
+	# Ubicacion de los agujeros
 	Lista02 = [
 	['Arriba',     1, Val_Y, 'Derecha',    1],
 	['Derecha',    1, Val_X, 'Arriba',     1],
@@ -701,7 +729,12 @@ def Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero 
 	['Arriba',     1, Val_Y, 'Izquierda', -1]
 	]
 	
+	return Lista02
 	
+	
+def Actualizar_Lista03(Lista02, DeltaVal_X, DeltaVal_Y, Radio_Agujero):
+	
+	# Ubicacion de lo agujeros con vectores
 	Lista03 = []
 	for j in range(0, len(Lista02)):
 		if Lista02[j][0] == 'Arriba':
@@ -721,28 +754,18 @@ def Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero 
 				Lista_Temp = [App.Vector(Lista02[j][1] * Lista02[j][2],Lista02[j][4] * DeltaVal_Y[k], 0), App.Vector(0, 0, 1), Radio_Agujero]
 				Lista03.append(Lista_Temp)
 	
+	return Lista03
 	
-	for k in range(0, len(Lista03)):
-		# Crear_Circulo(Pt1, Eje, Radio, Boceto_X):
-		Crear_Circulo(Lista03[k][0], Lista03[k][1], Lista03[k][2], Boceto_X)
 	
-	# Bloquear_Circulos(Boceto_X, Total_Lista):
-	Bloquear_Circulos(Boceto_X, len(Lista03))
-
-
-def Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
-	Lista01 = [
-		['linea', 'Horizontal', -(Largo_X - 2 * Radio_X) / 2, Alto_X / 2, (Largo_X - 2 * Radio_X) / 2, Alto_X / 2],
-		['arco', (Largo_X - 2 * Radio_X) / 2, (Alto_X - 2 * Radio_X) / 2, App.Vector(0, 0, 1), Radio_X, math.radians(0), math.radians(90)],
-		['linea', 'Vertical', Largo_X / 2, (Alto_X - 2 * Radio_X) / 2, Largo_X / 2, -(Alto_X - 2 * Radio_X) / 2],
-		['arco', (Largo_X - 2 * Radio_X) / 2, -(Alto_X - 2 * Radio_X) / 2, App.Vector(0, 0, 1), Radio_X, math.radians(270), math.radians(360)],
-		['linea', 'Horizontal', (Largo_X - 2 * Radio_X) / 2, -Alto_X / 2, -(Largo_X - 2 * Radio_X) / 2, -Alto_X / 2],
-		['arco', -(Largo_X - 2 * Radio_X) / 2, -(Alto_X - 2 * Radio_X) / 2, App.Vector(0, 0, 1), Radio_X, math.radians(180), math.radians(270)],
-		['linea', 'Vertical', -Largo_X / 2, -(Alto_X - 2 * Radio_X) / 2, -Largo_X / 2, (Alto_X - 2 * Radio_X) / 2],
-		['arco', -(Largo_X - 2 * Radio_X) / 2, (Alto_X - 2 * Radio_X) / 2, App.Vector(0, 0, 1), Radio_X, math.radians(90), math.radians(180)]
-	]
-	return Lista01
-
+	
+def Limpiar_Pantalla():
+	mw = Gui.getMainWindow()
+	rv = mw.findChild(QtGui.QTextEdit, "Report view")
+	rv.clear()
+	
+	pc = mw.findChild(QtGui.QPlainTextEdit,"Python console")
+	pc.onClearConsole()
+	
 
 
 
@@ -994,10 +1017,14 @@ def Crear_Boceto_Iman(Largo_Total, Alto_Total, Radio_Pral):
 def Crear_Hoop(Largo_Total = '156 mm', Alto_Total = '156 mm', Radio_Pral = '35 mm'):
 	
 	# aqui convertimos el texto a numero con las unidades por defecto en FreeCAD
-	LT = Units.Quantity(Largo_Total).Value
-	AT = Units.Quantity(Alto_Total).Value
-	RP = Units.Quantity(Radio_Pral).Value
+	LT = App.Units.Quantity(Largo_Total).Value
+	AT = App.Units.Quantity(Alto_Total).Value
+	RP = App.Units.Quantity(Radio_Pral).Value
 	
+	# Limpiar_Pantalla():
+	Limpiar_Pantalla()
+	
+	# Crear_Contenedor_2D():
 	Crear_Contenedor_2D()
 	
 	# Crear_Boceto_Cuerpo(Largo_Total, Alto_Total, Radio_Pral):
@@ -1028,6 +1055,21 @@ Lista_Linea = []
 #! Esta es la funcion que inicia la Macro
 # Crear_Hoop(Largo_Total, Alto_Total, Radio_Pral):
 Crear_Hoop('156 mm', '156 mm', '35 mm')
+
+# '156 mm', '156 mm', '35 mm'
+# '294 mm', '212 mm', '35 mm'
+
+
+App.Console.PrintMessage(f'Fin de la {Pieza_H1.Label}\n')
+
+
+'''
+#Ejemplo mover la pieza usando una ventana flotante
+from PySide import QtGui
+val = QtGui.QInputDialog.getText(None, 'Mover Objeto', 'Ingrese los valores \n separados por coma. \n Ejemplo: 100,0,0')[0]
+myVal = tuple(val.split(','))
+Pieza_H1.Placement.Base = App.Vector(myVal)
+'''
 
 
 

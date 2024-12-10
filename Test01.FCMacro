@@ -1,0 +1,222 @@
+import FreeCAD as App
+import PartDesign
+import PartDesignGui
+import Sketcher
+from PySide import QtGui
+
+doc = App.activeDocument()
+
+def Crear_Pieza(Medidas = [20, 20, 20], Ubicacion = [0, 0, 0]):
+	
+	# creamos el contenedor principal
+	Pieza01 = doc.addObject('App::Part','Part001')
+	Pieza01.Label = 'Pieza001'
+	doc.recompute()
+	
+	# creamos el contenedor cuerpo
+	Cuerpo01 = doc.addObject('PartDesign::Body','Body001')
+	Cuerpo01.Label = 'Cuerpo001'
+	Pieza01.addObject(Cuerpo01)
+	doc.recompute()
+	
+	# creamos el contenedor boceto
+	Boceto01 = doc.addObject('Sketcher::SketchObject','Sketch001')
+	Boceto01.Label = 'Boceto001'
+	Boceto01.MapMode = 'FlatFace'
+	Cuerpo01.addObject(Boceto01)
+	for k in Cuerpo01.Origin.OriginFeatures:
+		if k.Role == 'XY_Plane':
+			XY_Plano = k
+	Boceto01.AttachmentSupport = (XY_Plano, [''])
+	del XY_Plano
+	doc.recompute()
+	
+	# creamos cuatro lineas para formar un cuadrado
+	geoList = []
+	geoList.append(Part.LineSegment(App.Vector(-Medidas[0]/2, Medidas[1]/2, 0),App.Vector(-Medidas[0]/2, -Medidas[1]/2, 0)))
+	geoList.append(Part.LineSegment(App.Vector(-Medidas[0]/2, -Medidas[1]/2, 0),App.Vector(Medidas[0]/2, -Medidas[1]/2, 0)))
+	geoList.append(Part.LineSegment(App.Vector(Medidas[0]/2, -Medidas[1]/2, 0),App.Vector(Medidas[0]/2, Medidas[1]/2, 0)))
+	geoList.append(Part.LineSegment(App.Vector(Medidas[0]/2, Medidas[1]/2, 0),App.Vector(-Medidas[0]/2, Medidas[1]/2, 0)))
+	Boceto01.addGeometry(geoList,False)
+	del geoList
+	
+	# creamos las restricciones para las lineas
+	constraintList = []
+	constraintList.append(Sketcher.Constraint('Coincident', 0, 2, 1, 1))
+	constraintList.append(Sketcher.Constraint('Coincident', 1, 2, 2, 1))
+	constraintList.append(Sketcher.Constraint('Coincident', 2, 2, 3, 1))
+	constraintList.append(Sketcher.Constraint('Coincident', 3, 2, 0, 1))
+	constraintList.append(Sketcher.Constraint('Vertical', 0))
+	constraintList.append(Sketcher.Constraint('Vertical', 2))
+	constraintList.append(Sketcher.Constraint('Horizontal', 1))
+	constraintList.append(Sketcher.Constraint('Horizontal', 3))
+	constraintList.append(Sketcher.Constraint('DistanceY', 0, 2, 0, 1, Medidas[1]))
+	constraintList.append(Sketcher.Constraint('DistanceX', 3, 2, 3, 1, Medidas[0]))
+	constraintList.append(Sketcher.Constraint('Symmetric',0,1,1,2,-1,1))
+	Boceto01.addConstraint(constraintList)
+	del constraintList
+	
+	Boceto01.renameConstraint(8, u'Ancho')
+	Boceto01.setVirtualSpace(8, False)
+	Boceto01.renameConstraint(9, u'Largo')
+	Boceto01.setVirtualSpace(9, False)
+	# Boceto01.setDatum(8,App.Units.Quantity('40 mm'))
+	# Boceto01.setDatum(9,App.Units.Quantity('40 mm'))
+	doc.recompute()
+	
+	# creamos el contenedor 3D relleno
+	Relleno = doc.addObject('PartDesign::Pad','Pad001')
+	Relleno.Label = 'Relleno001'
+	Cuerpo01.addObject(Relleno)
+	Relleno.Profile = (Boceto01, ['',])
+	#Relleno.Length = App.Units.Quantity('40 mm')
+	Relleno.Length = Medidas[2]
+	Relleno.ReferenceAxis = (Boceto01,['N_Axis'])
+	Boceto01.Visibility = False
+	doc.recompute()
+	
+	# movemos el contenedor cuerpo
+	Cuerpo01.Placement.Base = App.Vector(Ubicacion)
+	Cuerpo01.ViewObject.BoundingBox = True
+	doc.recompute()
+	
+	return Pieza01
+	
+	
+def Limpiar_Pantalla():
+	mw = Gui.getMainWindow()
+	rv = mw.findChild(QtGui.QTextEdit, "Report view")
+	rv.clear()
+	
+	pc = mw.findChild(QtGui.QPlainTextEdit,"Python console")
+	pc.onClearConsole()
+	
+def Validar_Colision(Obj01, Obj02, Pintar = 'Cuerpo', Referencia = 'Vertice'):
+	
+	Lista_Vertices = []
+	Lista_Caras = []
+	Lista_Colores = []
+	
+	# otra forma de validar la colicion es con el BoundBox
+	# Ejemplo: if Obj01.Shape.BoundBox.intersect(Obj02.Shape.BoundBox) == True
+	# luego calculamos: Obj03 = Obj01.Shape.common(Obj02.Shape)
+	# luego validamos : if Obj03.Volume > 0:
+		
+	if Referencia == 'Vertice':
+		# aqui revisamos que los vertices del objeto 2 estan dentro de los vertices del objeto 1 (en colision)
+		for k in range(0, len(Obj02.Shape.Vertexes)):
+			Vertice_Temp = App.Vector(Obj02.Shape.Vertexes[k].X, Obj02.Shape.Vertexes[k].Y, Obj02.Shape.Vertexes[k].Z)
+			if Obj01.Shape.isInside(Vertice_Temp, 0.1, True) == True:
+				Lista_Vertices.append([k + 1, Vertice_Temp])
+			else:
+				pass
+				
+		if len(Lista_Vertices) == 0:
+			Resultado = False
+		else:
+			Resultado = True
+			
+		print()
+
+	
+	if Referencia == 'Cara':
+		# aqui revisamos que las caras del objeto 2 tienen interseccion con las caras del objeto 1 (en colision)
+		for f2 in range(0, len(Obj02.Shape.Faces)):
+			for f1 in range(0, len(Obj01.Shape.Faces)):
+				if Obj02.Shape.Faces[f2].BoundBox.intersect(Obj01.Shape.Faces[f1].BoundBox) == True:
+					Lista_Caras.append(f2)
+		Lista_Caras = sorted(list(set(Lista_Caras)))
+	
+		if len(Lista_Caras) == 0:
+			Resultado = False
+		else:
+			Resultado = True
+			
+		print()
+	
+	# aqui pintamos los objetos y mostramos un mensaje al usuario
+	if Resultado == True:
+		if Pintar == 'Cuerpo':
+			# aqui mostramos varios metodos de pintar el objeto
+			#doc.getObject(Obj02.Group[0].Name).ViewObject.LineColor = (1.0, 0.0, 0.0)
+			#doc.getObject(Obj02.Group[0].Name).ViewObject.LineWidth = 10
+			#doc.getObject(Obj02.Group[0].Name).ViewObject.PointColor = (1.0, 0.0, 0.0)
+			#doc.getObject(Obj02.Group[0].Name).ViewObject.PointSize = 10
+			#doc.getObject(Obj02.Group[0].Name).ViewObject.ShapeColor = (1.0, 0.0, 0.0)
+			#doc.getObject(Obj02.Group[0].Name).ViewObject.DiffuseColor = [(1.0, 0.0, 0.0)]
+			doc.getObject(Obj02.Group[0].Name).ViewObject.ShapeAppearance = App.Material(DiffuseColor = (1.0, 0.0, 0.0))
+		elif Pintar == 'Cara':
+			if Referencia == 'Vertice':
+				# aqui revisamos cuales son las caras cuyos vertices coinciden con los vertices en colision
+				for f in range(0, len(Obj02.Shape.Faces)):
+					for v in range(0, len(Obj02.Shape.Faces[f].Vertexes)):
+						Vec_Temp = App.Vector(Obj02.Shape.Faces[f].Vertexes[v].X, Obj02.Shape.Faces[f].Vertexes[v].Y, Obj02.Shape.Faces[f].Vertexes[v].Z)
+						for w in range(0, len(Lista_Vertices)):
+							if Lista_Vertices[w][1] == Vec_Temp:
+								Lista_Caras.append(f)
+				Lista_Caras = sorted(list(set(Lista_Caras)))
+				
+			if Referencia == 'Cara':
+				pass
+				
+			# aqui pinto las caras que se encuentran en la lista de revision
+			for f in range(0, len(Obj02.Shape.Faces)):
+				if f in Lista_Caras:
+					Lista_Colores.append((1.0, 0.0, 0.0))
+				else:
+					Lista_Colores.append((float(114)/255, float(121)/255, float(128)/255))
+			doc.getObject(Obj02.Group[0].Name).ViewObject.DiffuseColor = Lista_Colores
+			
+		elif Pintar == 'NA':
+			pass
+		
+		# aqui muestro un mensaje al usuario
+		print(f'{Obj02.Name} esta en Colision con {Obj01.Name}')
+		
+		if Referencia == 'Vertice':
+			print(f'Los vertices de colision son:')
+			
+			# aqui muestro los vertices en colision al ususario
+			for k in range(0, len(Lista_Vertices)):
+				print('Vertex ' + str(Lista_Vertices[k][0]) + ': ' + str(tuple(Lista_Vertices[k][1])))
+				
+		if Referencia == 'Cara':
+			print(f'Las caras en colision son:')
+			
+			# aqui muestro las caras en colision al ususario
+			for k in range(0, len(Lista_Caras)):
+				print('Face ' + str(Lista_Caras[k] + 1))
+				
+	else:
+		if Pintar == 'NA':
+			pass
+		else:
+			doc.getObject(Obj02.Group[0].Name).ViewObject.ShapeAppearance = App.Material(DiffuseColor = (0.0, 1.0, 0.0))
+			
+		print(f'{Obj02.Name} NO esta en Colision con {Obj01.Name}')
+	
+	
+
+def Crear_Cubo():
+	
+	# Creamos los objetos 1 y 2
+	
+	# Limpiar_Pantalla():
+	Limpiar_Pantalla()
+	
+	# Crear_Pieza(Medidas, Ubicacion):
+	Obj01 = Crear_Pieza([40, 40, 40])
+	
+	# Crear_Pieza(Medidas, Ubicacion):
+	Obj02 = Crear_Pieza([20, 20, 20], [20, -20, 10])
+	
+	# Validar_Colision(Obj01, Obj02, Pintar = 'Cuerpo', Referencia = 'Vertice'):
+	Validar_Colision(Obj02, Obj01, 'Cara', 'Cara')
+		
+	
+
+Crear_Cubo()
+
+
+
+
