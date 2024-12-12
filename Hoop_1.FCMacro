@@ -42,14 +42,26 @@ def Crear_Plano():
 	Plano = App.activeDocument()
 
 
-def Crear_Grupo(Titulo, Etiqueta = '', Objeto_X = ''):
+def Crear_Grupo(Titulo, Etiqueta = '', Objeto_X = False):
+	
+	# Validamos los argumentos de la funcion
+	if not type(Titulo) is str:
+		raise TypeError(f'\n\n\t Mensaje = No es Texto \n\t Funcion = Crear_Grupo \n\t {type(Titulo) = }')
+	
+	if not type(Etiqueta) is str:
+		raise TypeError(f'\n\n\t Mensaje = No es Texto \n\t Funcion = Crear_Grupo \n\t {type(Etiqueta) = }')
+	
+	if not str(type(Objeto_X)) in ("<class 'App.Part'>", "<class 'bool'>"):
+		raise TypeError(f'\n\n\t Mensaje = No es un contenedor Part \n\t Funcion = Crear_Grupo \n\t {type(Objeto_X) = }')
+	
+	
 	Grupo_X = Plano.addObject('App::DocumentObjectGroup', Titulo)
 	Plano.Tip = Grupo_X
 	if Etiqueta == '':
 		Grupo_X.Label = Titulo
 	else:
 		Grupo_X.Label = Etiqueta
-	if Objeto_X == '':
+	if Objeto_X == False:
 		Plano.Tip = Grupo_X
 	else:
 		Objeto_X.addObject(Grupo_X)
@@ -66,13 +78,25 @@ def Crear_Pieza():
 	return Pieza_X
 
 
-def Crear_Cuerpo(Titulo, Etiqueta = '', Objeto_X = ''):
+def Crear_Cuerpo(Titulo, Etiqueta = '', Objeto_X = False):
+	
+	# Validamos los argumentos de la funcion
+	if not type(Titulo) is str:
+		raise TypeError(f'\n\n\t Mensaje = No es Texto \n\t Funcion = Crear_Cuerpo \n\t {type(Titulo) = }')
+		
+	if not type(Etiqueta) is str:
+		raise TypeError(f'\n\n\t Mensaje = No es Texto \n\t Funcion = Crear_Cuerpo \n\t {type(Etiqueta) = }')
+		
+	if not str(type(Objeto_X)) in ("<class 'App.DocumentObjectGroup'>", "<class 'App.Part'>", "<class 'bool'>"):
+		raise TypeError(f'\n\n\t Mensaje = No es un contenedor Group o Part \n\t Funcion = Crear_Cuerpo \n\t {type(Objeto_X) = }')
+	
+	
 	Cuerpo_X = Plano.addObject('PartDesign::Body', Titulo)
 	if Etiqueta == '':
 		Cuerpo_X.Label = Titulo
 	else:
 		Cuerpo_X.Label = Etiqueta
-	if Objeto_X == '':
+	if Objeto_X == False:
 		Plano.Tip = Cuerpo_X
 	else:
 		Objeto_X.addObject(Cuerpo_X)
@@ -80,7 +104,22 @@ def Crear_Cuerpo(Titulo, Etiqueta = '', Objeto_X = ''):
 	return Cuerpo_X
 
 
-def Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = '', Plano_X = ''):
+def Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = ''):
+	
+	# Validamos los argumentos de la funcion
+	if not type(Titulo) is str:
+		raise TypeError(f'\n\n\t Mensaje = No es Texto \n\t Funcion = Crear_Boceto \n\t {type(Titulo) = }')
+		
+	if not type(Etiqueta) is str:
+		raise TypeError(f'\n\n\t Mensaje = No es Texto \n\t Funcion = Crear_Boceto \n\t {type(Etiqueta) = }')
+		
+	if not str(type(Objeto_X)) in ("<class 'PartDesign.Body'>", "<class 'bool'>"):
+		raise TypeError(f'\n\n\t Mensaje = No es un contenedor Body \n\t Funcion = Crear_Boceto \n\t {type(Objeto_X) = }')
+		
+	if not type(Plano_X) is str:
+		raise TypeError(f'\n\n\t Mensaje = No es Texto \n\t Funcion = Crear_Boceto \n\t {type(Plano_X) = }')
+	
+	
 	Boceto_X = Plano.addObject('Sketcher::SketchObject', Titulo)
 	Plano.Tip = Boceto_X
 	if Plano_X == '':
@@ -90,7 +129,7 @@ def Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = '', Plano_X = ''):
 	else:
 		Boceto_X.Label = Etiqueta
 	Boceto_X.MapMode = 'FlatFace'
-	if Objeto_X == '':
+	if Objeto_X == False:
 		Plano.Tip = Boceto_X
 		Cuerpo_New = Crear_Cuerpo('New_Body', '', Pieza_H1)
 		Cuerpo_New.addObject(Boceto_X)
@@ -119,7 +158,6 @@ def Crear_Contenedor_2D():
 	### Begin command Std_Part
 	global Pieza_H1
 	Pieza_H1 = Crear_Pieza()
-	
 	
 	### Begin command Std_Group
 	global Grupo_LH1
@@ -166,7 +204,28 @@ def Crear_Contenedor_2D():
 
 
 #! Estos son las funciones para crear Lineas, Arcos, Circulos
-def Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Indice = '', Simetria = False):
+def Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Indice = -1, Simetria = False):
+	
+	# Validamos los argumentos de la funcion
+	if not str(type(Pt1)) in ("<class 'Base.Vector'>"):
+		raise TypeError(f'\n\n\t Mensaje = No es Vector \n\t Funcion = Crear_Linea \n\t {type(Pt1) = }')
+	
+	if not str(type(Pt2)) in ("<class 'Base.Vector'>"):
+		raise TypeError(f'\n\n\t Mensaje = No es Vector \n\t Funcion = Crear_Linea \n\t {type(Pt2) = }')
+	
+	if not str(type(Boceto_X)) in ("<class 'Sketcher.SketchObject'>"):
+		raise TypeError(f'\n\n\t Mensaje = No es un contenedor Sketch \n\t Funcion = Crear_Linea \n\t {type(Boceto_X) = }')
+	
+	if not type(Restriccion_X) is str:
+		raise TypeError(f'\n\n\t Mensaje = No es Texto \n\t Funcion = Crear_Linea \n\t {type(Restriccion_X) = }')
+	
+	if not type(Indice) is int:
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Linea \n\t {type(Indice) = }')
+	
+	if not type(Simetria) is bool:
+		raise TypeError(f'\n\n\t Mensaje = No es Booleano \n\t Funcion = Crear_Linea \n\t {type(Simetria) = }')
+	
+	
 	# aqui guardamos el ID de la linea.
 	Lista_Linea.append(list(Boceto_X.addGeometry([Part.LineSegment(Pt1, Pt2)], False)))
 	# aqui creamos la restriccion Horizontal o Vertical de la linea.
@@ -176,7 +235,7 @@ def Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Indice = '', Simetria = 
 	Pt1_Temp = App.Vector(round(Pt1.x, 10), round(Pt1.y, 10), round(Pt1.z, 10))
 	Pt2_Temp = App.Vector(round(Pt2.x, 10), round(Pt2.y, 10), round(Pt2.z, 10))
 	# aqui guardamos el punto inicial => (1) y punto final => (2) de la linea.
-	if Indice != '':
+	if Indice >= 0:
 		# aqui el Indice cero nos indica que es la primera linea de la figura cerrada.
 		if Indice == 0 and Simetria == False:
 			Lista_Linea[-1].append(1)
@@ -241,6 +300,33 @@ def Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Indice = '', Simetria = 
 	
 	
 def Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = '', Simetria = False):
+	
+	# Validamos los argumentos de la funcion
+	if not str(type(Pt1)) in ("<class 'Base.Vector'>"):
+		raise TypeError(f'\n\n\t Mensaje = No es Vector \n\t Funcion = Crear_Arco \n\t {type(Pt1) = }')
+		
+	if not str(type(Eje)) in ("<class 'Base.Vector'>"):
+		raise TypeError(f'\n\n\t Mensaje = No es Vector \n\t Funcion = Crear_Arco \n\t {type(Eje) = }')
+		
+	if not type(Radio) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Arco \n\t {type(Radio) = }')
+	
+	if not str(type(Boceto_X)) in ("<class 'Sketcher.SketchObject'>"):
+		raise TypeError(f'\n\n\t Mensaje = No es un contenedor Sketch \n\t Funcion = Crear_Arco \n\t {type(Boceto_X) = }')
+		
+	if not type(Ang_Ini) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Arco \n\t {type(Ang_Ini) = }')
+		
+	if not type(Ang_Fin) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Arco \n\t {type(Ang_Fin) = }')
+	
+	if not type(Indice) is int:
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Arco \n\t {type(Indice) = }')
+		
+	if not type(Simetria) is bool:
+		raise TypeError(f'\n\n\t Mensaje = No es Booleano \n\t Funcion = Crear_Arco \n\t {type(Simetria) = }')
+	
+	
 	# aqui guardamos el ID del arco.
 	Lista_Linea.append(list(Boceto_X.addGeometry([Part.ArcOfCircle(Part.Circle(Pt1, Eje , Radio), Ang_Ini, Ang_Fin)], False)))
 	# aqui creamos la restriccion Radio del arco.
@@ -313,6 +399,21 @@ def Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = '', Simetri
 
 
 def Crear_Circulo(Pt1, Eje, Radio, Boceto_X):
+	
+	# Validamos los argumentos de la funcion
+	if not str(type(Pt1)) in ("<class 'Base.Vector'>"):
+		raise TypeError(f'\n\n\t Mensaje = No es Vector \n\t Funcion = Crear_Circulo \n\t {type(Pt1) = }')
+	
+	if not str(type(Eje)) in ("<class 'Base.Vector'>"):
+		raise TypeError(f'\n\n\t Mensaje = No es Vector \n\t Funcion = Crear_Circulo \n\t {type(Eje) = }')
+	
+	if not type(Radio) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Circulo \n\t {type(Radio) = }')
+	
+	if not str(type(Boceto_X)) in ("<class 'Sketcher.SketchObject'>"):
+		raise TypeError(f'\n\n\t Mensaje = No es un contenedor Sketch \n\t Funcion = Crear_Circulo \n\t {type(Boceto_X) = }')
+	
+	
 	# aqui guardamos el ID del circulo.
 	Lista_Linea.append(list(Boceto_X.addGeometry([Part.Circle(Pt1, Eje, Radio)], False)))
 	# aqui creamos la restriccion Radio del circulo.
@@ -335,6 +436,15 @@ def Crear_Circulo(Pt1, Eje, Radio, Boceto_X):
 
 
 def Unir_Lineas(Boceto_X, Total_Lista):
+	
+	# Validamos los argumentos de la funcion
+	if not str(type(Boceto_X)) in ("<class 'Sketcher.SketchObject'>"):
+		raise TypeError(f'\n\n\t Mensaje = No es un contenedor Sketch \n\t Funcion = Unir_Lineas \n\t {type(Boceto_X) = }')
+	
+	if not type(Total_Lista) is int:
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Unir_Lineas \n\t {type(Total_Lista) = }')
+	
+	
 	# aqui seleccionamos los 'n' ultimos elementos de la lista.
 	for j in range(0, Total_Lista)[::-1]:
 		# aqui seleccionamos el 'n + 1' elemento de la lista
@@ -550,24 +660,63 @@ def Unir_Lineas(Boceto_X, Total_Lista):
 
 
 def Bloquear_Lineas(Boceto_X, Total_Lista):
+	
+	# Validamos los argumentos de la funcion
+	if not str(type(Boceto_X)) in ("<class 'Sketcher.SketchObject'>"):
+		raise TypeError(f'\n\n\t Mensaje = No es un contenedor Sketch \n\t Funcion = Bloquear_Lineas \n\t {type(Boceto_X) = }')
+	
+	if not type(Total_Lista) is int:
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Bloquear_Lineas \n\t {type(Total_Lista) = }')
+	
+	
 	for j in range(0, Total_Lista)[::-1]:
 		if Lista_Linea[::-1][j][3] == 'linea':
 			Boceto_X.addConstraint(Sketcher.Constraint('Block', Lista_Linea[::-1][j][0]))
 
 
 def Bloquear_Arcos(Boceto_X, Total_Lista):
+	
+	# Validamos los argumentos de la funcion
+	if not str(type(Boceto_X)) in ("<class 'Sketcher.SketchObject'>"):
+		raise TypeError(f'\n\n\t Mensaje = No es un contenedor Sketch \n\t Funcion = Bloquear_Arcos \n\t {type(Boceto_X) = }')
+	
+	if not type(Total_Lista) is int:
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Bloquear_Arcos \n\t {type(Total_Lista) = }')
+	
+	
 	for j in range(0, Total_Lista)[::-1]:
 		if Lista_Linea[::-1][j][3] == 'arco':
 			Boceto_X.addConstraint(Sketcher.Constraint('Block', Lista_Linea[::-1][j][0]))
 
 
 def Bloquear_Circulos(Boceto_X, Total_Lista):
+	
+	# Validamos los argumentos de la funcion
+	if not str(type(Boceto_X)) in ("<class 'Sketcher.SketchObject'>"):
+		raise TypeError(f'\n\n\t Mensaje = No es un contenedor Sketch \n\t Funcion = Bloquear_Circulos \n\t {type(Boceto_X) = }')
+	
+	if not type(Total_Lista) is int:
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Bloquear_Circulos \n\t {type(Total_Lista) = }')
+	
+	
 	for j in range(0, Total_Lista)[::-1]:
 		if Lista_Linea[::-1][j][3] == 'circulo':
 			Boceto_X.addConstraint(Sketcher.Constraint('Block', Lista_Linea[::-1][j][0]))
 
 
 def Fijar_Circulo_Origen(Pt1, Boceto_X, Index_Obj):
+	
+	# Validamos los argumentos de la funcion
+	if not str(type(Pt1)) in ("<class 'Base.Vector'>"):
+		raise TypeError(f'\n\n\t Mensaje = No es Vector \n\t Funcion = Fijar_Circulo_Origen \n\t {type(Pt1) = }')
+		
+	if not str(type(Boceto_X)) in ("<class 'Sketcher.SketchObject'>"):
+		raise TypeError(f'\n\n\t Mensaje = No es un contenedor Sketch \n\t Funcion = Fijar_Circulo_Origen \n\t {type(Boceto_X) = }')
+		
+	if not type(Indx_Obj) is int:
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Fijar_Circulo_Origen \n\t {type(Index_Obj) = }')
+	
+	
 	if list(Pt1)[0] >= 0:
 		Boceto_X.addConstraint(Sketcher.Constraint('DistanceX', -1,1,Index_Obj,3, abs(list(Pt1)[0])))
 	else:
@@ -579,6 +728,21 @@ def Fijar_Circulo_Origen(Pt1, Boceto_X, Index_Obj):
 
 
 def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
+	
+	# Validamos los argumentos de la funcion
+	if not type(Lista_X) is list:
+		raise TypeError(f'\n\n\t Mensaje = No es Lista \n\t Funcion = Crear_Contorno \n\t {type(Lista_X) = }')
+		
+	if not str(type(Boceto_X)) in ("<class 'Sketcher.SketchObject'>"):
+		raise TypeError(f'\n\n\t Mensaje = No es un contenedor Sketch \n\t Funcion = Crear_Contorno \n\t {type(Boceto_X) = }')
+		
+	if not type(Simetria) is bool:
+		raise TypeError(f'\n\n\t Mensaje = No es Booleano \n\t Funcion = Crear_Contorno \n\t {type(Simetria) = }')
+		
+	if not type(Espejo) is bool:
+		raise TypeError(f'\n\n\t Mensaje = No es Booleano \n\t Funcion = Crear_Contorno \n\t {type(Espejo) = }')
+	
+	
 	#Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Indice = '', Simetria = False):
 	#Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = '', Simetria = False):
 	for j in range(0, len(Lista_X)):
@@ -647,6 +811,32 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
 
 
 def Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero = 1.5, Separacion = 76, Inicio_Centro = False, Incluir_Arco = False):
+	
+	# Validamos los argumentos de la funcion
+	if not type(Largo_Total) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Agujeros \n\t {type(Largo_Total) = }')
+	
+	if not type(Alto_Total) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Agujeros \n\t {type(Alto_Total) = }')
+		
+	if not type(Radio_Pral) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Agujeros \n\t {type(Radio_Pral) = }')
+	
+	if not str(type(Boceto_X)) in ("<class 'Sketcher.SketchObject'>"):
+		raise TypeError(f'\n\n\t Mensaje = No es un contenedor Sketch \n\t Funcion = Crear_Agujeros \n\t {type(Boceto_X) = }')
+	
+	if not type(Radio_Agujero) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Agujeros \n\t {type(Radio_Agujero) = }')
+		
+	if not type(Separacion) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Agujeros \n\t {type(Separacion) = }')
+	
+	if not type(Inicio_Centro) is bool:
+		raise TypeError(f'\n\n\t Mensaje = No es Booleano \n\t Funcion = Crear_Agujeros \n\t {type(Inicio_Centro) = }')
+		
+	if not type(Incluir_Arco) is bool:
+		raise TypeError(f'\n\n\t Mensaje = No es Booleano \n\t Funcion = Crear_Agujeros \n\t {type(Incluir_Arco) = }')
+	
 	
 	Separacion = Separacion / 2
 	Val_X = (Largo_Total / 2) + 1 + 14 / 2
@@ -740,6 +930,17 @@ def Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero 
 
 def Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
 	
+	# Validamos los argumentos de la funcion
+	if not type(Largo_X) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Actualizar_Lista01 \n\t {type(Largo_X) = }')
+	
+	if not type(Alto_X) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Actualizar_Lista01 \n\t {type(Alto_X) = }')
+		
+	if not type(Radio_X) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Actualizar_Lista01 \n\t {type(Radio_X) = }')
+	
+	
 	# Contorno circular
 	Lista01 = [
 		['linea', 'Horizontal', -(Largo_X - 2 * Radio_X) / 2, Alto_X / 2, (Largo_X - 2 * Radio_X) / 2, Alto_X / 2],
@@ -755,6 +956,14 @@ def Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
 
 
 def Actualizar_Lista02(Val_X, Val_Y):
+	
+	# Validamos los argumentos de la funcion
+	if not type(Val_X) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Actualizar_Lista02 \n\t {type(Val_X) = }')
+	
+	if not type(Val_Y) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Actualizar_Lista02 \n\t {type(Val_Y) = }')
+	
 	
 	# Ubicacion de los agujeros
 	Lista02 = [
@@ -772,6 +981,23 @@ def Actualizar_Lista02(Val_X, Val_Y):
 	
 	
 def Actualizar_Lista03(Lista02, DeltaVal_X, DeltaVal_Y, Radio_Agujero, Inicio_Centro = False):
+	
+	# Validamos los argumentos de la funcion
+	if not type(Lista02) is list:
+		raise TypeError(f'\n\n\t Mensaje = No es una Lista \n\t Funcion = Actualizar_Lista03 \n\t {type(Lista02) = }')
+		
+	if not type(DeltaVal_X) is list:
+		raise TypeError(f'\n\n\t Mensaje = No es una Lista \n\t Funcion = Actualizar_Lista03 \n\t {type(DeltaVal_X) = }')
+		
+	if not type(DeltaVal_Y) is list:
+		raise TypeError(f'\n\n\t Mensaje = No es una Lista \n\t Funcion = Actualizar_Lista03 \n\t {type(DeltaVal_Y) = }')
+	
+	if not type(Radio_Agujero) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Actualizar_Lista03 \n\t {type(Radio_Agujero) = }')
+		
+	if not type(Inicio_Centro) is bool:
+		raise TypeError(f'\n\n\t Mensaje = No es Bolleano \n\t Funcion = Actualizar_Lista03 \n\t {type(Inicio_Centro) = }')
+	
 	
 	# Ubicacion de lo agujeros con vectores
 	Lista03 = []
@@ -823,6 +1049,17 @@ def Limpiar_Pantalla():
 #! crear Boceto Cuerpo
 def Crear_Boceto_Cuerpo(Largo_Total, Alto_Total, Radio_Pral):
 	
+	# Validamos los argumentos de la funcion
+	if not type(Largo_Total) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Boceto_Cuerpo \n\t {type(Largo_Total) = }')
+	
+	if not type(Alto_Total) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Boceto_Cuerpo \n\t {type(Alto_Total) = }')
+		
+	if not type(Radio_Pral) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Boceto_Cuerpo \n\t {type(Radio_Pral) = }')
+	
+	
 	Largo_Y = Largo_Total
 	Alto_Y = Alto_Total
 	Radio_Y = Radio_Pral
@@ -871,6 +1108,17 @@ def Crear_Boceto_Cuerpo(Largo_Total, Alto_Total, Radio_Pral):
 #! crear Boceto Tapadera
 def Crear_Boceto_Tapadera(Largo_Total, Alto_Total, Radio_Pral):
 	
+	# Validamos los argumentos de la funcion
+	if not type(Largo_Total) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Boceto_Tapadera \n\t {type(Largo_Total) = }')
+	
+	if not type(Alto_Total) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Boceto_Tapadera \n\t {type(Alto_Total) = }')
+		
+	if not type(Radio_Pral) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Boceto_Tapadera \n\t {type(Radio_Pral) = }')
+	
+	
 	Largo_Y = Largo_Total
 	Alto_Y = Alto_Total
 	Radio_Y = Radio_Pral
@@ -902,6 +1150,17 @@ def Crear_Boceto_Tapadera(Largo_Total, Alto_Total, Radio_Pral):
 
 #! crear Boceto Pieza 1
 def Crear_Boceto_P1(Largo_Total, Alto_Total, Radio_Pral):
+	
+	# Validamos los argumentos de la funcion
+	if not type(Largo_Total) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Boceto_P1 \n\t {type(Largo_Total) = }')
+	
+	if not type(Alto_Total) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Boceto_P1 \n\t {type(Alto_Total) = }')
+		
+	if not type(Radio_Pral) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Boceto_P1 \n\t {type(Radio_Pral) = }')
+
 
 	Origen_Y = -(Alto_Total / 2) - 15
 	Origen_X = 0
@@ -977,7 +1236,17 @@ def Crear_Boceto_P1(Largo_Total, Alto_Total, Radio_Pral):
 
 #! crear Boceto Pieza 2
 def Crear_Boceto_P2(Largo_Total, Alto_Total, Radio_Pral):
-
+	
+	# Validamos los argumentos de la funcion
+	if not type(Largo_Total) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Boceto_P2 \n\t {type(Largo_Total) = }')
+	
+	if not type(Alto_Total) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Boceto_P2 \n\t {type(Alto_Total) = }')
+		
+	if not type(Radio_Pral) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Boceto_P2 \n\t {type(Radio_Pral) = }')
+	
 	Origen_Y = (Alto_Total / 2) + 15
 	Origen_X = 0
 	
@@ -1052,6 +1321,16 @@ def Crear_Boceto_P2(Largo_Total, Alto_Total, Radio_Pral):
 #! Crear_Boceto_Iman
 def Crear_Boceto_Iman(Largo_Total, Alto_Total, Radio_Pral):
 	
+	# Validamos los argumentos de la funcion
+	if not type(Largo_Total) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Boceto_Iman \n\t {type(Largo_Total) = }')
+	
+	if not type(Alto_Total) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Boceto_Iman \n\t {type(Alto_Total) = }')
+		
+	if not type(Radio_Pral) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Boceto_Iman \n\t {type(Radio_Pral) = }')
+	
 	# Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, 
 	# Radio_Agujero = 1.5, Separacion = 76, Inicio_Centro = False, Incluir_Arco = False):
 	Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_LVS_I, 7, 76, True, True)
@@ -1061,10 +1340,31 @@ def Crear_Boceto_Iman(Largo_Total, Alto_Total, Radio_Pral):
 #! Estas son las funciones para las partes que forman el Hoop
 def Crear_Hoop(Largo_Total = '156 mm', Alto_Total = '156 mm', Radio_Pral = '35 mm'):
 	
+	# Validamos los argumentos de la funcion
+	if not type(Largo_Total) in (float, int, str):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Hoop \n\t {type(Largo_Total) = }')
+	
+	if not type(Alto_Total) in (float, int, str):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Hoop \n\t {type(Alto_Total) = }')
+		
+	if not type(Radio_Pral) in (float, int, str):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Hoop \n\t {type(Radio_Pral) = }')
+	
 	# aqui convertimos el texto a numero con las unidades por defecto en FreeCAD
-	LT = App.Units.Quantity(Largo_Total).Value
-	AT = App.Units.Quantity(Alto_Total).Value
-	RP = App.Units.Quantity(Radio_Pral).Value
+	try:
+		LT = App.Units.Quantity(Largo_Total).Value
+	except:
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Hoop \n\t (Largo_Total) = "{Largo_Total}"  ==>  {type(Largo_Total)}')
+	
+	try:
+		AT = App.Units.Quantity(Alto_Total).Value
+	except:
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Hoop \n\t (Alto_Total) = "{Alto_Total}"  ==>  {type(Alto_Total)}')
+	try:
+		RP = App.Units.Quantity(Radio_Pral).Value
+	except:
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Hoop \n\t (Radio_Pral) = "{Radio_Pral}"  ==>  {type(Radio_Pral)}')
+	
 	
 	# Limpiar_Pantalla():
 	Limpiar_Pantalla()
@@ -1104,6 +1404,10 @@ Crear_Hoop('450 mm', '450 mm', '100 mm')
 
 # '156 mm', '156 mm', '35 mm'
 # '294 mm', '212 mm', '35 mm'
+# '450 mm', '450 mm', '100 mm'
+
+
+
 
 Fin = time.time()
 
@@ -1117,7 +1421,7 @@ print(f'{dias[indice]}  {time.strftime("%d/%m/%Y  %H:%M:%S", time.localtime())}'
 
 
 '''
-#Ejemplo mover la pieza usando una ventana flotante
+#Ejemplo mover la pieza usando una ventana flotante de PySide
 from PySide import QtGui
 val = QtGui.QInputDialog.getText(None, 'Mover Objeto', 'Ingrese los valores \n separados por coma. \n Ejemplo: 100,0,0')[0]
 myVal = tuple(val.split(','))
