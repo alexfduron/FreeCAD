@@ -30,8 +30,8 @@ import Sketcher
 import Part
 import math
 from PySide import QtGui
-
-
+import datetime
+import time
 
 
 
@@ -123,12 +123,12 @@ def Crear_Contenedor_2D():
 	
 	### Begin command Std_Group
 	global Grupo_LH1
-	Grupo_LH1 = Crear_Grupo('Group_LH001', '', Pieza_H1)
+	Grupo_LH1 = Crear_Grupo('Group_LH001', 'Grupo_2D', Pieza_H1)
 	
 	
 	### Begin command PartDesign_Body
 	global Cuerpo_LH1
-	Cuerpo_LH1 = Crear_Cuerpo('Body_LH001', '', Grupo_LH1)
+	Cuerpo_LH1 = Crear_Cuerpo('Body_LH001', 'Cuerpo_Layout', Grupo_LH1)
 	
 	
 	### Begin command PartDesign_Sketch
@@ -646,7 +646,7 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
 	Plano.recompute()
 
 
-def Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero = 1.5, Separacion = 76):
+def Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero = 1.5, Separacion = 76, Inicio_Centro = False, Incluir_Arco = False):
 	
 	Separacion = Separacion / 2
 	Val_X = (Largo_Total / 2) + 1 + 14 / 2
@@ -657,39 +657,77 @@ def Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero 
 	Multi_Y = math.floor(Delta_Y / Separacion)
 	
 	if Multi_X == 0:
-		DeltaVal_X = [Delta_X]
+		if Inicio_Centro == True:
+			DeltaVal_X = [0]
+		else:
+			DeltaVal_X = [Delta_X]
 	elif Multi_X == 1:
-		DeltaVal_X = [Separacion]
+		if Inicio_Centro == True:
+			DeltaVal_X = [0]
+		else:
+			DeltaVal_X = [Separacion]
+	elif Multi_X == 2:
+		if Inicio_Centro == True:
+			DeltaVal_X = [0, Separacion * 2]
+		else:
+			DeltaVal_X = [Separacion]
 	else:
-		Multi_X = math.floor((Delta_X - Separacion) / (Separacion * 2))
-		DeltaVal_X = [Separacion]
-		Ciclo = Separacion
-		for k in range(Multi_X):
-			Ciclo += Separacion * 2
-			DeltaVal_X.append(Ciclo)
-		if math.floor(((Delta_X - Separacion) - Separacion * 2 * Multi_X) / Separacion) >= 1:
-			DeltaVal_X.append(Delta_X)
+		if Inicio_Centro == True:
+			Multi_X = math.floor((Delta_X - 2 * Separacion) / (Separacion * 2))
+			DeltaVal_X = [0, Separacion * 2]
+			Ciclo = Separacion * 2
+			for k in range(Multi_X):
+				Ciclo += Separacion * 2
+				DeltaVal_X.append(Ciclo)
+		else:
+			Multi_X = math.floor((Delta_X - Separacion) / (Separacion * 2))
+			DeltaVal_X = [Separacion]
+			Ciclo = Separacion
+			for k in range(Multi_X):
+				Ciclo += Separacion * 2
+				DeltaVal_X.append(Ciclo)
+			if math.floor(((Delta_X - Separacion) - Separacion * 2 * Multi_X) / Separacion) >= 1:
+				DeltaVal_X.append(Delta_X)
 			
 	if Multi_Y == 0:
-		DeltaVal_Y = [Delta_Y]
+		if Inicio_Centro == True:
+			DeltaVal_Y = [0]
+		else:
+			DeltaVal_Y = [Delta_Y]
 	elif Multi_Y == 1:
-		DeltaVal_Y = [Separacion]
+		if Inicio_Centro == True:
+			DeltaVal_Y = [0]
+		else:
+			DeltaVal_Y = [Separacion]
+	elif Multi_Y == 2:
+		if Inicio_Centro == True:
+			DeltaVal_Y = [0, Separacion * 2]
+		else:
+			DeltaVal_Y = [Separacion]
 	else:
-		Multi_Y = math.floor((Delta_Y - Separacion) / (Separacion * 2))
-		DeltaVal_Y = [Separacion]
-		Ciclo = Separacion
-		for k in range(Multi_Y):
-			Ciclo += Separacion * 2
-			DeltaVal_Y.append(Ciclo)
-		if math.floor(((Delta_Y - Separacion) - Separacion * 2 * Multi_Y) / Separacion) >= 1:
-			DeltaVal_Y.append(Delta_Y)
+		if Inicio_Centro == True:
+			Multi_Y = math.floor((Delta_Y - 2 * Separacion) / (Separacion * 2))
+			DeltaVal_Y = [0, Separacion * 2]
+			Ciclo = Separacion * 2
+			for k in range(Multi_Y):
+				Ciclo += Separacion * 2
+				DeltaVal_Y.append(Ciclo)
+		else:
+			Multi_Y = math.floor((Delta_Y - Separacion) / (Separacion * 2))
+			DeltaVal_Y = [Separacion]
+			Ciclo = Separacion
+			for k in range(Multi_Y):
+				Ciclo += Separacion * 2
+				DeltaVal_Y.append(Ciclo)
+			if math.floor(((Delta_Y - Separacion) - Separacion * 2 * Multi_Y) / Separacion) >= 1:
+				DeltaVal_Y.append(Delta_Y)
 	
 	
 	# Actualizar_Lista02(Val_X, Val_Y):
 	Lista02 = Actualizar_Lista02(Val_X, Val_Y)
 		
-	# Actualizar_Lista03(Lista02, DeltaVal_X, DeltaVal_Y, Radio_Agujero):
-	Lista03 = Actualizar_Lista03(Lista02, DeltaVal_X, DeltaVal_Y, Radio_Agujero)
+	# Actualizar_Lista03(Lista02, DeltaVal_X, DeltaVal_Y, Radio_Agujero, Inicio_Centro = False):
+	Lista03 = Actualizar_Lista03(Lista02, DeltaVal_X, DeltaVal_Y, Radio_Agujero, Inicio_Centro)
 	
 	
 	for k in range(0, len(Lista03)):
@@ -733,25 +771,31 @@ def Actualizar_Lista02(Val_X, Val_Y):
 	return Lista02
 	
 	
-def Actualizar_Lista03(Lista02, DeltaVal_X, DeltaVal_Y, Radio_Agujero):
+def Actualizar_Lista03(Lista02, DeltaVal_X, DeltaVal_Y, Radio_Agujero, Inicio_Centro = False):
 	
 	# Ubicacion de lo agujeros con vectores
 	Lista03 = []
 	for j in range(0, len(Lista02)):
+		
+		if (Lista02[j][3] == 'Derecha' or Lista02[j][3] == 'Abajo') and Inicio_Centro == True:
+			Val_Ini = 1
+		else:
+			Val_Ini = 0
+			
 		if Lista02[j][0] == 'Arriba':
-			for k in range(0, len(DeltaVal_X)):
+			for k in range(Val_Ini, len(DeltaVal_X)):
 				Lista_Temp = [App.Vector(Lista02[j][4] * DeltaVal_X[k], Lista02[j][1] * Lista02[j][2], 0), App.Vector(0, 0, 1), Radio_Agujero]
 				Lista03.append(Lista_Temp)
 		elif Lista02[j][0] == 'Abajo':
-			for k in range(0, len(DeltaVal_X)):
+			for k in range(Val_Ini, len(DeltaVal_X)):
 				Lista_Temp = [App.Vector(Lista02[j][4] * DeltaVal_X[k], Lista02[j][1] * Lista02[j][2], 0), App.Vector(0, 0, 1), Radio_Agujero]
 				Lista03.append(Lista_Temp)
 		elif Lista02[j][0] == 'Derecha':
-			for k in range(0, len(DeltaVal_Y)):
+			for k in range(Val_Ini, len(DeltaVal_Y)):
 				Lista_Temp = [App.Vector(Lista02[j][1] * Lista02[j][2],Lista02[j][4] * DeltaVal_Y[k], 0), App.Vector(0, 0, 1), Radio_Agujero]
 				Lista03.append(Lista_Temp)
 		elif Lista02[j][0] == 'Izquierda':
-			for k in range(0, len(DeltaVal_Y)):
+			for k in range(Val_Ini, len(DeltaVal_Y)):
 				Lista_Temp = [App.Vector(Lista02[j][1] * Lista02[j][2],Lista02[j][4] * DeltaVal_Y[k], 0), App.Vector(0, 0, 1), Radio_Agujero]
 				Lista03.append(Lista_Temp)
 	
@@ -767,6 +811,12 @@ def Limpiar_Pantalla():
 	pc = mw.findChild(QtGui.QPlainTextEdit,"Python console")
 	pc.onClearConsole()
 	
+
+
+
+
+
+
 
 
 
@@ -811,7 +861,9 @@ def Crear_Boceto_Cuerpo(Largo_Total, Alto_Total, Radio_Pral):
 	Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
 	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
 	Crear_Contorno(Lista01, Boceto_LVS_C)
-	# Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero = 1.5, Separacion = 76):
+	
+	# Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, 
+	# Radio_Agujero = 1.5, Separacion = 76, Inicio_Centro = False, Incluir_Arco = False):
 	Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_LVS_C, 1.5)
 	
 
@@ -841,7 +893,9 @@ def Crear_Boceto_Tapadera(Largo_Total, Alto_Total, Radio_Pral):
 	Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
 	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
 	Crear_Contorno(Lista01, Boceto_LVS_T)
-	# Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero = 1.5, Separacion = 76):
+	
+	# Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, 
+	# Radio_Agujero = 1.5, Separacion = 76, Inicio_Centro = False, Incluir_Arco = False):
 	Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_LVS_T, 1.5)
 	
 	
@@ -998,19 +1052,9 @@ def Crear_Boceto_P2(Largo_Total, Alto_Total, Radio_Pral):
 #! Crear_Boceto_Iman
 def Crear_Boceto_Iman(Largo_Total, Alto_Total, Radio_Pral):
 	
-	Lista10 = [
-	[App.Vector(0, (Alto_Total / 2) + 1 + 14 / 2, 0), App.Vector(0, 0, 1), 7],
-	[App.Vector((Largo_Total / 2) + 1 + 14 / 2, 0, 0), App.Vector(0, 0, 1), 7],
-	[App.Vector(0, -(Alto_Total / 2) - 1 - 14 / 2, 0), App.Vector(0, 0, 1), 7],
-	[App.Vector(-(Largo_Total / 2) - 1 - 14 / 2, 0, 0), App.Vector(0, 0, 1), 7]
-	]
-	
-	for k in range(0, len(Lista10)):
-		# Crear_Circulo(Pt1, Eje, Radio, Boceto_X):
-		Crear_Circulo(Lista10[k][0], Lista10[k][1], Lista10[k][2], Boceto_LVS_I)
-	
-	# Bloquear_Circulos(Boceto_X, Total_Lista):
-	Bloquear_Circulos(Boceto_LVS_I, len(Lista10))
+	# Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, 
+	# Radio_Agujero = 1.5, Separacion = 76, Inicio_Centro = False, Incluir_Arco = False):
+	Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_LVS_I, 7, 76, True, True)
 
 
 
@@ -1050,18 +1094,26 @@ def Crear_Hoop(Largo_Total = '156 mm', Alto_Total = '156 mm', Radio_Pral = '35 m
 #$ Esta es la memoria de los Objetos 2D para revision y analisis
 Lista_Linea = []
 
+dias = ('Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom')
 
-
+Ini = time.time()
 
 #! Esta es la funcion que inicia la Macro
 # Crear_Hoop(Largo_Total, Alto_Total, Radio_Pral):
-Crear_Hoop('156 mm', '156 mm', '35 mm')
+Crear_Hoop('450 mm', '450 mm', '100 mm')
 
 # '156 mm', '156 mm', '35 mm'
 # '294 mm', '212 mm', '35 mm'
 
+Fin = time.time()
 
-App.Console.PrintMessage(f'Fin de la {Pieza_H1.Label}\n')
+indice = datetime.date.weekday(datetime.datetime.now())
+
+print()
+
+App.Console.PrintMessage(f'Fin de la {Pieza_H1.Label} en {round(Fin - Ini, 2)} seg\n')
+
+print(f'{dias[indice]}  {time.strftime("%d/%m/%Y  %H:%M:%S", time.localtime())}')
 
 
 '''

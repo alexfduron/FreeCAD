@@ -80,6 +80,9 @@ def Procesar_Objetos():
 	# Limpiar_Pantalla():
 	Limpiar_Pantalla()
 	
+	for k in Obj_Seleccion:
+		print(k.Name)
+	
 	# aqui buscamos los Cuerpos usando varios casos de busqueda
 	if len(Obj_Seleccion) > 0:
 		for myObj in Obj_Seleccion:
@@ -212,3 +215,26 @@ def Procesar_Objetos():
 # Procesar_Objetos():
 Procesar_Objetos()
 
+
+'''
+# es para obtener los objetos raiz
+for ObjP in App.ActiveDocument.RootObjects:
+	print(ObjP.Name)
+	
+# es para obtener todos los objetos del documento
+for Obj in App.ActiveDocument.Objects:
+	print(Obj.Name)
+	
+# es para obtener todos los objetos del objeto deseado
+for Obj in App.getDependentObjects(App.ActiveDocument.Body001):
+	print(Obj.Name)
+
+# para obtener el nombre de las caras se debe seleccionar con el raton
+print(Gui.Selection.getSelectionEx()[0].SubElementNames)
+('Face3', 'Face4', 'Face6')
+
+# otra forma es creando la lista manualmente
+BS = App.ActiveDocument.Body005.Shape
+FN = ['Face' + str(i + 1)  for i in range(len(BS.Faces))]
+['Face1', 'Face2', 'Face3', 'Face4', 'Face5', 'Face6', 'Face7', 'Face8', 'Face9']
+'''
