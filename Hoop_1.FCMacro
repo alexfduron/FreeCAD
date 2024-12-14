@@ -919,11 +919,9 @@ def Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero 
 	# Actualizar_Lineal_Lista03(Lista02, DeltaVal_X, DeltaVal_Y, Radio_Agujero, Inicio_Centro = False):
 	Lista03 = Actualizar_Lineal_Lista03(Lista02, DeltaVal_X, DeltaVal_Y, Radio_Agujero, Inicio_Centro)
 	
-	
-	
-	# Actualizar_Polar_Lista03(Pt01_Eje, Pt02_Circulo, Radio01_Eje = -1, Radio02_Circulo = 1, Lista03 = [],
-	# Ang_Alfa = math.radians(0), Ang_Beta = math.radians(360), Ang_Gamma = 0, Arco_Gamma = 76, Inicia_Centro = False):
-	Lista03 = Actualizar_Polar_Lista03(App.Vector(0, 0, 0), App.Vector(10, 0, 0), -1, 7, Lista03, math.radians(45), math.radians(360), 0, 76, True)
+	if Incluir_Arco == True:
+		# Actualizar_Polar_Lista03(Lista02, Delta_X, Delta_Y, Radio_Agujero, Lista03 = []):
+		Lista03 = Actualizar_Polar_Lista03(Lista02, Delta_X, Delta_Y, Radio_Agujero, Lista03)
 	
 	
 	
@@ -934,7 +932,7 @@ def Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero 
 	
 	# Bloquear_Circulos(Boceto_X, Total_Lista):
 	Bloquear_Circulos(Boceto_X, len(Lista03))
-
+	
 
 def Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
 	
@@ -975,14 +973,14 @@ def Actualizar_Lista02(Val_X, Val_Y):
 	
 	# Ubicacion de los agujeros
 	Lista02 = [
-	['Arriba',     1, Val_Y, 'Derecha',    1],
-	['Derecha',    1, Val_X, 'Arriba',     1],
-	['Derecha',    1, Val_X, 'Abajo',     -1],
-	['Abajo',     -1, Val_Y, 'Derecha',    1],
-	['Abajo',     -1, Val_Y, 'Izquierda', -1],
-	['Izquierda', -1, Val_X, 'Abajo',     -1],
-	['Izquierda', -1, Val_X, 'Arriba',     1],
-	['Arriba',     1, Val_Y, 'Izquierda', -1]
+	['Arriba',     1, Val_Y, 'Derecha',    1, Val_X],
+	['Derecha',    1, Val_X, 'Arriba',     1, Val_Y],
+	['Derecha',    1, Val_X, 'Abajo',     -1, Val_Y],
+	['Abajo',     -1, Val_Y, 'Derecha',    1, Val_X],
+	['Abajo',     -1, Val_Y, 'Izquierda', -1, Val_X],
+	['Izquierda', -1, Val_X, 'Abajo',     -1, Val_Y],
+	['Izquierda', -1, Val_X, 'Arriba',     1, Val_Y],
+	['Arriba',     1, Val_Y, 'Izquierda', -1, Val_X]
 	]
 	
 	return Lista02
@@ -992,7 +990,7 @@ def Actualizar_Lineal_Lista03(Lista02, DeltaVal_X, DeltaVal_Y, Radio_Agujero, In
 	
 	'''
 	Nota:
-		Lista02: Es la lista que se usara para indicar la direccion en que se dibijaran los circulos
+		Lista02: Es la lista que se usara para indicar la direccion en que se dibujaran los circulos
 		DeltaVal_X: Es la lista de las separaciones de los centros de los circulos en el eje X
 		DeltaVal_Y: Es la lista de las separaciones de los centros de los circulos en el eje Y
 		Radio_Agujero: Es el radio del circulo a dibujar
@@ -1045,30 +1043,70 @@ def Actualizar_Lineal_Lista03(Lista02, DeltaVal_X, DeltaVal_Y, Radio_Agujero, In
 	return Lista03
 	
 	
-def Actualizar_Polar_Lista03(Pt01_Eje, Pt02_Circulo, Radio01_Eje = -1, Radio02_Circulo = 1, Lista03 = [], Ang_Alfa = math.radians(0), Ang_Beta = math.radians(360), Ang_Gamma = 0, Arco_Gamma = 76, Inicia_Centro = False):
+def Actualizar_Polar_Lista03(Lista02, Delta_X, Delta_Y, Radio_Agujero, Lista03 = []):
 	
 	'''
-	Nota: 
-		Pt01_Eje: Es el punto polar donde se giran los circulos
-		Pt02_Circulo: Es el punto del centro del circulo a dibujar
-		Radio01_Eje: Es la distancia entre el Pt01 y Pt02, si el valor es -1 significa que N/A
-		Radio02_Circulo: Es el radio del circulo
-		Lista03: es la lista que se usara para guardar los valores
-		Ang_Alfa: Es el angulo de desfase que se usa para mover el Pt02
-		Ang_Beta: Es el angulo total que girara el circulo
-		Ang_Gamma: Es el angulo de separacion entre circulos, si el valor es 0 significa que N/A
-		Arco_Gamma: Es el perimetro de separacion entre circulos
-		Inicia_Centro: Es la opcion de abrir el angulo en ambas direcciones
+	Nota:
+		Lista02: Es la lista que se usara para indicar la direccion en que se dibujaran los circulos
+		DeltaVal_X: Es la lista de las separaciones de los centros de los circulos en el eje X
+		DeltaVal_Y: Es la lista de las separaciones de los centros de los circulos en el eje Y
+		Radio_Agujero: Es el radio del circulo a dibujar
 	'''
 	# Validamos los argumentos de la funcion
+	if not type(Lista02) is list:
+		raise TypeError(f'\n\n\t Mensaje = No es una Lista \n\t Funcion = Actualizar_Polar_Lista03 \n\t {type(Lista02) = }')
+		
+	if not type(Delta_X) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Actualizar_Polar_Lista03 \n\t {type(Delta_X) = }')
+		
+	if not type(Delta_Y) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Actualizar_Polar_Lista03 \n\t {type(Delta_Y) = }')
+	
+	if not type(Radio_Agujero) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Actualizar_Polar_Lista03 \n\t {type(Radio_Agujero) = }')
 	
 	
 	
-	#$ TODO falta completar esta funcion
+	# Ubicacion de lo agujeros con vectores
+	Margen = 12
+	Separacion = 38
+	Radio_Eje = Lista02[1][5] - Delta_X
+	Angulo_Delta = Separacion / Radio_Eje
+	Cuerda_Eje = Radio_Eje * math.radians(90) / 2 - Margen
+	Total_Circulo01 = 1 + 2 * math.floor(Cuerda_Eje / Separacion)
+	Total_Circulo02 = 2 + 2 * math.floor((Cuerda_Eje - Separacion / 2) / Separacion)
+	Angulo_Ini01 = math.radians(45) - (Total_Circulo01 - 1) * Angulo_Delta / 2
+	Angulo_Ini02 = math.radians(45) - (Total_Circulo02 - 1) * Angulo_Delta / 2
 	
+	
+	if Total_Circulo01 > Total_Circulo02:
+		Total_Circulo03 = Total_Circulo01
+		Angulo_Ini03 = Angulo_Ini01
+	else:
+		Total_Circulo03 = Total_Circulo02
+		Angulo_Ini03 = Angulo_Ini02
 	
 		
-	
+	for j in range(0, len(Lista02)):
+		
+		if Lista02[j][0] == 'Arriba' and Lista02[j][3] == 'Derecha':
+			for k in range(0, Total_Circulo03):
+				Lista_Temp = [App.Vector(Lista02[j][4] * Lista02[j][5] - Radio_Eje * (1 - math.cos(Angulo_Ini03 + k * Angulo_Delta)), Lista02[j][1] * Delta_Y + Radio_Eje * math.sin(Angulo_Ini03 + k * Angulo_Delta), 0), App.Vector(0, 0, 1), Radio_Agujero]
+				Lista03.append(Lista_Temp)
+		elif Lista02[j][0] == 'Arriba' and Lista02[j][3] == 'Izquierda':
+			for k in range(0, Total_Circulo03):
+				Lista_Temp = [App.Vector(Lista02[j][4] * Lista02[j][5] + Radio_Eje * (1 - math.cos(Angulo_Ini03 + k * Angulo_Delta)), Lista02[j][1] * Delta_Y + Radio_Eje * math.sin(Angulo_Ini03 + k * Angulo_Delta), 0), App.Vector(0, 0, 1), Radio_Agujero]
+				Lista03.append(Lista_Temp)
+		elif Lista02[j][0] == 'Abajo' and Lista02[j][3] == 'Derecha':
+			for k in range(0, Total_Circulo03):
+				Lista_Temp = [App.Vector(Lista02[j][4] * Lista02[j][5] - Radio_Eje * (1 - math.cos(Angulo_Ini03 + k * Angulo_Delta)), Lista02[j][1] * Delta_Y - Radio_Eje * math.sin(Angulo_Ini03 + k * Angulo_Delta), 0), App.Vector(0, 0, 1), Radio_Agujero]
+				Lista03.append(Lista_Temp)
+		elif Lista02[j][0] == 'Abajo' and Lista02[j][3] == 'Izquierda':
+			for k in range(0, Total_Circulo03):
+				Lista_Temp = [App.Vector(Lista02[j][4] * Lista02[j][5] + Radio_Eje * (1 - math.cos(Angulo_Ini03 + k * Angulo_Delta)), Lista02[j][1] * Delta_Y - Radio_Eje * math.sin(Angulo_Ini03 + k * Angulo_Delta), 0), App.Vector(0, 0, 1), Radio_Agujero]
+				Lista03.append(Lista_Temp)
+		
+	return Lista03
 	
 	
 	
@@ -1443,7 +1481,7 @@ Ini = time.time()
 
 #! Esta es la funcion que inicia la Macro
 # Crear_Hoop(Largo_Total, Alto_Total, Radio_Pral):
-Crear_Hoop('450 mm', '450 mm', '100 mm')
+Crear_Hoop('156 mm', '156 mm', '35 mm')
 
 # '156 mm', '156 mm', '35 mm'
 # '294 mm', '212 mm', '35 mm'
@@ -1470,10 +1508,6 @@ val = QtGui.QInputDialog.getText(None, 'Mover Objeto', 'Ingrese los valores \n s
 myVal = tuple(val.split(','))
 Pieza_H1.Placement.Base = App.Vector(myVal)
 '''
-
-
-
-
 
 
 
