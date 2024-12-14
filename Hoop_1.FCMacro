@@ -288,7 +288,7 @@ def Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Indice = -1, Simetria = 
 	Lista_Linea[-1].append('linea')
 	# aqui guardamos el Boceto que contiene la linea.
 	Lista_Linea[-1].append(Boceto_X.Label)
-	# aqui guardamos la marnitud de la linea.
+	# aqui guardamos la magnitud de la linea.
 	Pt3 = Pt2 - Pt1
 	Lista_Linea[-1].append(round(Pt3.Length, 10))
 	# aqui guardamos el punto inicial de la linea.
@@ -916,8 +916,16 @@ def Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero 
 	# Actualizar_Lista02(Val_X, Val_Y):
 	Lista02 = Actualizar_Lista02(Val_X, Val_Y)
 		
-	# Actualizar_Lista03(Lista02, DeltaVal_X, DeltaVal_Y, Radio_Agujero, Inicio_Centro = False):
-	Lista03 = Actualizar_Lista03(Lista02, DeltaVal_X, DeltaVal_Y, Radio_Agujero, Inicio_Centro)
+	# Actualizar_Lineal_Lista03(Lista02, DeltaVal_X, DeltaVal_Y, Radio_Agujero, Inicio_Centro = False):
+	Lista03 = Actualizar_Lineal_Lista03(Lista02, DeltaVal_X, DeltaVal_Y, Radio_Agujero, Inicio_Centro)
+	
+	
+	
+	# Actualizar_Polar_Lista03(Pt01_Eje, Pt02_Circulo, Radio01_Eje = -1, Radio02_Circulo = 1, Lista03 = [],
+	# Ang_Alfa = math.radians(0), Ang_Beta = math.radians(360), Ang_Gamma = 0, Arco_Gamma = 76, Inicia_Centro = False):
+	Lista03 = Actualizar_Polar_Lista03(App.Vector(0, 0, 0), App.Vector(10, 0, 0), -1, 7, Lista03, math.radians(45), math.radians(360), 0, 76, True)
+	
+	
 	
 	
 	for k in range(0, len(Lista03)):
@@ -980,23 +988,32 @@ def Actualizar_Lista02(Val_X, Val_Y):
 	return Lista02
 	
 	
-def Actualizar_Lista03(Lista02, DeltaVal_X, DeltaVal_Y, Radio_Agujero, Inicio_Centro = False):
+def Actualizar_Lineal_Lista03(Lista02, DeltaVal_X, DeltaVal_Y, Radio_Agujero, Inicio_Centro = False):
+	
+	'''
+	Nota:
+		Lista02: Es la lista que se usara para indicar la direccion en que se dibijaran los circulos
+		DeltaVal_X: Es la lista de las separaciones de los centros de los circulos en el eje X
+		DeltaVal_Y: Es la lista de las separaciones de los centros de los circulos en el eje Y
+		Radio_Agujero: Es el radio del circulo a dibujar
+		Inicio_Centro: Es la opcion de separar el primer circulo del punto de inicio
+	'''
 	
 	# Validamos los argumentos de la funcion
 	if not type(Lista02) is list:
-		raise TypeError(f'\n\n\t Mensaje = No es una Lista \n\t Funcion = Actualizar_Lista03 \n\t {type(Lista02) = }')
+		raise TypeError(f'\n\n\t Mensaje = No es una Lista \n\t Funcion = Actualizar_Lineal_Lista03 \n\t {type(Lista02) = }')
 		
 	if not type(DeltaVal_X) is list:
-		raise TypeError(f'\n\n\t Mensaje = No es una Lista \n\t Funcion = Actualizar_Lista03 \n\t {type(DeltaVal_X) = }')
+		raise TypeError(f'\n\n\t Mensaje = No es una Lista \n\t Funcion = Actualizar_Lineal_Lista03 \n\t {type(DeltaVal_X) = }')
 		
 	if not type(DeltaVal_Y) is list:
-		raise TypeError(f'\n\n\t Mensaje = No es una Lista \n\t Funcion = Actualizar_Lista03 \n\t {type(DeltaVal_Y) = }')
+		raise TypeError(f'\n\n\t Mensaje = No es una Lista \n\t Funcion = Actualizar_Lineal_Lista03 \n\t {type(DeltaVal_Y) = }')
 	
 	if not type(Radio_Agujero) in (float, int):
-		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Actualizar_Lista03 \n\t {type(Radio_Agujero) = }')
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Actualizar_Lineal_Lista03 \n\t {type(Radio_Agujero) = }')
 		
 	if not type(Inicio_Centro) is bool:
-		raise TypeError(f'\n\n\t Mensaje = No es Bolleano \n\t Funcion = Actualizar_Lista03 \n\t {type(Inicio_Centro) = }')
+		raise TypeError(f'\n\n\t Mensaje = No es Bolleano \n\t Funcion = Actualizar_Lineal_Lista03 \n\t {type(Inicio_Centro) = }')
 	
 	
 	# Ubicacion de lo agujeros con vectores
@@ -1026,6 +1043,32 @@ def Actualizar_Lista03(Lista02, DeltaVal_X, DeltaVal_Y, Radio_Agujero, Inicio_Ce
 				Lista03.append(Lista_Temp)
 	
 	return Lista03
+	
+	
+def Actualizar_Polar_Lista03(Pt01_Eje, Pt02_Circulo, Radio01_Eje = -1, Radio02_Circulo = 1, Lista03 = [], Ang_Alfa = math.radians(0), Ang_Beta = math.radians(360), Ang_Gamma = 0, Arco_Gamma = 76, Inicia_Centro = False):
+	
+	'''
+	Nota: 
+		Pt01_Eje: Es el punto polar donde se giran los circulos
+		Pt02_Circulo: Es el punto del centro del circulo a dibujar
+		Radio01_Eje: Es la distancia entre el Pt01 y Pt02, si el valor es -1 significa que N/A
+		Radio02_Circulo: Es el radio del circulo
+		Lista03: es la lista que se usara para guardar los valores
+		Ang_Alfa: Es el angulo de desfase que se usa para mover el Pt02
+		Ang_Beta: Es el angulo total que girara el circulo
+		Ang_Gamma: Es el angulo de separacion entre circulos, si el valor es 0 significa que N/A
+		Arco_Gamma: Es el perimetro de separacion entre circulos
+		Inicia_Centro: Es la opcion de abrir el angulo en ambas direcciones
+	'''
+	# Validamos los argumentos de la funcion
+	
+	
+	
+	#$ TODO falta completar esta funcion
+	
+	
+		
+	
 	
 	
 	

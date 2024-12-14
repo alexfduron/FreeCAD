@@ -1,0 +1,656 @@
+
+import FreeCAD as App
+from PySide import QtGui
+import PartDesign
+import Sketcher
+import Part
+import math
+import datetime
+import time
+
+
+
+def Limpiar_Pantalla():
+	
+	mw = Gui.getMainWindow()
+	rv = mw.findChild(QtGui.QTextEdit, "Report view")
+	rv.clear()
+	
+	pc = mw.findChild(QtGui.QPlainTextEdit,"Python console")
+
+
+
+def Crear_Pieza():
+	
+	# creamos el contenedor principal
+	Pieza_X = Doc.addObject('App::Part','Part001')
+	Pieza_X.Label = 'Pieza001'
+	Doc.recompute()
+	return Pieza_X
+	
+	
+	
+def Crear_Cuerpo(Pieza_X):
+	
+	# creamos el contenedor cuerpo
+	Cuerpo_X = Doc.addObject('PartDesign::Body','Body001')
+	Cuerpo_X.Label = 'Cuerpo001'
+	Pieza_X.addObject(Cuerpo_X)
+	Doc.recompute()
+	return Cuerpo_X
+	
+	
+	
+def Crear_Boceto(Cuerpo_X):
+	
+	# creamos el contenedor boceto
+	Boceto_X = Doc.addObject('Sketcher::SketchObject','Sketch001')
+	Boceto_X.Label = 'Boceto001'
+	Boceto_X.MapMode = 'FlatFace'
+	Cuerpo_X.addObject(Boceto_X)
+	for k in Cuerpo_X.Origin.OriginFeatures:
+		if k.Role == 'XY_Plane':
+			XY_Plano = k
+	Boceto_X.AttachmentSupport = (XY_Plano, [''])
+	del XY_Plano
+	Doc.recompute()
+	return Boceto_X
+	
+	
+	
+def Crear_Relleno(Cuerpo_X, Boceto_X, Altura_X):
+	
+	# creamos el contenedor 3D relleno
+	Relleno_X = Doc.addObject('PartDesign::Pad','Pad001')
+	Relleno_X.Label = 'Relleno001'
+	Cuerpo_X.addObject(Relleno_X)
+	Relleno_X.Profile = (Boceto_X, ['',])
+	#Relleno_X.Length = App.Units.Quantity('40 mm')
+	Relleno_X.Length = Altura_X
+	Relleno_X.ReferenceAxis = (Boceto_X,['N_Axis'])
+	Relleno_X.Midplane = 1
+	Boceto_X.Visibility = False
+	Doc.recompute()
+	return Relleno_X
+	
+	
+	
+def Crear_Hueco(Cuerpo_X, Boceto_X, Altura_X):
+	
+	# creamos el contenedor 3D Hueco
+	Hueco_X = Doc.addObject('PartDesign::Pocket','Pocket001')
+	Hueco_X.Label = 'Hueco001'
+	Cuerpo_X.addObject(Hueco_X)
+	Hueco_X.Profile = (Boceto_X, ['',])
+	#Hueco_X.Length = App.Units.Quantity('40 mm')
+	Hueco_X.Length = Altura_X
+	Hueco_X.ReferenceAxis = (Boceto_X,['N_Axis'])
+	Hueco_X.Midplane = 1
+	Boceto_X.Visibility = False
+	Doc.recompute()
+	return Hueco_X
+	
+	
+	
+def Crear_Filete(Cuerpo_X, Radio_X, Forma_X, Lista_X):
+	
+	# creamos el contenedor 3D Filete
+	Filete_X = Doc.addObject('PartDesign::Fillet','Fillet001')
+	Filete_X.Label = 'Filete001'
+	Cuerpo_X.addObject(Filete_X)
+	Filete_X.Base = (Forma_X, Lista_X)
+	#Filete_X.Radio = App.Units.Quantity('40 mm')
+	Filete_X.Radius = Radio_X
+	Forma_X.Visibility = False
+	Doc.recompute()
+	return Filete_X
+	
+	
+	
+def Crear_Claflan(Cuerpo_X, Medida_X, Forma_X, Lista_X):
+	
+	# creamos el contenedor 3D Chaflan
+	Chaflan_X = Doc.addObject('PartDesign::Chamfer','Chamfer001')
+	Chaflan_X.Label = 'Chaflan001'
+	Cuerpo_X.addObject(Chaflan_X)
+	Chaflan_X.Base = (Forma_X, Lista_X)
+	#Chaflan_X.Radio = App.Units.Quantity('40 mm')
+	Chaflan_X.Size = Medida_X
+	Forma_X.Visibility = False
+	Doc.recompute()
+	return Chaflan_X
+	
+	
+	
+def Imprimir_Lista(Indice = -1):
+	if Indice == -1:
+		pass
+	else:
+		print(f'{Indice = }')
+	
+	print(f'{len(Lista_Obj) = }')
+	for l in Lista_Obj:
+		print(l)
+	
+	
+	
+def Crear_Contenedor():
+	
+	global Doc
+	Doc = App.activeDocument()
+	
+	global Lista_Obj
+	Lista_Obj = []
+	
+	global Pieza01
+	# Crear_Pieza():
+	Pieza01 = Crear_Pieza()
+	
+	global Cuerpo01
+	# Crear_Cuerpo(Pieza_X):
+	Cuerpo01 = Crear_Cuerpo(Pieza01)
+	
+	global Boceto01
+	# Crear_Boceto(Cuerpo_X):
+	Boceto01 = Crear_Boceto(Cuerpo01)
+	
+	global Boceto02
+	# Crear_Boceto(Cuerpo_X):
+	Boceto02 = Crear_Boceto(Cuerpo01)
+	
+	
+	
+def Crear_Linea(Pt1, Pt2, Boceto_X, Indice = ''):
+	
+	# aqui guardamos el ID de la linea.
+	Lista_Obj.append(list(Boceto_X.addGeometry([Part.LineSegment(Pt1, Pt2)], False)))
+	# aqui redondeamos los valores numericos de los vectores
+	Pt1_Temp = App.Vector(round(Pt1.x, 10), round(Pt1.y, 10), round(Pt1.z, 10))
+	Pt2_Temp = App.Vector(round(Pt2.x, 10), round(Pt2.y, 10), round(Pt2.z, 10))
+	# aqui guardamos el punto inicial: Pt1 => (1) y punto final: Pt2 => (2) de la linea.
+	Lista_Obj[-1].append(1)
+	Lista_Obj[-1].append(2)
+	# aqui guardamos el nombre de la linea.
+	Lista_Obj[-1].append('linea')
+	# aqui guardamos el Boceto que contiene la linea.
+	Lista_Obj[-1].append(Boceto_X.Label)
+	# aqui guardamos la magnitud de la linea.
+	Pt3 = Pt2 - Pt1
+	Lista_Obj[-1].append(round(Pt3.Length, 10))
+	# aqui guardamos el punto inicial de la linea.
+	Lista_Obj[-1].append(Pt1_Temp)
+	# aqui guardamos el punto final de la linea.
+	Lista_Obj[-1].append(Pt2_Temp)
+	# aqui guardamos el punto centro => N/A.
+	Lista_Obj[-1].append(0)
+	
+	
+	
+def Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = ''):
+	# aqui guardamos el ID del arco.
+	Lista_Obj.append(list(Boceto_X.addGeometry([Part.ArcOfCircle(Part.Circle(Pt1, Eje , Radio), Ang_Ini, Ang_Fin)], False)))
+	# aqui creamos los puntos de los extremos del arco con los valores numericos redondeados (Ang_Ini => Pt1 Temp, Ang_Fin => Pt2_Temp)
+	Pt1_Temp = App.Vector(round(Pt1.x + Radio * math.cos(Ang_Ini), 10), round(Pt1.y + Radio * math.sin(Ang_Ini), 10), round(Pt1.z, 10))
+	Pt2_Temp = App.Vector(round(Pt1.x + Radio * math.cos(Ang_Fin), 10), round(Pt1.y + Radio * math.sin(Ang_Fin), 10), round(Pt1.z, 10))
+	Eje_Temp = App.Vector(round(Pt1.x, 10), round(Pt1.y, 10), round(Pt1.z, 10))
+	# aqui guardamos el punto inicial: Pt1_Temp => (1) y punto final: Pt2_Temp => (2) del arco.
+	Lista_Obj[-1].append(1)
+	Lista_Obj[-1].append(2)
+	# aqui guardamos el nombre del arco.
+	Lista_Obj[-1].append('arco')
+	# aqui guardamos el Boceto que contiene al arco.
+	Lista_Obj[-1].append(Boceto_X.Label)
+	# aqui guardamos el radio del arco.
+	Lista_Obj[-1].append(round(Radio, 10))
+	# aqui guardamos el punto inicial del arco.
+	Lista_Obj[-1].append(Pt1_Temp)
+	# aqui guardamos el punto final del arco.
+	Lista_Obj[-1].append(Pt2_Temp)
+	# aqui guardamos el punto central del arco.
+	Lista_Obj[-1].append(Eje_Temp)
+	
+	
+	
+def Crear_Circulo(Pt1, Eje, Radio, Boceto_X):
+	
+	# aqui guardamos el ID del circulo.
+	Lista_Obj.append(list(Boceto_X.addGeometry([Part.Circle(Pt1, Eje, Radio)], False)))
+	# aqui guardamos el punto inicial => (1) y punto final => (2) del circulo => N/A.
+	Lista_Obj[-1].append(0)
+	Lista_Obj[-1].append(0)
+	# aqui guardamos el nombre del circulo.
+	Lista_Obj[-1].append('circulo')
+	# aqui guardamos el Boceto que contiene al circulo.
+	Lista_Obj[-1].append(Boceto_X.Label)
+	# aqui guardamos el radio del circulo.
+	Lista_Obj[-1].append(round(Radio, 10))
+	# aqui guardamos el punto inicial del circulo => N/A.
+	Lista_Obj[-1].append(0)
+	# aqui guardamos el punto final del circulo => N/A.
+	Lista_Obj[-1].append(0)
+	# aqui guardamos el punto central del circulo.
+	Lista_Obj[-1].append(App.Vector(round(Pt1.x, 10), round(Pt1.y, 10), round(Pt1.z, 10)))
+	
+	
+	
+def Validar_Puntos_de_Contacto(Total_Lista):
+	
+	for j in range(0, Total_Lista)[::-1]:
+		Valor_Futuro = (j - 1) % Total_Lista
+		
+		# aqui validamos que los puntos sean coincidentes
+		
+		if Lista_Obj[::-1][j][7] == Lista_Obj[::-1][Valor_Futuro][6]:
+			
+			if Lista_Obj[::-1][j][2] == 2:
+				pass
+			else:
+				Temp = Lista_Obj[::-1][j][1]
+				Lista_Obj[::-1][j][1] = Lista_Obj[::-1][j][2]
+				Lista_Obj[::-1][j][2] = Temp
+				
+			if Lista_Obj[::-1][Valor_Futuro][1] == 1:
+				pass
+			else:
+				Temp = Lista_Obj[::-1][Valor_Futuro][2]
+				Lista_Obj[::-1][Valor_Futuro][2] = Lista_Obj[::-1][Valor_Futuro][1]
+				Lista_Obj[::-1][Valor_Futuro][1] = Temp
+				
+		elif Lista_Obj[::-1][j][7] == Lista_Obj[::-1][Valor_Futuro][7]:
+			
+			if Lista_Obj[::-1][j][2] == 2:
+				pass
+			else:
+				Temp = Lista_Obj[::-1][j][1]
+				Lista_Obj[::-1][j][1] = Lista_Obj[::-1][j][2]
+				Lista_Obj[::-1][j][2] = Temp
+				
+			if Lista_Obj[::-1][Valor_Futuro][1] == 2:
+				pass
+			else:
+				Temp = Lista_Obj[::-1][Valor_Futuro][2]
+				Lista_Obj[::-1][Valor_Futuro][2] = Lista_Obj[::-1][Valor_Futuro][1]
+				Lista_Obj[::-1][Valor_Futuro][1] = Temp
+			
+		elif Lista_Obj[::-1][j][6] == Lista_Obj[::-1][Valor_Futuro][6]:
+			
+			if Lista_Obj[::-1][j][2] == 1:
+				pass
+			else:
+				Temp = Lista_Obj[::-1][j][1]
+				Lista_Obj[::-1][j][1] = Lista_Obj[::-1][j][2]
+				Lista_Obj[::-1][j][2] = Temp
+				
+			if Lista_Obj[::-1][Valor_Futuro][1] == 1:
+				pass
+			else:
+				Temp = Lista_Obj[::-1][Valor_Futuro][2]
+				Lista_Obj[::-1][Valor_Futuro][2] = Lista_Obj[::-1][Valor_Futuro][1]
+				Lista_Obj[::-1][Valor_Futuro][1] = Temp
+				
+		elif Lista_Obj[::-1][j][6] == Lista_Obj[::-1][Valor_Futuro][7]:
+			
+			if Lista_Obj[::-1][j][2] == 1:
+				pass
+			else:
+				Temp = Lista_Obj[::-1][j][1]
+				Lista_Obj[::-1][j][1] = Lista_Obj[::-1][j][2]
+				Lista_Obj[::-1][j][2] = Temp
+				
+			if Lista_Obj[::-1][Valor_Futuro][1] == 2:
+				pass
+			else:
+				Temp = Lista_Obj[::-1][Valor_Futuro][2]
+				Lista_Obj[::-1][Valor_Futuro][2] = Lista_Obj[::-1][Valor_Futuro][1]
+				Lista_Obj[::-1][Valor_Futuro][1] = Temp
+	
+	
+	
+def Crear_Contorno(Lista_X, Boceto_X):
+	
+	# Crear_Linea(Pt1, Pt2, Boceto_X, Indice = ''):
+	# Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = ''):
+	for j in range(0, len(Lista_X)):
+		if Lista_X[j][0] == 'linea':
+			Crear_Linea(App.Vector(Lista_X[j][2], Lista_X[j][3], 0), App.Vector(Lista_X[j][4], Lista_X[j][5], 0), Boceto_X, j)
+		if Lista_X[j][0] == 'arco':
+			Crear_Arco(App.Vector(Lista_X[j][1], Lista_X[j][2], 0), Lista_X[j][3], Lista_X[j][4], Boceto_X, Lista_X[j][5], Lista_X[j][6], j)
+	
+	# Validar_Puntos_de_Contacto(Total_Lista):
+	Validar_Puntos_de_Contacto(len(Lista_X))
+	
+	
+	
+def Bloquear_Lineas(Boceto_X, Total_Lista):
+
+	for j in range(0, Total_Lista)[::-1]:
+		if Lista_Obj[::-1][j][3] == 'linea':
+			Boceto_X.addConstraint(Sketcher.Constraint('Block', Lista_Obj[::-1][j][0]))
+			
+			
+			
+def Bloquear_Arcos(Boceto_X, Total_Lista):
+	
+	for j in range(0, Total_Lista)[::-1]:
+		if Lista_Obj[::-1][j][3] == 'arco':
+			Boceto_X.addConstraint(Sketcher.Constraint('Block', Lista_Obj[::-1][j][0]))
+			
+			
+			
+def Fijar_Arco_Eje(Total_Lista, Boceto_X, Objeto, Cantidad = -1, Eje = -1):
+	
+	'''
+	Nota:
+		Eje = -1 => es para el eje X
+		Eje = -2 => es para el eje Y 
+	'''
+	
+	Conteo = 0
+	
+	for j in range(0, Total_Lista)[::-1]:
+		if Lista_Obj[::-1][j][3] == Objeto:
+			Conteo += 1
+			if Cantidad == -1:
+				Boceto_X.addConstraint(Sketcher.Constraint('PointOnObject', Lista_Obj[::-1][j][0], 3, Eje))
+			elif Cantidad >= Conteo:
+				Boceto_X.addConstraint(Sketcher.Constraint('PointOnObject', Lista_Obj[::-1][j][0], 3, Eje))
+			
+			
+			
+def Fijar_Arco_Circulo(Total_Lista, Boceto_X):
+	
+	Lista_Arco = []
+	Lista_Circulo = []
+	
+	for j in range(0, Total_Lista)[::-1]:
+		if Lista_Obj[::-1][j][3] == 'arco':
+			Lista_Arco.append(Lista_Obj[::-1][j][0])
+		if Lista_Obj[::-1][j][3] == 'circulo':
+			Lista_Circulo.append(Lista_Obj[::-1][j][0])
+			
+	for k in range(0, len(Lista_Arco)):
+		Boceto_X.addConstraint(Sketcher.Constraint('Coincident', Lista_Circulo[k], 3, Lista_Arco[k], 3))
+		
+		
+			
+def Simetria_Objeto_Eje(Total_Lista, Boceto_X, Objeto, Eje = -1):
+	
+	'''
+	Nota:
+		Eje = -1 => es para el eje X
+		Eje = -2 => es para el eje Y 
+	'''
+	
+	Lista_Objetivo = []
+	
+	for j in range(0, Total_Lista)[::-1]:
+		if Lista_Obj[::-1][j][3] == Objeto:
+			Lista_Objetivo.append(Lista_Obj[::-1][j][0])
+			
+	Boceto_X.addConstraint(Sketcher.Constraint('Symmetric', Lista_Objetivo[0], 3, Lista_Objetivo[1], 3, Eje))
+	
+	
+	
+def Restriccion_Distancia_Arco(Total_Lista, Boceto_X, Objeto, Distancia = 10, Eje = -1):
+	
+	'''
+	Nota:
+		Eje = -1 => es para el eje X
+		Eje = -2 => es para el eje Y 
+	'''
+	
+	Lista_Arco = []
+	Indice =[]
+	
+	for j in range(0, Total_Lista)[::-1]:
+		if Lista_Obj[::-1][j][3] == Objeto:
+			Lista_Arco.append(Lista_Obj[::-1][j][0])
+	
+	if Eje == -1:
+		Indice.append(Boceto_X.addConstraint(Sketcher.Constraint('DistanceX', Lista_Arco[0], 3, Lista_Arco[1], 3, Distancia)))
+	if Eje == -2:
+		Indice.append(Boceto_X.addConstraint(Sketcher.Constraint('DistanceY', Lista_Arco[0], 3, Lista_Arco[1], 3, Distancia)))
+		
+	Boceto_X.renameConstraint(Indice[-1], u'Distancia' + str(Indice[-1] + 1).zfill(2))
+			
+	
+def Bloquear_Circulos(Boceto_X, Total_Lista):
+	
+	for j in range(0, Total_Lista)[::-1]:
+		if Lista_Obj[::-1][j][3] == 'circulo':
+			Boceto_X.addConstraint(Sketcher.Constraint('Block', Lista_Obj[::-1][j][0]))
+			
+					
+									
+def Restriccion_Ortogonal_Linea(Lista_X, Boceto_X):
+	
+	for j in range(0, len(Lista_X))[::-1]:
+		if Lista_Obj[::-1][j][3] == 'linea':
+			Boceto_X.addConstraint(Sketcher.Constraint(Lista_X[::-1][j][1], Lista_Obj[::-1][j][0]))
+			
+			
+			
+def Restriccion_Radio_Arco(Total_Lista, Boceto_X):
+	
+	Indice = []
+	
+	for j in range(0, Total_Lista)[::-1]:
+		if Lista_Obj[::-1][j][3] == 'arco':
+			Indice.append(Boceto_X.addConstraint(Sketcher.Constraint('Radius', Lista_Obj[::-1][j][0], Lista_Obj[::-1][j][5])))
+			Boceto_X.renameConstraint(Indice[-1], u'Radio' + str(Indice[-1] + 1).zfill(2))
+	
+	
+	
+def Restriccion_Radio_Circulo(Total_Lista, Boceto_X):
+	
+	Indice = []
+	
+	for j in range(0, Total_Lista)[::-1]:
+		if Lista_Obj[::-1][j][3] == 'circulo':
+			Indice.append(Boceto_X.addConstraint(Sketcher.Constraint('Radius', Lista_Obj[::-1][j][0], Lista_Obj[::-1][j][5])))
+			Boceto_X.renameConstraint(Indice[-1], u'Radio' + str(Indice[-1] + 1).zfill(2))
+			
+			
+			
+def Restriccion_Tangente(Total_Lista, Boceto_X):
+	
+	for j in range(0, Total_Lista)[::-1]:
+		Valor_Futuro = (j - 1) % Total_Lista
+		
+		# aqui analizamos los vectores de dos lineas
+		if Lista_Obj[::-1][j][3] == 'linea' and Lista_Obj[::-1][Valor_Futuro][3] == 'linea':
+			pass
+			
+		# aqui analizamos los vectores de una linea y un arco
+		if Lista_Obj[::-1][j][3] == 'linea' and Lista_Obj[::-1][Valor_Futuro][3] == 'arco':
+			pass
+			
+		if Lista_Obj[::-1][j][3] == 'arco' and Lista_Obj[::-1][Valor_Futuro][3] == 'linea':
+			# Si el punto inicial esta en la misma ubicacion del angulo inicial 
+			# entonces el giro del angulo es en contra de las manecillas del reloj
+			# por lo tanto su Normal Esperado es positiva.
+			if Lista_Obj[::-1][j][1] == 1:
+				Normal01_Esperada = App.Vector(0, 0, 1)
+			else:
+				Normal01_Esperada = App.Vector(0, 0, -1)
+			# ahora se calcula el vector centro a extremo final del arco
+			if Lista_Obj[::-1][j][2] == 1:
+				Vector01_CE = Lista_Obj[::-1][j][6] - Lista_Obj[::-1][j][8]
+			else:
+				Vector01_CE = Lista_Obj[::-1][j][7] - Lista_Obj[::-1][j][8]
+			# ahora se calculan los vectores perpendiculares al extremo final del arco
+			Vector01_P1 = App.Vector(-Vector01_CE.y, Vector01_CE.x, 0)
+			Vector01_P2 = App.Vector(Vector01_CE.y, -Vector01_CE.x, 0)
+			# ahora calculamos la normal entre los vectores perpendiculares y el vector centro del arco
+			Normal01_P1 = Vector01_CE.cross(Vector01_P1)
+			Normal01_P2 = Vector01_CE.cross(Vector01_P2)
+			# ahora calculamos la Normal Unitaria
+			Normal01_P1 = Normal01_P1 / Normal01_P1.Length
+			Normal01_P2 = Normal01_P2 / Normal01_P2.Length
+			# ahora se compara el signo de la Normal Esperada con
+			# el signo de la Normal perpendicular,
+			# si ambos son iguales significa que el vector perpendicular el es correcto.
+			if Normal01_Esperada == Normal01_P1:
+				Vector01_P = Vector01_P1
+			elif Normal01_Esperada == Normal01_P2:
+				Vector01_P = Vector01_P2
+			
+			# calculamos el vector de la linea
+			if Lista_Obj[::-1][Valor_Futuro][2] == 1:
+				Vector02 = Lista_Obj[::-1][Valor_Futuro][6] - Lista_Obj[::-1][Valor_Futuro][7]
+			else:
+				Vector02 = Lista_Obj[::-1][Valor_Futuro][7] - Lista_Obj[::-1][Valor_Futuro][6]
+			
+			# calculamos el producto cruz entre los vectores tangente del arco y linea
+			Vec3 = Vector01_P.cross(Vector02)
+			# Ahora sumamos los dos vectores perpendiculares de los arcos
+			Vector_T = Vector01_P + Vector02
+			# si el producto cruz es igual a cero
+			# significa que los extremos de los arcos estan alineados.
+			if abs(round(Vec3.Length, 5)) == 0:
+				# si ambos vectores se suman y la magnitud es mayor al vector inicial
+				# significa que los vectores estan en el mismo sentido.
+				if Vector_T.Length > Vector01_P.Length:
+					Opcion = 'Vectores Colineales Iguales'
+				else:
+					Opcion = 'Vectores Colineales Opuestos'
+			else:
+				Opcion = 'Vectores Coplanares'
+			
+		# aqui analizamos los vectores de dos arcos
+		if Lista_Obj[::-1][j][3] == 'arco' and Lista_Obj[::-1][Valor_Futuro][3] == 'arco':
+			pass
+			
+		if Opcion == 'Vectores Colineales Iguales':
+			Boceto_X.addConstraint(Sketcher.Constraint('Tangent', Lista_Obj[::-1][j][0], Lista_Obj[::-1][j][2], Lista_Obj[::-1][Valor_Futuro][0], Lista_Obj[::-1][Valor_Futuro][1]))
+		if Opcion == 'Vectores Coplanares' or Opcion == 'Vectores Colineales Opuestos':
+			Boceto_X.addConstraint(Sketcher.Constraint('Coincident', Lista_Obj[::-1][j][0], Lista_Obj[::-1][j][2], Lista_Obj[::-1][Valor_Futuro][0], Lista_Obj[::-1][Valor_Futuro][1]))
+
+
+
+def Crear_Boceto_Ranura():
+	
+	# creamos dos lineas y dos arcos para formar una ranura
+	# Nota:
+	#	['Arco', Centro punto en X, Centro punto en Y, Vector, Radio, Angulo Inicial, Angulo Final]
+	#	['linea', Direccion, Punto 1 en X, Punto 1 en Y, Punto 2 en X, Punto 2 en Y]
+	geoList = []
+	geoList.append(['arco', -50, 0, App.Vector(0, 0, 1), 20, math.radians(90), math.radians(270)])
+	geoList.append(['linea', 'Horizontal', -50, 20, 50, 20])
+	geoList.append(['arco', 50, 0, App.Vector(0, 0, 1), 20, math.radians(270), math.radians(450)])
+	geoList.append(['linea', 'Horizontal', -50, -20, 50, -20])
+	
+	# Crear_Contorno(Lista_X, Boceto_X):
+	Crear_Contorno(geoList, Boceto01)
+	
+	# Restriccion_Radio_Arco(Total_Lista, Boceto_X):
+	Restriccion_Radio_Arco(len(geoList), Boceto01)
+	
+	# Restriccion_Tangente(Total_Lista, Boceto_X):
+	Restriccion_Tangente(len(geoList), Boceto01)
+	
+	# Fijar_Arco_Eje(Total_Lista, Boceto_X, Objeto, Cantidad = -1, Eje = -1):
+	Fijar_Arco_Eje(len(geoList), Boceto01, 'arco', 1)
+	
+	# Simetria_Objeto_Eje(Total_Lista, Boceto_X, Objeto, Eje = -1):
+	Simetria_Objeto_Eje(len(geoList), Boceto01, 'arco', -2)
+	
+	# Restriccion_Distancia_Arco(Total_Lista, Boceto_X, Objeto, Distancia = 10, Eje = -1):
+	Restriccion_Distancia_Arco(len(geoList), Boceto01, 'arco', 100)
+	
+	# Crear_Circulo(Pt1, Eje, Radio, Boceto_X):
+	Crear_Circulo(App.Vector(-50, 0, 0), App.Vector(0, 0, 1), 25/2, Boceto01)
+	
+	# Crear_Circulo(Pt1, Eje, Radio, Boceto_X):
+	Crear_Circulo(App.Vector(50, 0, 0), App.Vector(0, 0, 1), 25/2, Boceto01)
+	
+	# Restriccion_Radio_Circulo(Total_Lista, Boceto_X):
+	Restriccion_Radio_Circulo(2, Boceto01)
+	
+	# Fijar_Arco_Circulo(Total_Lista, Boceto_X):
+	Fijar_Arco_Circulo(6, Boceto01)
+	
+	
+	
+def Crear_Boceto_Contorno():
+	
+	# ahora creamos doc circulos
+	# Crear_Circulo(Pt1, Eje, Radio, Boceto_X):
+	Crear_Circulo(App.Vector(0, 50, 0), App.Vector(0, 0, 1), 50, Boceto02)
+	
+	# Crear_Circulo(Pt1, Eje, Radio, Boceto_X):
+	Crear_Circulo(App.Vector(0, -50, 0), App.Vector(0, 0, 1), 50, Boceto02)
+	
+	# Restriccion_Radio_Circulo(Total_Lista, Boceto_X):
+	Restriccion_Radio_Circulo(2, Boceto02)
+	
+	# Simetria_Objeto_Eje(Total_Lista, Boceto_X, Objeto, Eje = -1):
+	Simetria_Objeto_Eje(2, Boceto02, 'circulo', -1)
+	
+	# Fijar_Arco_Eje(Total_Lista, Boceto_X, Objeto, Cantidad = -1, Eje = -1):
+	Fijar_Arco_Eje(1, Boceto02, 'circulo', 1, -2)
+	
+	# Restriccion_Distancia_Arco(Total_Lista, Boceto_X, Objeto, Distancia = 10, Eje = -1):
+	Restriccion_Distancia_Arco(2, Boceto02, 'circulo', 120, -2)
+	
+	
+	
+def Crear_Objeto():
+	
+	# Limpiar_Pantalla():
+	Limpiar_Pantalla()
+	
+	# Crear_Contenedor():
+	Crear_Contenedor()
+	
+	# Crear_Boceto_Ranura()
+	Crear_Boceto_Ranura()
+	
+	# Crear_Boceto_Contorno():
+	Crear_Boceto_Contorno()
+	
+	global Relleno01
+	# Crear_Relleno(Cuerpo_X, Boceto_X, Altura_X):
+	Relleno01 = Crear_Relleno(Cuerpo01, Boceto01, 15)
+	
+	global Hueco01
+	# Crear_Hueco(Cuerpo_X, Boceto_X, Altura_X):
+	Hueco01 = Crear_Hueco(Cuerpo01, Boceto02, 15)
+	
+	global Filete01
+	# Crear_Filete(Cuerpo_X, Radio_X, Forma_X, Lista_X):
+	Filete01 = Crear_Filete(Cuerpo01, 30, Hueco01, ["Edge9","Edge26","Edge6","Edge25",])
+	
+	global Chaflan01
+	# Crear_Claflan(Cuerpo_X, Medida_X, Forma_X, Lista_X):
+	Chaflan01 = Crear_Claflan(Cuerpo01, 2, Filete01, ["Edge31","Edge32","Edge17","Edge16",])
+	
+	global Filete02
+	# Crear_Filete(Cuerpo_X, Radio_X, Forma_X, Lista_X):
+	Filete02 = Crear_Filete(Cuerpo01, 2, Chaflan01, ["Edge34","Edge10",])
+	
+	
+	
+dias = ('Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom')
+
+Ini = time.time()
+
+Crear_Objeto()
+
+
+'''
+print()
+# Imprimir_Lista():
+Imprimir_Lista()
+'''
+	
+
+Fin = time.time()
+
+indice = datetime.date.weekday(datetime.datetime.now())
+	
+print()
+
+App.Console.PrintMessage(f'Fin de la {Pieza01.Label} en {round(Fin - Ini, 2)} seg\n')
+
+print(f'{dias[indice]}  {time.strftime("%d/%m/%Y  %H:%M:%S", time.localtime())}')
