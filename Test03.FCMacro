@@ -107,7 +107,7 @@ def Crear_Filete(Cuerpo_X, Radio_X, Forma_X, Lista_X):
 	
 	
 	
-def Crear_Claflan(Cuerpo_X, Medida_X, Forma_X, Lista_X):
+def Crear_Chaflan(Cuerpo_X, Medida_X, Forma_X, Lista_X):
 	
 	# creamos el contenedor 3D Chaflan
 	Chaflan_X = Doc.addObject('PartDesign::Chamfer','Chamfer001')
@@ -622,8 +622,8 @@ def Crear_Objeto():
 	Filete01 = Crear_Filete(Cuerpo01, 30, Hueco01, ["Edge9","Edge26","Edge6","Edge25",])
 	
 	global Chaflan01
-	# Crear_Claflan(Cuerpo_X, Medida_X, Forma_X, Lista_X):
-	Chaflan01 = Crear_Claflan(Cuerpo01, 2, Filete01, ["Edge31","Edge32","Edge17","Edge16",])
+	# Crear_Chaflan(Cuerpo_X, Medida_X, Forma_X, Lista_X):
+	Chaflan01 = Crear_Chaflan(Cuerpo01, 2, Filete01, ["Edge31","Edge32","Edge17","Edge16",])
 	
 	global Filete02
 	# Crear_Filete(Cuerpo_X, Radio_X, Forma_X, Lista_X):

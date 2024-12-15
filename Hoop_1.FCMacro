@@ -234,56 +234,9 @@ def Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Indice = -1, Simetria = 
 	# aqui redondeamos los valores numericos de los vectores
 	Pt1_Temp = App.Vector(round(Pt1.x, 10), round(Pt1.y, 10), round(Pt1.z, 10))
 	Pt2_Temp = App.Vector(round(Pt2.x, 10), round(Pt2.y, 10), round(Pt2.z, 10))
-	# aqui guardamos el punto inicial => (1) y punto final => (2) de la linea.
-	if Indice >= 0:
-		# aqui el Indice cero nos indica que es la primera linea de la figura cerrada.
-		if Indice == 0 and Simetria == False:
-			Lista_Linea[-1].append(1)
-			Lista_Linea[-1].append(2)
-		# aqui el Indice uno nos indica que es la segunda linea de la figura cerrada,
-		# tambien tiene la opcion de modificar la primera linea en caso
-		# de que los puntos esten invertidos.
-		elif Indice == 1:
-			if Lista_Linea[-2][7] == Pt1_Temp:
-				if Simetria == False:
-					Lista_Linea[-2][1] = 1
-					Lista_Linea[-2][2] = 2
-				Lista_Linea[-1].append(1)
-				Lista_Linea[-1].append(2)
-			elif Lista_Linea[-2][7] == Pt2_Temp:
-				if Simetria == False:
-					Lista_Linea[-2][1] = 1
-					Lista_Linea[-2][2] = 2
-				Lista_Linea[-1].append(2)
-				Lista_Linea[-1].append(1)
-			elif Lista_Linea[-2][6] == Pt1_Temp:
-				if Simetria == False:
-					Lista_Linea[-2][1] = 2
-					Lista_Linea[-2][2] = 1
-				Lista_Linea[-1].append(1)
-				Lista_Linea[-1].append(2)
-			elif Lista_Linea[-2][6] == Pt2_Temp:
-				if Simetria == False:
-					Lista_Linea[-2][1] = 2
-					Lista_Linea[-2][2] = 1
-				Lista_Linea[-1].append(2)
-				Lista_Linea[-1].append(1)
-		# aqui el Indice nos indica que son todas las lineas de la figura cerrada.
-		else:
-			if Lista_Linea[-2][2] == 1:
-				if Lista_Linea[-2][6] == Pt1_Temp:
-					Lista_Linea[-1].append(1)
-					Lista_Linea[-1].append(2)
-				elif Lista_Linea[-2][6] == Pt2_Temp:
-					Lista_Linea[-1].append(2)
-					Lista_Linea[-1].append(1)
-			elif Lista_Linea[-2][2] == 2:
-				if Lista_Linea[-2][7] == Pt1_Temp:
-					Lista_Linea[-1].append(1)
-					Lista_Linea[-1].append(2)
-				elif Lista_Linea[-2][7] == Pt2_Temp:
-					Lista_Linea[-1].append(2)
-					Lista_Linea[-1].append(1)
+	# aqui guardamos el punto inicial: Pt1 => (1) y punto final: Pt2 => (2) de la linea.
+	Lista_Linea[-1].append(1)
+	Lista_Linea[-1].append(2)
 	# aqui guardamos el nombre de la linea.
 	Lista_Linea[-1].append('linea')
 	# aqui guardamos el Boceto que contiene la linea.
@@ -299,7 +252,7 @@ def Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Indice = -1, Simetria = 
 	Lista_Linea[-1].append(0)
 	
 	
-def Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = '', Simetria = False):
+def Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = -1, Simetria = False, Restriccion = False):
 	
 	# Validamos los argumentos de la funcion
 	if not str(type(Pt1)) in ("<class 'Base.Vector'>"):
@@ -329,61 +282,16 @@ def Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = '', Simetri
 	
 	# aqui guardamos el ID del arco.
 	Lista_Linea.append(list(Boceto_X.addGeometry([Part.ArcOfCircle(Part.Circle(Pt1, Eje , Radio), Ang_Ini, Ang_Fin)], False)))
-	# aqui creamos la restriccion Radio del arco.
-	Boceto_X.addConstraint(Sketcher.Constraint('Radius', Lista_Linea[-1][0], Radio))
+	if Restriccion == True:
+		# aqui creamos la restriccion Radio del arco.
+		Boceto_X.addConstraint(Sketcher.Constraint('Radius', Lista_Linea[-1][0], Radio))
 	# aqui creamos los puntos de los extremos del arco con los valores numericos redondeados
 	Pt1_Temp = App.Vector(round(Pt1.x + Radio * math.cos(Ang_Ini), 10), round(Pt1.y + Radio * math.sin(Ang_Ini), 10), round(Pt1.z, 10))
 	Pt2_Temp = App.Vector(round(Pt1.x + Radio * math.cos(Ang_Fin), 10), round(Pt1.y + Radio * math.sin(Ang_Fin), 10), round(Pt1.z, 10))
-	# aqui guardamos el punto inicial => (1) y punto final => (2) del arco.
-	if Indice != '':
-		# aqui el Indice cero nos indica que es el primer arco de la figura cerrada.
-		if Indice == 0 and Simetria == False:
-			Lista_Linea[-1].append(2)
-			Lista_Linea[-1].append(1)
-		# aqui el Indice uno nos indica que es el segundo arco de la figura cerrada,
-		# tambien tiene la opcion de modificar el primer arco en caso
-		# de que los puntos esten invertidos.
-		elif Indice == 1:
-			if Lista_Linea[-2][7] == Pt1_Temp:
-				if Simetria == False:
-					Lista_Linea[-2][1] = 1
-					Lista_Linea[-2][2] = 2
-				Lista_Linea[-1].append(1)
-				Lista_Linea[-1].append(2)
-			elif Lista_Linea[-2][7] == Pt2_Temp:
-				if Simetria == False:
-					Lista_Linea[-2][1] = 1
-					Lista_Linea[-2][2] = 2
-				Lista_Linea[-1].append(2)
-				Lista_Linea[-1].append(1)
-			elif Lista_Linea[-2][6] == Pt1_Temp:
-				if Simetria == False:
-					Lista_Linea[-2][1] = 2
-					Lista_Linea[-2][2] = 1
-				Lista_Linea[-1].append(1)
-				Lista_Linea[-1].append(2)
-			elif Lista_Linea[-2][6] == Pt2_Temp:
-				if Simetria == False:
-					Lista_Linea[-2][1] = 2
-					Lista_Linea[-2][2] = 1
-				Lista_Linea[-1].append(2)
-				Lista_Linea[-1].append(1)	
-		# aqui el Indice nos indica que son todas los arcos de la figura cerrada.
-		else:
-			if Lista_Linea[-2][2] == 1:
-				if Lista_Linea[-2][6] == Pt1_Temp:
-					Lista_Linea[-1].append(1)
-					Lista_Linea[-1].append(2)
-				elif Lista_Linea[-2][6] == Pt2_Temp:
-					Lista_Linea[-1].append(2)
-					Lista_Linea[-1].append(1)
-			elif Lista_Linea[-2][2] == 2:
-				if Lista_Linea[-2][7] == Pt1_Temp:
-					Lista_Linea[-1].append(1)
-					Lista_Linea[-1].append(2)
-				elif Lista_Linea[-2][7] == Pt2_Temp:
-					Lista_Linea[-1].append(2)
-					Lista_Linea[-1].append(1)
+	Eje_Temp = App.Vector(round(Pt1.x, 10), round(Pt1.y, 10), round(Pt1.z, 10))
+	# aqui guardamos el punto inicial: Pt1_Temp => (1) y punto final: Pt2_Temp => (2) del arco.
+	Lista_Linea[-1].append(1)
+	Lista_Linea[-1].append(2)
 	# aqui guardamos el nombre del arco.
 	Lista_Linea[-1].append('arco')
 	# aqui guardamos el Boceto que contiene al arco.
@@ -395,7 +303,7 @@ def Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = '', Simetri
 	# aqui guardamos el punto final del arco.
 	Lista_Linea[-1].append(Pt2_Temp)
 	# aqui guardamos el punto central del arco.
-	Lista_Linea[-1].append(App.Vector(round(Pt1.x, 10), round(Pt1.y, 10), round(Pt1.z, 10)))
+	Lista_Linea[-1].append(Eje_Temp)
 
 
 def Crear_Circulo(Pt1, Eje, Radio, Boceto_X):
@@ -418,6 +326,8 @@ def Crear_Circulo(Pt1, Eje, Radio, Boceto_X):
 	Lista_Linea.append(list(Boceto_X.addGeometry([Part.Circle(Pt1, Eje, Radio)], False)))
 	# aqui creamos la restriccion Radio del circulo.
 	Boceto_X.addConstraint(Sketcher.Constraint('Radius', Lista_Linea[-1][0], Radio))
+	# aqui creamos el punto centro del circulo con los valores numericos redondeados
+	Eje_Temp = App.Vector(round(Pt1.x, 10), round(Pt1.y, 10), round(Pt1.z, 10))
 	# aqui guardamos el punto inicial => (1) y punto final => (2) del circulo => N/A.
 	Lista_Linea[-1].append(0)
 	Lista_Linea[-1].append(0)
@@ -432,10 +342,82 @@ def Crear_Circulo(Pt1, Eje, Radio, Boceto_X):
 	# aqui guardamos el punto final del circulo => N/A.
 	Lista_Linea[-1].append(0)
 	# aqui guardamos el punto central del circulo.
-	Lista_Linea[-1].append(App.Vector(round(Pt1.x, 10), round(Pt1.y, 10), round(Pt1.z, 10)))
+	Lista_Linea[-1].append(Eje_Temp)
+	
+	
+def Validar_Puntos_de_Contacto(Total_Lista):
+	
+	for j in range(0, Total_Lista)[::-1]:
+		Valor_Futuro = (j - 1) % Total_Lista
+		
+		# aqui validamos que los puntos sean coincidentes
+		
+		if Lista_Linea[::-1][j][7] == Lista_Linea[::-1][Valor_Futuro][6]:
+			
+			if Lista_Linea[::-1][j][2] == 2:
+				pass
+			else:
+				Temp = Lista_Linea[::-1][j][1]
+				Lista_Linea[::-1][j][1] = Lista_Linea[::-1][j][2]
+				Lista_Linea[::-1][j][2] = Temp
+				
+			if Lista_Linea[::-1][Valor_Futuro][1] == 1:
+				pass
+			else:
+				Temp = Lista_Linea[::-1][Valor_Futuro][2]
+				Lista_Linea[::-1][Valor_Futuro][2] = Lista_Linea[::-1][Valor_Futuro][1]
+				Lista_Linea[::-1][Valor_Futuro][1] = Temp
+				
+		elif Lista_Linea[::-1][j][7] == Lista_Linea[::-1][Valor_Futuro][7]:
+			
+			if Lista_Linea[::-1][j][2] == 2:
+				pass
+			else:
+				Temp = Lista_Linea[::-1][j][1]
+				Lista_Linea[::-1][j][1] = Lista_Linea[::-1][j][2]
+				Lista_Linea[::-1][j][2] = Temp
+				
+			if Lista_Linea[::-1][Valor_Futuro][1] == 2:
+				pass
+			else:
+				Temp = Lista_Linea[::-1][Valor_Futuro][2]
+				Lista_Linea[::-1][Valor_Futuro][2] = Lista_Linea[::-1][Valor_Futuro][1]
+				Lista_Linea[::-1][Valor_Futuro][1] = Temp
+			
+		elif Lista_Linea[::-1][j][6] == Lista_Linea[::-1][Valor_Futuro][6]:
+			
+			if Lista_Linea[::-1][j][2] == 1:
+				pass
+			else:
+				Temp = Lista_Linea[::-1][j][1]
+				Lista_Linea[::-1][j][1] = Lista_Linea[::-1][j][2]
+				Lista_Linea[::-1][j][2] = Temp
+				
+			if Lista_Linea[::-1][Valor_Futuro][1] == 1:
+				pass
+			else:
+				Temp = Lista_Linea[::-1][Valor_Futuro][2]
+				Lista_Linea[::-1][Valor_Futuro][2] = Lista_Linea[::-1][Valor_Futuro][1]
+				Lista_Linea[::-1][Valor_Futuro][1] = Temp
+				
+		elif Lista_Linea[::-1][j][6] == Lista_Linea[::-1][Valor_Futuro][7]:
+			
+			if Lista_Linea[::-1][j][2] == 1:
+				pass
+			else:
+				Temp = Lista_Linea[::-1][j][1]
+				Lista_Linea[::-1][j][1] = Lista_Linea[::-1][j][2]
+				Lista_Linea[::-1][j][2] = Temp
+				
+			if Lista_Linea[::-1][Valor_Futuro][1] == 2:
+				pass
+			else:
+				Temp = Lista_Linea[::-1][Valor_Futuro][2]
+				Lista_Linea[::-1][Valor_Futuro][2] = Lista_Linea[::-1][Valor_Futuro][1]
+				Lista_Linea[::-1][Valor_Futuro][1] = Temp
 
 
-def Unir_Lineas(Boceto_X, Total_Lista):
+def Unir_Lineas(Boceto_X, Total_Lista, Objeto_X = ''):
 	
 	# Validamos los argumentos de la funcion
 	if not str(type(Boceto_X)) in ("<class 'Sketcher.SketchObject'>"):
@@ -464,10 +446,13 @@ def Unir_Lineas(Boceto_X, Total_Lista):
 			Vec3 = Vector01.cross(Vector02)
 			# si el producto cruz es igual a cero esto significa 
 			# que las dos lineas estan alineados, los vectores son paralelos
-			if abs(round(Vec3.Length, 5)) == 0:
-				Opcion = 'paralelo'
+			if Objeto_X == '':
+				if abs(round(Vec3.Length, 5)) == 0:
+					Opcion = 'Vectores Colineales Iguales'
+				else:
+					Opcion = 'Vectores Coplanares'
 			else:
-				Opcion = 'perpendicular'
+				Opcion = Objeto_X
 		
 		# aqui analizamos los vectores de una linea y un arco
 		if Lista_Linea[::-1][j][3] == 'linea' and Lista_Linea[::-1][Valor_Futuro][3] == 'arco':
@@ -516,11 +501,11 @@ def Unir_Lineas(Boceto_X, Total_Lista):
 				# si ambos vectores se suman y la magnitud es mayor al vector inicial
 				# significa que los vectores estan en el mismo sentido.
 				if Vector_T.Length > Vector01.Length:
-					Opcion = 'paralelo'
+					Opcion = 'Vectores Colineales Iguales'
 				else:
-					Opcion = 'perpendicular'
+					Opcion = 'Vectores Colineales Opuestos'
 			else:
-				Opcion = 'perpendicular'
+				Opcion = 'Vectores Coplanares'
 			
 			
 		if Lista_Linea[::-1][j][3] == 'arco' and Lista_Linea[::-1][Valor_Futuro][3] == 'linea':
@@ -569,11 +554,11 @@ def Unir_Lineas(Boceto_X, Total_Lista):
 				# si ambos vectores se suman y la magnitud es mayor al vector inicial
 				# significa que los vectores estan en el mismo sentido.
 				if Vector_T.Length > Vector01_P.Length:
-					Opcion = 'paralelo'
+					Opcion = 'Vectores Colineales Iguales'
 				else:
-					Opcion = 'perpendicular'
+					Opcion = 'Vectores Colineales Opuestos'
 			else:
-				Opcion = 'perpendicular'
+				Opcion = 'Vectores Coplanares'
 		
 		
 		# aqui analizamos los vectores de dos arcos
@@ -646,17 +631,19 @@ def Unir_Lineas(Boceto_X, Total_Lista):
 				# si ambos vectores se suman y la magnitud es mayor al vector inicial
 				# significa que los vectores estan en el mismo sentido.
 				if Vector_T.Length > Vector01_P.Length:
-					Opcion = 'paralelo'
+					Opcion = 'Vectores Colineales Iguales'
 				else:
-					Opcion = 'perpendicular'
+					Opcion = 'Vectores Colineales Opuestos'
 			else:
-				Opcion = 'perpendicular'
+				Opcion = 'Vectores Coplanares'
 			
-		
-		if Opcion == 'paralelo':
-			Boceto_X.addConstraint(Sketcher.Constraint('Tangent', Lista_Linea[::-1][j][0], Lista_Linea[::-1][j][2], Lista_Linea[::-1][Valor_Futuro][0], Lista_Linea[::-1][Valor_Futuro][1]))
-		if Opcion == 'perpendicular':
-			Boceto_X.addConstraint(Sketcher.Constraint('Coincident', Lista_Linea[::-1][j][0], Lista_Linea[::-1][j][2], Lista_Linea[::-1][Valor_Futuro][0], Lista_Linea[::-1][Valor_Futuro][1]))
+		if Opcion == Objeto_X:
+			pass
+		else:
+			if Opcion == 'Vectores Colineales Iguales':
+				Boceto_X.addConstraint(Sketcher.Constraint('Tangent', Lista_Linea[::-1][j][0], Lista_Linea[::-1][j][2], Lista_Linea[::-1][Valor_Futuro][0], Lista_Linea[::-1][Valor_Futuro][1]))
+			if Opcion == 'Vectores Coplanares' or Opcion == 'Vectores Colineales Opuestos':
+				Boceto_X.addConstraint(Sketcher.Constraint('Coincident', Lista_Linea[::-1][j][0], Lista_Linea[::-1][j][2], Lista_Linea[::-1][Valor_Futuro][0], Lista_Linea[::-1][Valor_Futuro][1]))
 
 
 def Bloquear_Lineas(Boceto_X, Total_Lista):
@@ -727,7 +714,111 @@ def Fijar_Circulo_Origen(Pt1, Boceto_X, Index_Obj):
 		Boceto_X.addConstraint(Sketcher.Constraint('DistanceY', Index_Obj,3,-1,1, abs(list(Pt1)[1])))
 
 
-def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
+def Restriccion_Ortogonal_Linea(Lista_X, Boceto_X, All = True):
+	
+	Lista_ID = []
+	
+	for j in range(0, len(Lista_X))[::-1]:
+		if Lista_Linea[::-1][j][3] == 'linea':
+			Lista_ID.append([Lista_X[::-1][j][1], Lista_Linea[::-1][j][0]])
+	
+	if All == True:
+		for k in range(0, len(Lista_ID)):
+			Boceto_X.addConstraint(Sketcher.Constraint(Lista_ID[k][0], Lista_ID[k][1]))
+	else:
+		for k in range(1, len(Lista_ID)):
+			Boceto_X.addConstraint(Sketcher.Constraint(Lista_ID[k][0], Lista_ID[k][1]))
+			
+			
+def Restriccion_Igual_Arco(Lista_X, Boceto_X, Restriccion = False):
+	
+	Arco_ID = []
+	Restriccion_ID = []
+	
+	for j in range(0, len(Lista_X))[::-1]:
+		if Lista_Linea[::-1][j][3] == 'arco':
+			Arco_ID.append(Lista_Linea[::-1][j][0])
+			if len(Arco_ID) == 1:
+				if Restriccion == True:
+					Restriccion_ID.append(Boceto_X.addConstraint(Sketcher.Constraint('Radius', Arco_ID[0], Lista_Linea[::-1][j][5])))
+					Boceto_X.renameConstraint(Restriccion_ID[-1], u'Radio_Pral')
+					Boceto_X.setVirtualSpace(Restriccion_ID[-1], False)
+			elif len(Arco_ID) == 2:
+				Boceto_X.addConstraint(Sketcher.Constraint('Equal', Arco_ID[0], Arco_ID[1]))
+				Arco_ID = [Arco_ID[1]]
+				
+				
+def Restriccion_DistanciaX_linea(Lista_X, Boceto_X, Valor_X, Desfase = False):
+	
+	Linea01_ID = []
+	Linea02_ID = []
+	Restriccion_ID = []
+	
+	for j in range(0, len(Lista_X))[::-1]:
+		if Lista_X[::-1][j][0] == 'linea' and Lista_X[::-1][j][1] == 'Vertical':
+			Linea01_ID.append(Lista_Linea[::-1][j][0])
+			if Desfase == True:
+				Linea02_ID.append(Lista_Linea[::-1][j + len(Lista_X)][0])
+			if len(Linea01_ID) == 2:
+				if Desfase == False:
+					Restriccion_ID.append(Boceto_X.addConstraint(Sketcher.Constraint('DistanceX', Linea01_ID[1], 2, Linea01_ID[0], 1, Valor_X)))
+					Boceto_X.renameConstraint(Restriccion_ID[-1], u'Largo_Total')
+					Boceto_X.setVirtualSpace(Restriccion_ID[-1], False)
+				else:
+					Restriccion_ID.append(Boceto_X.addConstraint(Sketcher.Constraint('DistanceX', Linea02_ID[0], 1, Linea01_ID[0], 1, Valor_X)))
+					Boceto_X.renameConstraint(Restriccion_ID[-1], u'Desfase' + str(Restriccion_ID[-1] + 1).zfill(2))
+					Boceto_X.setVirtualSpace(Restriccion_ID[-1], False)
+					
+				
+def Restriccion_DistanciaY_linea(Lista_X, Boceto_X, Valor_X):
+	
+	Linea_ID = []
+	Restriccion_ID = []
+	
+	for j in range(0, len(Lista_X))[::-1]:
+		if Lista_X[::-1][j][0] == 'linea' and Lista_X[::-1][j][1] == 'Horizontal':
+			Linea_ID.append(Lista_Linea[::-1][j][0])
+			if len(Linea_ID) == 2:
+				Restriccion_ID.append(Boceto_X.addConstraint(Sketcher.Constraint('DistanceY', Linea_ID[1], 2, Linea_ID[0], 1, Valor_X)))
+				Boceto_X.renameConstraint(Restriccion_ID[-1], u'Alto_Total')
+				Boceto_X.setVirtualSpace(Restriccion_ID[-1], False)
+				
+				
+def Simetria_Objeto_Eje(Lista_X, Boceto_X, Objeto, Eje = -1, Paso = 1):
+	
+	'''
+	Nota:
+		Eje = -1 => es para el eje X
+		Eje = -2 => es para el eje Y 
+	'''
+	
+	Objeto_ID = []
+	Contador = 0
+	
+	for j in range(0, len(Lista_X))[::-1]:
+		if Lista_Linea[::-1][j][3] == Objeto:
+			Contador += 1
+			if Contador % Paso == 0:
+				Objeto_ID.append(Lista_Linea[::-1][j][0])
+	
+	Boceto_X.addConstraint(Sketcher.Constraint('Symmetric', Objeto_ID[0], 3, Objeto_ID[1], 3, Eje, 1))
+	
+	
+def Restriccion_Coincidente_Arco(Lista_X, Boceto_X):
+	
+	Lista01_ID = []
+	Lista02_ID = []
+	
+	for j in range(0, len(Lista_X))[::-1]:
+		if Lista_Linea[::-1][j][3] == 'arco':
+			Lista01_ID.append(Lista_Linea[::-1][j][0])
+			Lista02_ID.append(Lista_Linea[::-1][j + len(Lista_X)][0])
+			
+	for k in range(0, len(Lista01_ID)):
+		Boceto_X.addConstraint(Sketcher.Constraint('Coincident', Lista01_ID[k], 3, Lista02_ID[k], 3))
+	
+	
+def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
 	
 	# Validamos los argumentos de la funcion
 	if not type(Lista_X) is list:
@@ -741,31 +832,76 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
 		
 	if not type(Espejo) is bool:
 		raise TypeError(f'\n\n\t Mensaje = No es Booleano \n\t Funcion = Crear_Contorno \n\t {type(Espejo) = }')
+		
+	if not type(Largo_Total) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Contorno \n\t {type(Largo_Total) = }')
+		
+	if not type(Alto_Total) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Contorno \n\t {type(Alto_Total) = }')
+		
+	if not type(Desfase) in (float, int):
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Contorno \n\t {type(Desfase) = }')
 	
 	
 	#Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Indice = '', Simetria = False):
-	#Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = '', Simetria = False):
+	#Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = '', Simetria = False, Restriccion = False):
 	for j in range(0, len(Lista_X)):
 		if Lista_X[j][0] == 'linea':
 			Crear_Linea(App.Vector(Lista_X[j][2], Lista_X[j][3], 0), App.Vector(Lista_X[j][4], Lista_X[j][5], 0), Boceto_X, '', j)
 		if Lista_X[j][0] == 'arco':
 			Crear_Arco(App.Vector(Lista_X[j][1], Lista_X[j][2], 0), Lista_X[j][3], Lista_X[j][4], Boceto_X, Lista_X[j][5], Lista_X[j][6], j)
 	
+	# Validar_Puntos_de_Contacto(Total_Lista):
+	Validar_Puntos_de_Contacto(len(Lista_X))
 	
-	if Simetria == False:
+	if Simetria == False and Espejo == False:
+		
+		if Largo_Total != -1:
+			# Restriccion_Ortogonal_Linea(Lista_X, Boceto_X, All = True):
+			Restriccion_Ortogonal_Linea(Lista_X, Boceto_X)
+		else:
+			# Restriccion_Ortogonal_Linea(Lista_X, Boceto_X, All = True):
+			Restriccion_Ortogonal_Linea(Lista_X, Boceto_X, False)
+		
+		# Unir_Lineas(Boceto_X, Total_Lista, Objeto_X = ''):
+		Unir_Lineas(Boceto_X, len(Lista_X))
+		
+		if Largo_Total != -1:
+			# Restriccion_Igual_Arco(Lista_X, Boceto_X, Restriccion = False):
+			Restriccion_Igual_Arco(Lista_X, Boceto_X, True)
+		
+		if Largo_Total != -1:
+			# Restriccion_DistanciaX_linea(Lista_X, Boceto_X, Valor_X, Desfase = False):
+			Restriccion_DistanciaX_linea(Lista_X, Boceto_X, Largo_Total)
+		
+			# Restriccion_DistanciaY_linea(Lista_X, Boceto_X, Valor_X):
+			Restriccion_DistanciaY_linea(Lista_X, Boceto_X, Alto_Total)
+			
+			# Simetria_Objeto_Eje(Lista_X, Boceto_X, Objeto, Eje = -1, Paso = 1):
+			Simetria_Objeto_Eje(Lista_X, Boceto_X, 'arco', -1, 2)
+			
+		if Desfase != -1:
+			# Restriccion_DistanciaX_linea(Lista_X, Boceto_X, Valor_X, Desfase = False):
+			Restriccion_DistanciaX_linea(Lista_X, Boceto_X, Desfase, True)
+			
+			# Restriccion_Coincidente_Arco(Lista_X, Boceto_X):
+			Restriccion_Coincidente_Arco(Lista_X, Boceto_X)
+			
+	if Espejo == True:
 		# Bloquear_Lineas(Boceto_X, Total_Lista):
 		Bloquear_Lineas(Boceto_X, len(Lista_X))
 		
-		# Unir_Lineas(Boceto_X, Total_Lista):
+		# Unir_Lineas(Boceto_X, Total_Lista, Objeto_X = ''):
 		Unir_Lineas(Boceto_X, len(Lista_X))
 		
 		# Bloquear_Arcos(Boceto_X, Total_Lista):
 		Bloquear_Arcos(Boceto_X, len(Lista_X))
 		
-		
 	Plano.recompute()
 	
 	
+	#Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Indice = '', Simetria = False):
+	#Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Indice = '', Simetria = False, Restriccion = False):
 	if Simetria == True:
 		#$ Objeto Simetrico en el centro
 		for k in range(0, len(Lista_X)):
@@ -773,7 +909,10 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
 				Crear_Linea(App.Vector(-Lista_X[::-1][k][2], Lista_X[::-1][k][3], 0), App.Vector(-Lista_X[::-1][k][4], Lista_X[::-1][k][5], 0), Boceto_X, '', k, True)
 			if Lista_X[::-1][k][0] == 'arco':
 				Crear_Arco(App.Vector(-Lista_X[::-1][k][1], Lista_X[::-1][k][2], 0), Lista_X[::-1][k][3], Lista_X[::-1][k][4], Boceto_X, math.radians(180) - Lista_X[::-1][k][6], math.radians(180) - Lista_X[::-1][k][5], k, True)
-
+		
+		# Validar_Puntos_de_Contacto(Total_Lista):
+		Validar_Puntos_de_Contacto(2 * len(Lista_X))
+		
 	if Espejo == True:
 		#$ Objeto Espejo con respecto al Origen
 		for k in range(0, len(Lista_X)):
@@ -782,16 +921,20 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
 			if Lista_X[k][0] == 'arco':
 				Crear_Arco(App.Vector(-Lista_X[k][1], Lista_X[k][2], 0), Lista_X[k][3], Lista_X[k][4], Boceto_X, math.radians(180) - Lista_X[k][6], math.radians(180) - Lista_X[k][5], k)
 		
+		# Validar_Puntos_de_Contacto(Total_Lista):
+		Validar_Puntos_de_Contacto(len(Lista_X))
+	
 	
 	Plano.recompute()
 	
 	
 	if Simetria == True:
+		
 		# Bloquear_Lineas(Boceto_X, Total_Lista)
 		Bloquear_Lineas(Boceto_X, 2 * len(Lista_X))
 		
-		# Unir_Lineas(Boceto_X, Total_Lista):
-		Unir_Lineas(Boceto_X, 2 * len(Lista_X))
+		# Unir_Lineas(Boceto_X, Total_Lista, Objeto_X = ''):
+		Unir_Lineas(Boceto_X, 2 * len(Lista_X), 'arco')
 		
 		# Bloquear_Arcos(Boceto_X, Total_Lista)
 		Bloquear_Arcos(Boceto_X, 2 * len(Lista_X))
@@ -800,7 +943,7 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
 		# Bloquear_Lineas(Boceto_X, Total_Lista):
 		Bloquear_Lineas(Boceto_X, len(Lista_X))
 		
-		# Unir_Lineas(Boceto_X, Total_Lista):
+		# Unir_Lineas(Boceto_X, Total_Lista, Objeto_X = ''):
 		Unir_Lineas(Boceto_X, len(Lista_X))
 		
 		# Bloquear_Arcos(Boceto_X, Total_Lista):
@@ -973,14 +1116,14 @@ def Actualizar_Lista02(Val_X, Val_Y):
 	
 	# Ubicacion de los agujeros
 	Lista02 = [
-	['Arriba',     1, Val_Y, 'Derecha',    1, Val_X],
-	['Derecha',    1, Val_X, 'Arriba',     1, Val_Y],
-	['Derecha',    1, Val_X, 'Abajo',     -1, Val_Y],
-	['Abajo',     -1, Val_Y, 'Derecha',    1, Val_X],
-	['Abajo',     -1, Val_Y, 'Izquierda', -1, Val_X],
-	['Izquierda', -1, Val_X, 'Abajo',     -1, Val_Y],
-	['Izquierda', -1, Val_X, 'Arriba',     1, Val_Y],
-	['Arriba',     1, Val_Y, 'Izquierda', -1, Val_X]
+		['Arriba',     1, Val_Y, 'Derecha',    1, Val_X],
+		['Derecha',    1, Val_X, 'Arriba',     1, Val_Y],
+		['Derecha',    1, Val_X, 'Abajo',     -1, Val_Y],
+		['Abajo',     -1, Val_Y, 'Derecha',    1, Val_X],
+		['Abajo',     -1, Val_Y, 'Izquierda', -1, Val_X],
+		['Izquierda', -1, Val_X, 'Abajo',     -1, Val_Y],
+		['Izquierda', -1, Val_X, 'Arriba',     1, Val_Y],
+		['Arriba',     1, Val_Y, 'Izquierda', -1, Val_X]
 	]
 	
 	return Lista02
@@ -1147,8 +1290,8 @@ def Crear_Boceto_Cuerpo(Largo_Total, Alto_Total, Radio_Pral):
 	
 	# Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
 	Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
-	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
-	Crear_Contorno(Lista01, Boceto_LVS_C)
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
+	Crear_Contorno(Lista01, Boceto_LVS_C, Largo_Total = Largo_Y, Alto_Total = Alto_Y)
 	
 	
 	Largo_Y += 1 + 1
@@ -1157,8 +1300,8 @@ def Crear_Boceto_Cuerpo(Largo_Total, Alto_Total, Radio_Pral):
 	
 	# Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
 	Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
-	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
-	Crear_Contorno(Lista01, Boceto_LVS_C)
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
+	Crear_Contorno(Lista01, Boceto_LVS_C, Desfase = 1)
 	
 	
 	Largo_Y += 14 + 14
@@ -1167,8 +1310,8 @@ def Crear_Boceto_Cuerpo(Largo_Total, Alto_Total, Radio_Pral):
 	
 	# Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
 	Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
-	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
-	Crear_Contorno(Lista01, Boceto_LVS_C)
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
+	Crear_Contorno(Lista01, Boceto_LVS_C, Desfase = 14)
 	
 	
 	Largo_Y += 1 + 1
@@ -1177,8 +1320,9 @@ def Crear_Boceto_Cuerpo(Largo_Total, Alto_Total, Radio_Pral):
 	
 	# Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
 	Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
-	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
-	Crear_Contorno(Lista01, Boceto_LVS_C)
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
+	Crear_Contorno(Lista01, Boceto_LVS_C, Desfase = 1)
+	
 	
 	# Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, 
 	# Radio_Agujero = 1.5, Separacion = 76, Inicio_Centro = False, Incluir_Arco = False):
@@ -1210,8 +1354,8 @@ def Crear_Boceto_Tapadera(Largo_Total, Alto_Total, Radio_Pral):
 	
 	# Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
 	Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
-	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
-	Crear_Contorno(Lista01, Boceto_LVS_T)
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
+	Crear_Contorno(Lista01, Boceto_LVS_T, Largo_Total = Largo_Y, Alto_Total = Alto_Y)
 	
 	
 	Largo_Y += 13 + 13
@@ -1220,8 +1364,9 @@ def Crear_Boceto_Tapadera(Largo_Total, Alto_Total, Radio_Pral):
 	
 	# Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
 	Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
-	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
-	Crear_Contorno(Lista01, Boceto_LVS_T)
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
+	Crear_Contorno(Lista01, Boceto_LVS_T, Desfase = 13)
+	
 	
 	# Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, 
 	# Radio_Agujero = 1.5, Separacion = 76, Inicio_Centro = False, Incluir_Arco = False):
@@ -1238,23 +1383,23 @@ def Crear_Boceto_P1(Largo_Total, Alto_Total, Radio_Pral):
 	
 	if not type(Alto_Total) in (float, int):
 		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Boceto_P1 \n\t {type(Alto_Total) = }')
-		
+	
 	if not type(Radio_Pral) in (float, int):
 		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Boceto_P1 \n\t {type(Radio_Pral) = }')
-
-
+	
+	
 	Origen_Y = -(Alto_Total / 2) - 15
 	Origen_X = 0
 	
 	if ((Largo_Total - 2 * Radio_Pral) / 2) >= 33:
 	
 		Lista04 = [
-		['linea', 'Horizontal', Origen_X, Origen_Y, Origen_X + 33, Origen_Y],
-		['linea', 'Vertical', Origen_X + 33, Origen_Y, Origen_X + 33, Origen_Y - 1],
-		['arco', Origen_X + 33, Origen_Y - 6, App.Vector(0, 0, 1), 5, math.radians(90), math.radians(180)],
-		['linea', 'Vertical', Origen_X + 28, Origen_Y - 6, Origen_X + 28, Origen_Y - 16],
-		['arco', Origen_X + 23, Origen_Y - 16, App.Vector(0, 0, 1), 5, math.radians(270), math.radians(360)],
-		['linea', 'Horizontal', Origen_X + 23, Origen_Y - 21, Origen_X, Origen_Y - 21]
+			['linea', 'Horizontal', Origen_X, Origen_Y, Origen_X + 33, Origen_Y],
+			['linea', 'Vertical', Origen_X + 33, Origen_Y, Origen_X + 33, Origen_Y - 1],
+			['arco', Origen_X + 33, Origen_Y - 6, App.Vector(0, 0, 1), 5, math.radians(90), math.radians(180)],
+			['linea', 'Vertical', Origen_X + 28, Origen_Y - 6, Origen_X + 28, Origen_Y - 16],
+			['arco', Origen_X + 23, Origen_Y - 16, App.Vector(0, 0, 1), 5, math.radians(270), math.radians(360)],
+			['linea', 'Horizontal', Origen_X + 23, Origen_Y - 21, Origen_X, Origen_Y - 21]
 		]
 	
 	else:
@@ -1265,53 +1410,53 @@ def Crear_Boceto_P1(Largo_Total, Alto_Total, Radio_Pral):
 		Angulo_Desfase = math.acos(Desfase_X / Radio_CC)
 		
 		Lista04 = [
-		['linea', 'Horizontal', Origen_X, Origen_Y - 21, Origen_X + 23, Origen_Y - 21],
-		['arco', Origen_X + 23, Origen_Y - 16, App.Vector(0, 0, 1), 5, math.radians(270), math.radians(360)],
-		['linea', 'Vertical', Origen_X + 28, Origen_Y - 16, Origen_X + 28, Origen_Y - 6 + Desfase_Y],
-		['arco', Origen_X + 33, Origen_Y - 6 + Desfase_Y, App.Vector(0, 0, 1), 5, math.radians(180) - Angulo_Desfase, math.radians(180)],
-		['linea', 'Oblicua', Origen_X + 33 - 5 * math.cos(Angulo_Desfase), Origen_Y - 6 + Desfase_Y + 5 * math.sin(Angulo_Desfase), Origen_X + 33 - 6 * math.cos(Angulo_Desfase), Origen_Y - 6 + Desfase_Y + 6 * math.sin(Angulo_Desfase)],
-		['arco', (Largo_Total - 2 * Radio_Pral) / 2, -(Alto_Total - 2 * Radio_Pral) / 2, App.Vector(0, 0, 1), Radio_CC - 6, math.radians(270), math.radians(360) - Angulo_Desfase],
-		['linea', 'Horizontal', (Largo_Total - 2 * Radio_Pral) / 2, Origen_Y, Origen_X, Origen_Y]
+			['linea', 'Horizontal', Origen_X, Origen_Y - 21, Origen_X + 23, Origen_Y - 21],
+			['arco', Origen_X + 23, Origen_Y - 16, App.Vector(0, 0, 1), 5, math.radians(270), math.radians(360)],
+			['linea', 'Vertical', Origen_X + 28, Origen_Y - 16, Origen_X + 28, Origen_Y - 6 + Desfase_Y],
+			['arco', Origen_X + 33, Origen_Y - 6 + Desfase_Y, App.Vector(0, 0, 1), 5, math.radians(180) - Angulo_Desfase, math.radians(180)],
+			['linea', 'Oblicua', Origen_X + 33 - 5 * math.cos(Angulo_Desfase), Origen_Y - 6 + Desfase_Y + 5 * math.sin(Angulo_Desfase), Origen_X + 33 - 6 * math.cos(Angulo_Desfase), Origen_Y - 6 + Desfase_Y + 6 * math.sin(Angulo_Desfase)],
+			['arco', (Largo_Total - 2 * Radio_Pral) / 2, -(Alto_Total - 2 * Radio_Pral) / 2, App.Vector(0, 0, 1), Radio_CC - 6, math.radians(270), math.radians(360) - Angulo_Desfase],
+			['linea', 'Horizontal', (Largo_Total - 2 * Radio_Pral) / 2, Origen_Y, Origen_X, Origen_Y]
 		]
 		
 	
-	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
-	Crear_Contorno(Lista04, Boceto_LVS_P1, True)
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
+	Crear_Contorno(Lista04, Boceto_LVS_P1, Simetria = True)
 	
 	
 	
 	#$ crear Boceto Hoyo Pieza 1
 	Lista05 = [
-	['linea', 'Horizontal', Origen_X + 2, Origen_Y - 11, Origen_X + 25, Origen_Y - 11],
-	['arco', Origen_X + 25, Origen_Y - 12, App.Vector(0, 0, 1), 1, math.radians(0), math.radians(90)],
-	['linea', 'Vertical', Origen_X + 26, Origen_Y - 12, Origen_X + 26, Origen_Y - 16],
-	['arco', Origen_X + 23, Origen_Y - 16, App.Vector(0, 0, 1), 3, math.radians(270), math.radians(360)],
-	['linea', 'Horizontal', Origen_X + 23, Origen_Y - 19, Origen_X + 2, Origen_Y - 19],
-	['arco', Origen_X + 2, Origen_Y - 18, App.Vector(0, 0, 1), 1, math.radians(180), math.radians(270)],
-	['linea', 'Vertical', Origen_X + 1, Origen_Y - 18, Origen_X + 1, Origen_Y - 12],
-	['arco', Origen_X + 2, Origen_Y - 12, App.Vector(0, 0, 1), 1, math.radians(90), math.radians(180)]
+		['linea', 'Horizontal', Origen_X + 2, Origen_Y - 11, Origen_X + 25, Origen_Y - 11],
+		['arco', Origen_X + 25, Origen_Y - 12, App.Vector(0, 0, 1), 1, math.radians(0), math.radians(90)],
+		['linea', 'Vertical', Origen_X + 26, Origen_Y - 12, Origen_X + 26, Origen_Y - 16],
+		['arco', Origen_X + 23, Origen_Y - 16, App.Vector(0, 0, 1), 3, math.radians(270), math.radians(360)],
+		['linea', 'Horizontal', Origen_X + 23, Origen_Y - 19, Origen_X + 2, Origen_Y - 19],
+		['arco', Origen_X + 2, Origen_Y - 18, App.Vector(0, 0, 1), 1, math.radians(180), math.radians(270)],
+		['linea', 'Vertical', Origen_X + 1, Origen_Y - 18, Origen_X + 1, Origen_Y - 12],
+		['arco', Origen_X + 2, Origen_Y - 12, App.Vector(0, 0, 1), 1, math.radians(90), math.radians(180)]
 	]
 	
 	
-	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
-	Crear_Contorno(Lista05, Boceto_LVS_H_P1, False, True)
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
+	Crear_Contorno(Lista05, Boceto_LVS_H_P1, Espejo = True)
 	
 	
 	Lista06 = [
-	['linea', 'Horizontal', Origen_X + 2, Origen_Y - 1, Origen_X + 33 - 4 * math.sqrt(3), Origen_Y - 1],
-	['arco', Origen_X + 33 - 4 * math.sqrt(3), Origen_Y - 2, App.Vector(0, 0, 1), 1, math.radians(-30), math.radians(90)],
-	['arco', Origen_X + 33, Origen_Y - 6, App.Vector(0, 0, 1), 7, math.radians(150), math.radians(180)],
-	['linea', 'Vertical', Origen_X + 26, Origen_Y - 6, Origen_X + 26, Origen_Y - 8],
-	['arco', Origen_X + 25, Origen_Y - 8, App.Vector(0, 0, 1), 1, math.radians(270), math.radians(360)],
-	['linea', 'Horizontal', Origen_X + 25, Origen_Y - 9, Origen_X + 2, Origen_Y - 9],
-	['arco', Origen_X + 2, Origen_Y - 8, App.Vector(0, 0, 1), 1, math.radians(180), math.radians(270)],
-	['linea', 'Vertical', Origen_X + 1, Origen_Y - 8, Origen_X + 1, Origen_Y - 2],
-	['arco', Origen_X + 2, Origen_Y - 2, App.Vector(0, 0, 1), 1, math.radians(90), math.radians(180)]
+		['linea', 'Horizontal', Origen_X + 2, Origen_Y - 1, Origen_X + 33 - 4 * math.sqrt(3), Origen_Y - 1],
+		['arco', Origen_X + 33 - 4 * math.sqrt(3), Origen_Y - 2, App.Vector(0, 0, 1), 1, math.radians(-30), math.radians(90)],
+		['arco', Origen_X + 33, Origen_Y - 6, App.Vector(0, 0, 1), 7, math.radians(150), math.radians(180)],
+		['linea', 'Vertical', Origen_X + 26, Origen_Y - 6, Origen_X + 26, Origen_Y - 8],
+		['arco', Origen_X + 25, Origen_Y - 8, App.Vector(0, 0, 1), 1, math.radians(270), math.radians(360)],
+		['linea', 'Horizontal', Origen_X + 25, Origen_Y - 9, Origen_X + 2, Origen_Y - 9],
+		['arco', Origen_X + 2, Origen_Y - 8, App.Vector(0, 0, 1), 1, math.radians(180), math.radians(270)],
+		['linea', 'Vertical', Origen_X + 1, Origen_Y - 8, Origen_X + 1, Origen_Y - 2],
+		['arco', Origen_X + 2, Origen_Y - 2, App.Vector(0, 0, 1), 1, math.radians(90), math.radians(180)]
 	]
 	
 	
-	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
-	Crear_Contorno(Lista06, Boceto_LVS_H_P1, False, True)
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
+	Crear_Contorno(Lista06, Boceto_LVS_H_P1, Espejo = True)
 	
 	
 
@@ -1334,12 +1479,12 @@ def Crear_Boceto_P2(Largo_Total, Alto_Total, Radio_Pral):
 	if ((Largo_Total - 2 * Radio_Pral) / 2) > 45:
 	
 		Lista07 = [
-		['linea', 'Horizontal', Origen_X, Origen_Y + 7, Origen_X + 41, Origen_Y + 7],
-		['arco', Origen_X + 41, Origen_Y + 5, App.Vector(0, 0, 1), 2, math.radians(0), math.radians(90)],
-		['linea', 'Vertical', Origen_X + 43, Origen_Y + 5, Origen_X + 43, Origen_Y + 3],
-		['arco', Origen_X + 45, Origen_Y + 3, App.Vector(0, 0, 1), 2, math.radians(180), math.radians(270)],
-		['linea', 'Vertical', Origen_X + 45, Origen_Y + 1, Origen_X + 45, Origen_Y],
-		['linea', 'Horizontal', Origen_X + 45, Origen_Y, Origen_X, Origen_Y]
+			['linea', 'Horizontal', Origen_X, Origen_Y + 7, Origen_X + 41, Origen_Y + 7],
+			['arco', Origen_X + 41, Origen_Y + 5, App.Vector(0, 0, 1), 2, math.radians(0), math.radians(90)],
+			['linea', 'Vertical', Origen_X + 43, Origen_Y + 5, Origen_X + 43, Origen_Y + 3],
+			['arco', Origen_X + 45, Origen_Y + 3, App.Vector(0, 0, 1), 2, math.radians(180), math.radians(270)],
+			['linea', 'Vertical', Origen_X + 45, Origen_Y + 1, Origen_X + 45, Origen_Y],
+			['linea', 'Horizontal', Origen_X + 45, Origen_Y, Origen_X, Origen_Y]
 		]
 		
 	else:
@@ -1350,52 +1495,53 @@ def Crear_Boceto_P2(Largo_Total, Alto_Total, Radio_Pral):
 		Angulo_Desfase = math.acos(Desfase_X / Radio_CC)
 		
 		Lista07 = [
-		['linea', 'Horizontal', Origen_X, Origen_Y + 7, Origen_X + 41, Origen_Y + 7],
-		['arco', Origen_X + 41, Origen_Y + 5, App.Vector(0, 0, 1), 2, math.radians(0), math.radians(90)],
-		['linea', 'Vertical', Origen_X + 43, Origen_Y + 5, Origen_X + 43, Origen_Y + 3 - Desfase_Y],
-		['arco', Origen_X + 45, Origen_Y + 3 - Desfase_Y, App.Vector(0, 0, 1), 2, math.radians(180), math.radians(180) + Angulo_Desfase],
-		['linea', 'Oblicua', Origen_X + 45 - 2 * math.cos(Angulo_Desfase), Origen_Y + 3 - Desfase_Y - 2 * math.sin(Angulo_Desfase), Origen_X + 45 - 3 * math.cos(Angulo_Desfase), Origen_Y + 3 - Desfase_Y - 3 * math.sin(Angulo_Desfase)],
-		['arco', (Largo_Total - 2 * Radio_Pral) / 2, (Alto_Total - 2 * Radio_Pral) / 2, App.Vector(0, 0, 1), Radio_CC - 3, Angulo_Desfase, math.radians(90)],
-		['linea', 'Horizontal', (Largo_Total - 2 * Radio_Pral) / 2, Origen_Y, Origen_X, Origen_Y]
+			['linea', 'Horizontal', Origen_X, Origen_Y + 7, Origen_X + 41, Origen_Y + 7],
+			['arco', Origen_X + 41, Origen_Y + 5, App.Vector(0, 0, 1), 2, math.radians(0), math.radians(90)],
+			['linea', 'Vertical', Origen_X + 43, Origen_Y + 5, Origen_X + 43, Origen_Y + 3 - Desfase_Y],
+			['arco', Origen_X + 45, Origen_Y + 3 - Desfase_Y, App.Vector(0, 0, 1), 2, math.radians(180), math.radians(180) + Angulo_Desfase],
+			['linea', 'Oblicua', Origen_X + 45 - 2 * math.cos(Angulo_Desfase), Origen_Y + 3 - Desfase_Y - 2 * math.sin(Angulo_Desfase), Origen_X + 45 - 3 * math.cos(Angulo_Desfase), Origen_Y + 3 - Desfase_Y - 3 * math.sin(Angulo_Desfase)],
+			['arco', (Largo_Total - 2 * Radio_Pral) / 2, (Alto_Total - 2 * Radio_Pral) / 2, App.Vector(0, 0, 1), Radio_CC - 3, Angulo_Desfase, math.radians(90)],
+			['linea', 'Horizontal', (Largo_Total - 2 * Radio_Pral) / 2, Origen_Y, Origen_X, Origen_Y]
 		]
 	
 	
-	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
-	Crear_Contorno(Lista07, Boceto_LVS_P2, True)
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
+	Crear_Contorno(Lista07, Boceto_LVS_P2, Simetria = True)
 	
 	
 	
 	#$ crear Boceto Hoyo Pieza 2
 	Lista08 = [
-	['linea', 'Horizontal', Origen_X + 2, Origen_Y + 5, Origen_X + 35, Origen_Y + 5],
-	['arco', Origen_X + 2, Origen_Y + 4, App.Vector(0, 0, 1), 1, math.radians(90), math.radians(180)],
-	['linea', 'Vertical', Origen_X + 1, Origen_Y + 4, Origen_X + 1, Origen_Y + 2],
-	['arco', Origen_X + 2, Origen_Y + 2, App.Vector(0, 0, 1), 1, math.radians(180), math.radians(270)],
-	['linea', 'Horizontal', Origen_X + 2, Origen_Y + 1, Origen_X + 35, Origen_Y + 1],
-	['arco', Origen_X + 35, Origen_Y + 2, App.Vector(0, 0, 1), 1, math.radians(270), math.radians(360)],
-	['linea', 'Vertical', Origen_X + 36, Origen_Y + 2, Origen_X + 36, Origen_Y + 4],
-	['arco', Origen_X + 35, Origen_Y + 4, App.Vector(0, 0, 1), 1, math.radians(0), math.radians(90)]
+		['linea', 'Horizontal', Origen_X + 2, Origen_Y + 5, Origen_X + 35, Origen_Y + 5],
+		['arco', Origen_X + 2, Origen_Y + 4, App.Vector(0, 0, 1), 1, math.radians(90), math.radians(180)],
+		['linea', 'Vertical', Origen_X + 1, Origen_Y + 4, Origen_X + 1, Origen_Y + 2],
+		['arco', Origen_X + 2, Origen_Y + 2, App.Vector(0, 0, 1), 1, math.radians(180), math.radians(270)],
+		['linea', 'Horizontal', Origen_X + 2, Origen_Y + 1, Origen_X + 35, Origen_Y + 1],
+		['arco', Origen_X + 35, Origen_Y + 2, App.Vector(0, 0, 1), 1, math.radians(270), math.radians(360)],
+		['linea', 'Vertical', Origen_X + 36, Origen_Y + 2, Origen_X + 36, Origen_Y + 4],
+		['arco', Origen_X + 35, Origen_Y + 4, App.Vector(0, 0, 1), 1, math.radians(0), math.radians(90)]
 	]
 	
 	
-	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
-	Crear_Contorno(Lista08, Boceto_LVS_H_P2, False, True)
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
+	Crear_Contorno(Lista08, Boceto_LVS_H_P2, Espejo = True)
 	
 	
 	Lista09 = [
-	['linea', 'Horizontal', Origen_X + 39, Origen_Y + 5, Origen_X + 40, Origen_Y + 5],
-	['arco', Origen_X + 39, Origen_Y + 4, App.Vector(0, 0, 1), 1, math.radians(90), math.radians(180)],
-	['linea', 'Vertical', Origen_X + 38, Origen_Y + 4, Origen_X + 38, Origen_Y + 2],
-	['arco', Origen_X + 39, Origen_Y + 2, App.Vector(0, 0, 1), 1, math.radians(180), math.radians(270)],
-	['linea', 'Horizontal', Origen_X + 39, Origen_Y + 1, Origen_X + 40, Origen_Y + 1],
-	['arco', Origen_X + 40, Origen_Y + 2, App.Vector(0, 0, 1), 1, math.radians(270), math.radians(360)],
-	['linea', 'Vertical', Origen_X + 41, Origen_Y + 2, Origen_X + 41, Origen_Y + 4],
-	['arco', Origen_X + 40, Origen_Y + 4, App.Vector(0, 0, 1), 1, math.radians(0), math.radians(90)]
+		['linea', 'Horizontal', Origen_X + 39, Origen_Y + 5, Origen_X + 40, Origen_Y + 5],
+		['arco', Origen_X + 39, Origen_Y + 4, App.Vector(0, 0, 1), 1, math.radians(90), math.radians(180)],
+		['linea', 'Vertical', Origen_X + 38, Origen_Y + 4, Origen_X + 38, Origen_Y + 2],
+		['arco', Origen_X + 39, Origen_Y + 2, App.Vector(0, 0, 1), 1, math.radians(180), math.radians(270)],
+		['linea', 'Horizontal', Origen_X + 39, Origen_Y + 1, Origen_X + 40, Origen_Y + 1],
+		['arco', Origen_X + 40, Origen_Y + 2, App.Vector(0, 0, 1), 1, math.radians(270), math.radians(360)],
+		['linea', 'Vertical', Origen_X + 41, Origen_Y + 2, Origen_X + 41, Origen_Y + 4],
+		['arco', Origen_X + 40, Origen_Y + 4, App.Vector(0, 0, 1), 1, math.radians(0), math.radians(90)]
 	]
 	
 	
-	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False):
-	Crear_Contorno(Lista09, Boceto_LVS_H_P2, False, True)
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
+	Crear_Contorno(Lista09, Boceto_LVS_H_P2, Espejo = True)
+	
 	
 
 
@@ -1467,7 +1613,7 @@ def Crear_Hoop(Largo_Total = '156 mm', Alto_Total = '156 mm', Radio_Pral = '35 m
 	
 	# Crear_Boceto_Iman(Largo_Total, Alto_Total, Radio_Pral):
 	Crear_Boceto_Iman(LT, AT, RP)
-
+	
 
 
 
@@ -1488,6 +1634,11 @@ Crear_Hoop('156 mm', '156 mm', '35 mm')
 # '450 mm', '450 mm', '100 mm'
 
 
+'''
+print(f'{len(Lista_Linea) = }')
+for l in Lista_Linea:
+	print(l)
+'''
 
 
 Fin = time.time()
@@ -1502,23 +1653,16 @@ print(f'{dias[indice]}  {time.strftime("%d/%m/%Y  %H:%M:%S", time.localtime())}'
 
 
 '''
-#Ejemplo mover la pieza usando una ventana flotante de PySide
-from PySide import QtGui
-val = QtGui.QInputDialog.getText(None, 'Mover Objeto', 'Ingrese los valores \n separados por coma. \n Ejemplo: 100,0,0')[0]
-myVal = tuple(val.split(','))
-Pieza_H1.Placement.Base = App.Vector(myVal)
+# Ejemplo mover la pieza usando una ventana flotante de PySide
+	
+	from PySide import QtGui
+	val = QtGui.QInputDialog.getText(None, 'Mover Objeto', 'Ingrese los valores \n separados por coma. \n Ejemplo: 100,0,0')[0]
+	myVal = tuple(val.split(','))
+	Pieza_H1.Placement.Base = App.Vector(myVal)
+	
 '''
 
 
-
-
-'''
-
-print(len(Lista_Linea))
-for l in Lista_Linea:
-	print(l)
-
-'''
 
 
 # Macro End: C:\Users\OWNER\AppData\Roaming\FreeCAD\Macro\Hoop_1.FCMacro +++++++++++++++++++++++++++++++++++++++++++++++++
