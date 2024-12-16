@@ -1,29 +1,35 @@
 # -*- coding: utf-8 -*-
 
 '''
-##############################################################################
-#                                                                            #
-#                                                                            #
-#   Copyright (c) 2024                                                       #
-#   Original code by: AFD                                                    #
-#                                                                            #
-#   This program is free software, you can redistribute it and/or modify     #
-#   it under the terms of the GNU Lesser General Public Licence (LGPL)       #
-#   as published by the Free Software Fundation; either version 2 of         #
-#   the Licence, or (at your option) any later version.                      #
-#   for detail see the LICENCE text file.                                    #
-#                                                                            #
-#   This software is distributed in the hope that it will be useful,         #
-#   but WITHOUT ANY WARRANTY, without even the implied warranty of           #
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the             #
-#   GNU Library General Public Licence for more details.                     #
-#                                                                            #
-#   You should have received a copy of the GNU Library General Public        #
-#   Licence along with this macro, if not, write to the Free Software        #
-#   Foundation Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.  #
-#                                                                            #
-#                                                                            #
-##############################################################################
+############################################################################
+#                                                                          #
+#                                                                          #
+#   Copyright (c) 2024                                                     #
+#   Original code by:                                                      #
+#                       :::====   :::=====  :::====                        #
+#                       :::  ===  :::       :::  ===                       #
+#                       ========  ======    ===  ===                       #
+#                       ===  ===  ===       ===  ===                       #
+#                       ===  ===  ===       =======                        #
+#                                                                          #
+#   This program is free software, you can redistribute it and/or modify   #
+#   it under the terms of the GNU Lesser General Public Licence ( LGPL )   #
+#   as published by the Free Software Fundation;  either  version  2  of   #
+#   the Licence, or (at your option) any later version.                    #
+#   for detail see the LICENCE text file.                                  #
+#                                                                          #
+#   This software is distributed in the hope that  it  will  be  useful,   #
+#   but WITHOUT ANY WARRANTY,  without  even  the  implied  warranty  of   #
+#   MERCHANTABILITY  or  FITNESS  FOR  A  PARTICULAR  PURPOSE.  See  the   #
+#   GNU Library General Public Licence for more details.                   #
+#                                                                          #
+#   You should have received a copy of the GNU  Library  General  Public   #
+#   Licence along with this macro,  if not, write to the  Free  Software   #
+#   Foundation Inc., 59 Temple Place, Suite 330,  Boston,  MA 02111-1307   #
+#   USA.                                                                   #
+#                                                                          #
+#                                                                          #
+############################################################################
 '''
 
 # Macro Begin: C:\Users\OWNER\AppData\Roaming\FreeCAD\Macro\Hoop_1.FCMacro +++++++++++++++++++++++++++++++++++++++++++++++++
@@ -71,7 +77,7 @@ def Crear_Grupo(Titulo, Etiqueta = '', Objeto_X = False):
 		Plano.Tip = Grupo_X
 	else:
 		Objeto_X.addObject(Grupo_X)
-	Plano.recompute
+	Plano.recompute()
 	return Grupo_X
 
 
@@ -107,7 +113,7 @@ def Crear_Cuerpo(Titulo, Etiqueta = '', Objeto_X = False):
 		Plano.Tip = Cuerpo_X
 	else:
 		Objeto_X.addObject(Cuerpo_X)
-	Plano.recompute
+	Plano.recompute()
 	return Cuerpo_X
 
 
@@ -152,7 +158,7 @@ def Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = ''):
 				XY_Plano = k
 		Boceto_X.AttachmentSupport = (XY_Plano, [''])
 		del XY_Plano
-	Plano.recompute
+	Plano.recompute()
 	return Boceto_X	
 
 
@@ -163,12 +169,16 @@ def Crear_Variables(Titulo, Etiqueta = '', Objeto_X = False):
 	Var_X.Label = Etiqueta
 	Objeto_X.addObject(Var_X)
 	Var_X.addProperty("App::PropertyLength", "Largo_Total", group="Grupo_2D", doc="Esta propiedad modifica el Largo del Aro")
-	Var_X.Largo_Total = "156 mm"
+	Var_X.Largo_Total = "600 mm"
 	Var_X.addProperty("App::PropertyLength", "Alto_Total", group="Grupo_2D", doc="Esta propiedad modifica el Alto del Aro")
-	Var_X.Alto_Total = "156 mm"
+	Var_X.Alto_Total = "600 mm"
 	Var_X.addProperty("App::PropertyLength", "Radio_Principal", group="Grupo_2D", doc="Esta propiedad modifica el Radio interior del Aro")
-	Var_X.Radio_Principal = "35 mm"
-	Plano.recompute
+	Var_X.Radio_Principal = "100 mm"
+	Var_X.addProperty("App::PropertyLength", "Radio_Agujero", group="Grupo_2D", doc="Esta propiedad modifica el Radio del Agujero")
+	Var_X.Radio_Agujero = "1.5 mm"
+	Var_X.addProperty("App::PropertyLength", "Radio_Iman", group="Grupo_2D", doc="Esta propiedad modifica el Radio del Iman")
+	Var_X.Radio_Iman = "7 mm"
+	Plano.recompute()
 	return Var_X
 
 
@@ -274,7 +284,7 @@ def Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Simetria = False, Grupo_
 	Lista_Linea[-1].append(Grupo_X)
 	
 	
-def Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Simetria = False, Restriccion = False, Grupo_X = 'Grupo_001'):
+def Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Simetria = False, Restriccion = False, Grupo_X = 'Grupo_001', Guia = False):
 	
 	# Validamos los argumentos de la funcion
 	if not str(type(Pt1)) in ("<class 'Base.Vector'>"):
@@ -300,7 +310,7 @@ def Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Simetria = False, Re
 	
 	
 	# aqui guardamos el ID del arco.
-	Lista_Linea.append(list(Boceto_X.addGeometry([Part.ArcOfCircle(Part.Circle(Pt1, Eje , Radio), Ang_Ini, Ang_Fin)], False)))
+	Lista_Linea.append(list(Boceto_X.addGeometry([Part.ArcOfCircle(Part.Circle(Pt1, Eje , Radio), Ang_Ini, Ang_Fin)], Guia)))
 	if Restriccion == True:
 		# aqui creamos la restriccion Radio del arco.
 		Boceto_X.addConstraint(Sketcher.Constraint('Radius', Lista_Linea[-1][0], Radio))
@@ -327,7 +337,7 @@ def Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Simetria = False, Re
 	Lista_Linea[-1].append(Grupo_X)
 	
 
-def Crear_Circulo(Pt1, Eje, Radio, Boceto_X, Restriccion = True, Grupo_X = 'Grupo_001'):
+def Crear_Circulo(Pt1, Eje, Radio, Boceto_X, Restriccion = True, Grupo_X = 'Grupo_001', Guia = False):
 	
 	# Validamos los argumentos de la funcion
 	if not str(type(Pt1)) in ("<class 'Base.Vector'>"):
@@ -344,7 +354,7 @@ def Crear_Circulo(Pt1, Eje, Radio, Boceto_X, Restriccion = True, Grupo_X = 'Grup
 	
 	
 	# aqui guardamos el ID del circulo.
-	Lista_Linea.append(list(Boceto_X.addGeometry([Part.Circle(Pt1, Eje, Radio)], False)))
+	Lista_Linea.append(list(Boceto_X.addGeometry([Part.Circle(Pt1, Eje, Radio)], Guia)))
 	if Restriccion == True:
 		# aqui creamos la restriccion Radio del circulo.
 		Boceto_X.addConstraint(Sketcher.Constraint('Radius', Lista_Linea[-1][0], Radio))
@@ -668,7 +678,9 @@ def Unir_Lineas(Boceto_X, Total_Lista, Objeto_X = ''):
 				Boceto_X.addConstraint(Sketcher.Constraint('Tangent', Lista_Linea[::-1][j][0], Lista_Linea[::-1][j][2], Lista_Linea[::-1][Valor_Futuro][0], Lista_Linea[::-1][Valor_Futuro][1]))
 			if Opcion == 'Vectores Coplanares' or Opcion == 'Vectores Colineales Opuestos':
 				Boceto_X.addConstraint(Sketcher.Constraint('Coincident', Lista_Linea[::-1][j][0], Lista_Linea[::-1][j][2], Lista_Linea[::-1][Valor_Futuro][0], Lista_Linea[::-1][Valor_Futuro][1]))
-
+	
+	Plano.recompute()
+	
 
 def Bloquear_Lineas(Boceto_X, Total_Lista):
 	
@@ -683,6 +695,8 @@ def Bloquear_Lineas(Boceto_X, Total_Lista):
 	for j in range(0, Total_Lista)[::-1]:
 		if Lista_Linea[::-1][j][3] == 'linea':
 			Boceto_X.addConstraint(Sketcher.Constraint('Block', Lista_Linea[::-1][j][0]))
+	
+	Plano.recompute()
 
 
 def Bloquear_Arcos(Boceto_X, Total_Lista):
@@ -698,6 +712,8 @@ def Bloquear_Arcos(Boceto_X, Total_Lista):
 	for j in range(0, Total_Lista)[::-1]:
 		if Lista_Linea[::-1][j][3] == 'arco':
 			Boceto_X.addConstraint(Sketcher.Constraint('Block', Lista_Linea[::-1][j][0]))
+			
+	Plano.recompute()
 
 
 def Bloquear_Circulos(Boceto_X, Total_Lista):
@@ -713,6 +729,8 @@ def Bloquear_Circulos(Boceto_X, Total_Lista):
 	for j in range(0, Total_Lista)[::-1]:
 		if Lista_Linea[::-1][j][3] == 'circulo':
 			Boceto_X.addConstraint(Sketcher.Constraint('Block', Lista_Linea[::-1][j][0]))
+			
+	Plano.recompute()
 
 
 def Fijar_Circulo_Origen(Pt1, Boceto_X, Index_Obj):
@@ -736,6 +754,8 @@ def Fijar_Circulo_Origen(Pt1, Boceto_X, Index_Obj):
 		Boceto_X.addConstraint(Sketcher.Constraint('DistanceY', -1,1,Index_Obj,3, abs(list(Pt1)[1])))
 	else:
 		Boceto_X.addConstraint(Sketcher.Constraint('DistanceY', Index_Obj,3,-1,1, abs(list(Pt1)[1])))
+		
+	Plano.recompute()
 
 
 def Restriccion_Ortogonal_Linea(Lista_X, Boceto_X, All = True):
@@ -753,6 +773,8 @@ def Restriccion_Ortogonal_Linea(Lista_X, Boceto_X, All = True):
 		for k in range(1, len(Lista_ID)):
 			Boceto_X.addConstraint(Sketcher.Constraint(Lista_ID[k][0], Lista_ID[k][1]))
 			
+	Plano.recompute()
+			
 			
 def Restriccion_Igual_Arco(Lista_X, Boceto_X, Obj_X = 'arco', Restriccion = False, Titulo = 'Radio_Pral'):
 	
@@ -767,6 +789,8 @@ def Restriccion_Igual_Arco(Lista_X, Boceto_X, Obj_X = 'arco', Restriccion = Fals
 					Restriccion_ID.append(Boceto_X.addConstraint(Sketcher.Constraint('Radius', Arco_ID[0], Lista_Linea[::-1][j][5])))
 					if Titulo == 'Radio_Pral':
 						Boceto_X.renameConstraint(Restriccion_ID[-1], Titulo)
+						Boceto_X.setVirtualSpace(Restriccion_ID[-1], False)
+						Boceto_X.setExpression('.Constraints.Radio_Pral', u'VarSet001.Radio_Principal < 35 ? 35 : (VarSet001.Radio_Principal > 100 ? 100 : VarSet001.Radio_Principal)')
 						
 						Lista_Restriccion.append(list(Restriccion_ID))
 						Lista_Restriccion[-1].append('Radius')
@@ -781,7 +805,29 @@ def Restriccion_Igual_Arco(Lista_X, Boceto_X, Obj_X = 'arco', Restriccion = Fals
 						Lista_Restriccion[-1].append(Boceto_X.Label)
 						
 					else:
-						Boceto_X.renameConstraint(Restriccion_ID[-1], Titulo + '_' + Boceto_X.Label.split('_', 1)[1])
+						Titulo_Temp = Titulo + '_' + str(1).zfill(2) + '_' + Boceto_X.Label.split('_', 1)[1]
+						Validar = True
+						
+						for j in range(0, len(Lista_Restriccion)):
+							Validar = False
+							for k in range(0, len(Lista_Restriccion)):
+								if Lista_Restriccion[k][7] == Titulo_Temp and Lista_Restriccion[k][10] == Boceto_X.Label:
+									Validar = True
+									break
+							if Validar == True:
+								Titulo_Temp4 = int(Titulo_Temp.split('_')[1]) + 1
+								Titulo_Temp3 = str(Titulo_Temp4).zfill(2)
+								Titulo_Temp = Titulo + '_' + Titulo_Temp3 + '_' + Boceto_X.Label.split('_', 1)[1]
+							else:
+								break
+						Boceto_X.renameConstraint(Restriccion_ID[-1], Titulo_Temp)
+						Boceto_X.setVirtualSpace(Restriccion_ID[-1], False)
+						if Titulo == 'Iman':
+							Boceto_X.setExpression('.Constraints.' + Titulo_Temp, u'VarSet001.Radio_Iman > 7 ? 7 : (VarSet001.Radio_Iman < 3 ? 3 : VarSet001.Radio_Iman)')
+						elif Titulo == 'Hoyo':
+							Boceto_X.setExpression('.Constraints.' + Titulo_Temp, u'VarSet001.Radio_Agujero > 3 ? 3 : (VarSet001.Radio_Agujero < 1 ? 1 : VarSet001.Radio_Agujero)')
+						else:
+							pass
 						
 						Lista_Restriccion.append(list(Restriccion_ID))
 						Lista_Restriccion[-1].append('Radius')
@@ -790,16 +836,18 @@ def Restriccion_Igual_Arco(Lista_X, Boceto_X, Obj_X = 'arco', Restriccion = Fals
 						Lista_Restriccion[-1].append('NA')
 						Lista_Restriccion[-1].append('NA')
 						Lista_Restriccion[-1].append(Lista_Linea[::-1][j][5])
-						Lista_Restriccion[-1].append(Titulo + '_' + Boceto_X.Label.split('_', 1)[1])
+						Lista_Restriccion[-1].append(Titulo_Temp)
 						Lista_Restriccion[-1].append(Lista_Linea[::-1][j][9])
 						Lista_Restriccion[-1].append('NA')
 						Lista_Restriccion[-1].append(Boceto_X.Label)
 						
-					Boceto_X.setVirtualSpace(Restriccion_ID[-1], False)
+					
 					
 			elif len(Arco_ID) == 2:
 				Boceto_X.addConstraint(Sketcher.Constraint('Equal', Arco_ID[0], Arco_ID[1]))
 				Arco_ID = [Arco_ID[1]]
+				
+	Plano.recompute()
 				
 				
 def Restriccion_DistanciaX_linea(Lista_X, Boceto_X, Valor_X, Desfase = False):
@@ -818,6 +866,7 @@ def Restriccion_DistanciaX_linea(Lista_X, Boceto_X, Valor_X, Desfase = False):
 					Restriccion_ID.append(Boceto_X.addConstraint(Sketcher.Constraint('DistanceX', Linea01_ID[1], 2, Linea01_ID[0], 1, Valor_X)))
 					Boceto_X.renameConstraint(Restriccion_ID[-1], u'Largo_Total')
 					Boceto_X.setVirtualSpace(Restriccion_ID[-1], False)
+					Boceto_X.setExpression('.Constraints.Largo_Total', u'VarSet001.Largo_Total < 50 ? 50 : (VarSet001.Largo_Total > 800 ? 800 : VarSet001.Largo_Total)')
 					
 					Lista_Restriccion.append(list(Restriccion_ID))
 					Lista_Restriccion[-1].append('DistanceX')
@@ -848,6 +897,8 @@ def Restriccion_DistanciaX_linea(Lista_X, Boceto_X, Valor_X, Desfase = False):
 					Lista_Restriccion[-1].append(Lista_Linea[::-1][j][9])
 					Lista_Restriccion[-1].append(Boceto_X.Label)
 					
+	Plano.recompute()
+					
 				
 def Restriccion_DistanciaY_linea(Lista_X, Boceto_X, Valor_X):
 	
@@ -861,6 +912,7 @@ def Restriccion_DistanciaY_linea(Lista_X, Boceto_X, Valor_X):
 				Restriccion_ID.append(Boceto_X.addConstraint(Sketcher.Constraint('DistanceY', Linea_ID[1], 2, Linea_ID[0], 1, Valor_X)))
 				Boceto_X.renameConstraint(Restriccion_ID[-1], u'Alto_Total')
 				Boceto_X.setVirtualSpace(Restriccion_ID[-1], False)
+				Boceto_X.setExpression('.Constraints.Alto_Total', u'VarSet001.Alto_Total < 50 ? 50 : (VarSet001.Alto_Total > 800 ? 800 : VarSet001.Alto_Total)')
 				
 				Lista_Restriccion.append(list(Restriccion_ID))
 				Lista_Restriccion[-1].append('DistanceY')
@@ -873,6 +925,8 @@ def Restriccion_DistanciaY_linea(Lista_X, Boceto_X, Valor_X):
 				Lista_Restriccion[-1].append(Lista_Linea[::-1][j][9])
 				Lista_Restriccion[-1].append(Lista_Linea[::-1][j][9])
 				Lista_Restriccion[-1].append(Boceto_X.Label)
+				
+	Plano.recompute()
 				
 				
 def Simetria_Objeto_Eje(Lista_X, Boceto_X, Objeto, Eje = -1, Paso = 1):
@@ -894,6 +948,8 @@ def Simetria_Objeto_Eje(Lista_X, Boceto_X, Objeto, Eje = -1, Paso = 1):
 	
 	Boceto_X.addConstraint(Sketcher.Constraint('Symmetric', Objeto_ID[0], 3, Objeto_ID[1], 3, Eje, 1))
 	
+	Plano.recompute()
+	
 	
 def Restriccion_Coincidente_Arco(Lista_X, Boceto_X):
 	
@@ -907,11 +963,13 @@ def Restriccion_Coincidente_Arco(Lista_X, Boceto_X):
 			
 	for k in range(0, len(Lista01_ID)):
 		Boceto_X.addConstraint(Sketcher.Constraint('Coincident', Lista01_ID[k], 3, Lista02_ID[k], 3))
+		
+	Plano.recompute()
 	
 	
 def Mostrar_Ultimo_Grupo(Boceto_X):
 	
-	# aqui mostarmos el ultimo Grupo generado en la Lista_Linea
+	# aqui mostramos el ultimo Grupo generado en la Lista_Linea
 	Lista_Grupo = []
 	if len(Lista_Linea) == 0:
 		Grupo_Y = 'Grupo_001'
@@ -919,9 +977,12 @@ def Mostrar_Ultimo_Grupo(Boceto_X):
 		for k in range(0, len(Lista_Linea)):
 			if Lista_Linea[k][4] == Boceto_X.Label:
 				Lista_Grupo.append(Lista_Linea[k][9])
-				
-		Lista_Grupo = sorted(list(set(Lista_Grupo)))
-		Grupo_Y = Lista_Grupo[-1]
+		if len(Lista_Grupo) == 0:
+			Grupo_Y = 'Grupo_001'
+		else:
+			Lista_Grupo = sorted(list(set(Lista_Grupo)))
+			Grupo_Y = Lista_Grupo[-1]
+			
 	return Grupo_Y
 	
 	
@@ -959,11 +1020,15 @@ def Restriccion_Agujeros_a_Cuerpo(Indice_X, Lista_Circulo, Boceto_X, Grupo_Temp)
 	Boceto_X.addConstraint(Sketcher.Constraint('Coincident', Lista_Circulo[Indice_X][1][0][0], 1, Lista_Linea[-1][0], 1))
 	Boceto_X.addConstraint(Sketcher.Constraint('Coincident', Lista_Circulo[Indice_X][1][1][0], 1, Lista_Linea[-1][0], 2))
 	
+	Plano.recompute()
+	
 	#Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Simetria = False, Grupo_X = 'Grupo_001', Guia = False):
 	Crear_Linea(Lista_Circulo[Indice_X][1][0][7], Lista_Circulo[Indice_X][1][1][7], Boceto_X, Grupo_X = Grupo_Temp, Guia = True)
 	
 	Boceto_X.addConstraint(Sketcher.Constraint('Coincident', Lista_Circulo[Indice_X][1][0][0], 2, Lista_Linea[-1][0], 1))
 	Boceto_X.addConstraint(Sketcher.Constraint('Coincident', Lista_Circulo[Indice_X][1][1][0], 2, Lista_Linea[-1][0], 2))
+	
+	Plano.recompute()
 	
 	#Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Simetria = False, Grupo_X = 'Grupo_001', Guia = False):
 	Crear_Linea(Lista_Circulo[Indice_X][1][0][6], Lista_Circulo[Indice_X][1][0][7], Boceto_X, Grupo_X = Grupo_Temp, Guia = True)
@@ -971,12 +1036,15 @@ def Restriccion_Agujeros_a_Cuerpo(Indice_X, Lista_Circulo, Boceto_X, Grupo_Temp)
 	Boceto_X.addConstraint(Sketcher.Constraint('Symmetric', Lista_Circulo[Indice_X][1][0][0], 1, Lista_Circulo[Indice_X][1][1][0], 1, Lista_Linea[-1][0], 1))
 	Boceto_X.addConstraint(Sketcher.Constraint('Symmetric', Lista_Circulo[Indice_X][1][0][0], 2, Lista_Circulo[Indice_X][1][1][0], 2, Lista_Linea[-1][0], 2))
 	
+	Plano.recompute()
+	
 	for y in range(0, len(Lista_Circulo[Indice_X][2])):
 		Boceto_X.addConstraint(Sketcher.Constraint('PointOnObject', Lista_Circulo[Indice_X][2][y][0], 3, Lista_Linea[-1][0]))
 	
 	for w in range(0, len(Lista_Circulo[Indice_X][2])):
 		Boceto_X.addConstraint(Sketcher.Constraint(Restriccion_Temp, Eje_Temp, 1, Lista_Circulo[Indice_X][2][w][0], 3, list(Lista_Circulo[Indice_X][2][w][8])[Indice_X % 2]))
-		
+	
+	Plano.recompute()
 	
 	
 def Fijar_Agujeros_a_Cuerpo(Lista01_X, Lista02_X, Boceto_X, Grupo_X, Grupo_Y):
@@ -1031,8 +1099,8 @@ def Fijar_Agujeros_a_Cuerpo(Lista01_X, Lista02_X, Boceto_X, Grupo_X, Grupo_Y):
 			
 			# Restriccion_Agujeros_a_Cuerpo(Indice_X, Lista_Circulo, Boceto_X, Grupo_Temp):
 			Restriccion_Agujeros_a_Cuerpo(j, Lista_Circulo, Boceto_X, Grupo_Temp)
-			
-			
+		
+		
 		if j == 1:
 			for f in range(0, len(Lista_Linea)):
 				if Lista_Linea[f][3] == 'circulo' and Lista_Linea[f][9] == Grupo_Z and Lista_Linea[f][4] == Boceto_X.Label:
@@ -1041,8 +1109,8 @@ def Fijar_Agujeros_a_Cuerpo(Lista01_X, Lista02_X, Boceto_X, Grupo_X, Grupo_Y):
 						
 			# Restriccion_Agujeros_a_Cuerpo(Indice_X, Lista_Circulo, Boceto_X, Grupo_Temp):
 			Restriccion_Agujeros_a_Cuerpo(j, Lista_Circulo, Boceto_X, Grupo_Temp)
-			
-			
+		
+		
 		if j == 2:
 			for f in range(0, len(Lista_Linea)):
 				if Lista_Linea[f][3] == 'circulo' and Lista_Linea[f][9] == Grupo_Z and Lista_Linea[f][4] == Boceto_X.Label:
@@ -1051,8 +1119,8 @@ def Fijar_Agujeros_a_Cuerpo(Lista01_X, Lista02_X, Boceto_X, Grupo_X, Grupo_Y):
 						
 			# Restriccion_Agujeros_a_Cuerpo(Indice_X, Lista_Circulo, Boceto_X, Grupo_Temp):
 			Restriccion_Agujeros_a_Cuerpo(j, Lista_Circulo, Boceto_X, Grupo_Temp)
-			
-			
+		
+		
 		if j == 3:
 			for f in range(0, len(Lista_Linea)):
 				if Lista_Linea[f][3] == 'circulo' and Lista_Linea[f][9] == Grupo_Z and Lista_Linea[f][4] == Boceto_X.Label:
@@ -1061,13 +1129,12 @@ def Fijar_Agujeros_a_Cuerpo(Lista01_X, Lista02_X, Boceto_X, Grupo_X, Grupo_Y):
 			
 			# Restriccion_Agujeros_a_Cuerpo(Indice_X, Lista_Circulo, Boceto_X, Grupo_Temp):
 			Restriccion_Agujeros_a_Cuerpo(j, Lista_Circulo, Boceto_X, Grupo_Temp)
-			
-				
-	Plano.recompute
+	
+	Plano.recompute()
 	
 	
 	
-def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
+def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1, Guia_X = False):
 	
 	# Validamos los argumentos de la funcion
 	if not type(Lista_X) is list:
@@ -1097,12 +1164,12 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_To
 	
 	
 	#Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Simetria = False, Grupo_X = 'Grupo_001', Guia = False):
-	#Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Simetria = False, Restriccion = False, Grupo_X = 'Grupo_001'):
+	#Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Simetria = False, Restriccion = False, Grupo_X = 'Grupo_001', Guia = False):
 	for j in range(0, len(Lista_X)):
 		if Lista_X[j][0] == 'linea':
-			Crear_Linea(App.Vector(Lista_X[j][2], Lista_X[j][3], 0), App.Vector(Lista_X[j][4], Lista_X[j][5], 0), Boceto_X, Grupo_X = Grupo_Y)
+			Crear_Linea(App.Vector(Lista_X[j][2], Lista_X[j][3], 0), App.Vector(Lista_X[j][4], Lista_X[j][5], 0), Boceto_X, Grupo_X = Grupo_Y, Guia = Guia_X)
 		if Lista_X[j][0] == 'arco':
-			Crear_Arco(App.Vector(Lista_X[j][1], Lista_X[j][2], 0), Lista_X[j][3], Lista_X[j][4], Boceto_X, Lista_X[j][5], Lista_X[j][6], Grupo_X = Grupo_Y)
+			Crear_Arco(App.Vector(Lista_X[j][1], Lista_X[j][2], 0), Lista_X[j][3], Lista_X[j][4], Boceto_X, Lista_X[j][5], Lista_X[j][6], Grupo_X = Grupo_Y, Guia = Guia_X)
 	
 	# Validar_Puntos_de_Contacto(Total_Lista):
 	Validar_Puntos_de_Contacto(len(Lista_X))
@@ -1154,14 +1221,14 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_To
 	
 	
 	#Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Simetria = False, Grupo_X = 'Grupo_001', Guia = False):
-	#Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Simetria = False, Restriccion = False, Grupo_X = 'Grupo_001'):
+	#Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Simetria = False, Restriccion = False, Grupo_X = 'Grupo_001', Guia = False):
 	if Simetria == True:
 		#$ Objeto Simetrico en el centro
 		for k in range(0, len(Lista_X)):
 			if Lista_X[::-1][k][0] == 'linea':
-				Crear_Linea(App.Vector(-Lista_X[::-1][k][2], Lista_X[::-1][k][3], 0), App.Vector(-Lista_X[::-1][k][4], Lista_X[::-1][k][5], 0), Boceto_X, Simetria = True, Grupo_X = Grupo_Y)
+				Crear_Linea(App.Vector(-Lista_X[::-1][k][2], Lista_X[::-1][k][3], 0), App.Vector(-Lista_X[::-1][k][4], Lista_X[::-1][k][5], 0), Boceto_X, Simetria = True, Grupo_X = Grupo_Y, Guia = Guia_X)
 			if Lista_X[::-1][k][0] == 'arco':
-				Crear_Arco(App.Vector(-Lista_X[::-1][k][1], Lista_X[::-1][k][2], 0), Lista_X[::-1][k][3], Lista_X[::-1][k][4], Boceto_X, math.radians(180) - Lista_X[::-1][k][6], math.radians(180) - Lista_X[::-1][k][5], True, Grupo_X = Grupo_Y)
+				Crear_Arco(App.Vector(-Lista_X[::-1][k][1], Lista_X[::-1][k][2], 0), Lista_X[::-1][k][3], Lista_X[::-1][k][4], Boceto_X, math.radians(180) - Lista_X[::-1][k][6], math.radians(180) - Lista_X[::-1][k][5], True, Grupo_X = Grupo_Y, Guia = Guia_X)
 		
 		# Validar_Puntos_de_Contacto(Total_Lista):
 		Validar_Puntos_de_Contacto(2 * len(Lista_X))
@@ -1170,13 +1237,12 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_To
 		#$ Objeto Espejo con respecto al Origen
 		for k in range(0, len(Lista_X)):
 			if Lista_X[k][0] == 'linea':
-				Crear_Linea(App.Vector(-Lista_X[k][2], Lista_X[k][3], 0), App.Vector(-Lista_X[k][4], Lista_X[k][5], 0), Boceto_X, Grupo_X = Grupo_Y)
+				Crear_Linea(App.Vector(-Lista_X[k][2], Lista_X[k][3], 0), App.Vector(-Lista_X[k][4], Lista_X[k][5], 0), Boceto_X, Grupo_X = Grupo_Y, Guia = Guia_X)
 			if Lista_X[k][0] == 'arco':
-				Crear_Arco(App.Vector(-Lista_X[k][1], Lista_X[k][2], 0), Lista_X[k][3], Lista_X[k][4], Boceto_X, math.radians(180) - Lista_X[k][6], math.radians(180) - Lista_X[k][5], Grupo_X = Grupo_Y)
+				Crear_Arco(App.Vector(-Lista_X[k][1], Lista_X[k][2], 0), Lista_X[k][3], Lista_X[k][4], Boceto_X, math.radians(180) - Lista_X[k][6], math.radians(180) - Lista_X[k][5], Grupo_X = Grupo_Y, Guia = Guia_X)
 		
 		# Validar_Puntos_de_Contacto(Total_Lista):
 		Validar_Puntos_de_Contacto(len(Lista_X))
-	
 	
 	Plano.recompute()
 	
@@ -1202,11 +1268,10 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_To
 		# Bloquear_Arcos(Boceto_X, Total_Lista):
 		Bloquear_Arcos(Boceto_X, len(Lista_X))
 	
-	
 	Plano.recompute()
 
 
-def Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero = 1.5, Separacion = 76, Inicio_Centro = False, Incluir_Arco = False, Grupo_Base = ['', '']):
+def Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero = 1.5, Separacion = 76, Inicio_Centro = False, Incluir_Arco = False, Grupo_Base = ['', ''], Titulo_X = 'Radio'):
 	
 	# Validamos los argumentos de la funcion
 	if not type(Largo_Total) in (float, int):
@@ -1315,26 +1380,43 @@ def Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero 
 	
 	# Actualizar_Lista02(Val_X, Val_Y):
 	Lista02 = Actualizar_Lista02(Val_X, Val_Y)
-		
+	
 	# Actualizar_Lineal_Lista03(Lista02, DeltaVal_X, DeltaVal_Y, Radio_Agujero, Inicio_Centro = False):
 	Lista03 = Actualizar_Lineal_Lista03(Lista02, DeltaVal_X, DeltaVal_Y, Radio_Agujero, Inicio_Centro)
 	
-	if Incluir_Arco == True:
-		# Actualizar_Polar_Lista03(Lista02, Delta_X, Delta_Y, Radio_Agujero, Lista03 = []):
-		Lista03 = Actualizar_Polar_Lista03(Lista02, Delta_X, Delta_Y, Radio_Agujero, Lista03)
-	
 	for k in range(0, len(Lista03)):
-		# Crear_Circulo(Pt1, Eje, Radio, Boceto_X, Restriccion = True, Grupo_X = 'Grupo_001'):
+		# Crear_Circulo(Pt1, Eje, Radio, Boceto_X, Restriccion = True, Grupo_X = 'Grupo_001', Guia = False):
 		Crear_Circulo(Lista03[k][0], Lista03[k][1], Lista03[k][2], Boceto_X, False, Grupo_Y)
 	
 	# Restriccion_Igual_Arco(Lista_X, Boceto_X, Obj_X = 'arco', Restriccion = False, Titulo = 'Radio_Pral'):
-	Restriccion_Igual_Arco(Lista03, Boceto_X, Obj_X = 'circulo', Restriccion = True, Titulo = 'Radio')
+	Restriccion_Igual_Arco(Lista03, Boceto_X, Obj_X = 'circulo', Restriccion = True, Titulo = Titulo_X)
 	
 	# Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
 	Lista01 = Actualizar_Lista01(Largo_Total, Alto_Total, Radio_Pral)
 	
 	# Fijar_Agujeros_a_Cuerpo(Lista01_X, Lista02_X, Boceto_X, Grupo_X, Grupo_Y):
 	Fijar_Agujeros_a_Cuerpo(Lista01, Lista02, Boceto_X, Grupo_Base[0], Grupo_Base[1])
+	
+	Plano.recompute()
+	
+	if Incluir_Arco == True:
+		
+		Lista03 = []
+		
+		# Actualizar_Grupo(Boceto_X):
+		Grupo_Y = Actualizar_Grupo(Boceto_X)
+		
+		# Actualizar_Polar_Lista03(Lista02, Delta_X, Delta_Y, Radio_Agujero, Lista03 = []):
+		Lista03 = Actualizar_Polar_Lista03(Lista02, Delta_X, Delta_Y, Radio_Agujero, Lista03)
+		
+		for k in range(0, len(Lista03)):
+			# Crear_Circulo(Pt1, Eje, Radio, Boceto_X, Restriccion = True, Grupo_X = 'Grupo_001', Guia = False):
+			Crear_Circulo(Lista03[k][0], Lista03[k][1], Lista03[k][2], Boceto_X, False, Grupo_Y)
+		
+		# Restriccion_Igual_Arco(Lista_X, Boceto_X, Obj_X = 'arco', Restriccion = False, Titulo = 'Radio_Pral'):
+		Restriccion_Igual_Arco(Lista03, Boceto_X, Obj_X = 'circulo', Restriccion = True, Titulo = Titulo_X)
+		
+		
 	
 
 def Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
@@ -1552,7 +1634,7 @@ def Crear_Boceto_Cuerpo(Largo_Total, Alto_Total, Radio_Pral):
 	
 	# Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
 	Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
-	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1, Guia_X = False):
 	Crear_Contorno(Lista01, Boceto_LVS_C, Largo_Total = Largo_Y, Alto_Total = Alto_Y)
 	
 	
@@ -1562,7 +1644,7 @@ def Crear_Boceto_Cuerpo(Largo_Total, Alto_Total, Radio_Pral):
 	
 	# Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
 	Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
-	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1, Guia_X = False):
 	Crear_Contorno(Lista01, Boceto_LVS_C, Desfase = 1)
 	
 	
@@ -1572,7 +1654,7 @@ def Crear_Boceto_Cuerpo(Largo_Total, Alto_Total, Radio_Pral):
 	
 	# Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
 	Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
-	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1, Guia_X = False):
 	Crear_Contorno(Lista01, Boceto_LVS_C, Desfase = 14)
 	
 	
@@ -1582,13 +1664,13 @@ def Crear_Boceto_Cuerpo(Largo_Total, Alto_Total, Radio_Pral):
 	
 	# Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
 	Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
-	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1, Guia_X = False):
 	Crear_Contorno(Lista01, Boceto_LVS_C, Desfase = 1)
 	
 	
 	# Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero = 1.5, 
-	# Separacion = 76, Inicio_Centro = False, Incluir_Arco = False, Grupo_Base = ['', '']):
-	Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_LVS_C, 1.5, Grupo_Base = ['Grupo_002', 'Grupo_003'])
+	# Separacion = 76, Inicio_Centro = False, Incluir_Arco = False, Grupo_Base = ['', ''], Titulo_X = 'Radio'):
+	Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_LVS_C, 1.5, Grupo_Base = ['Grupo_002', 'Grupo_003'], Titulo_X = 'Hoyo')
 	
 
 
@@ -1610,14 +1692,20 @@ def Crear_Boceto_Tapadera(Largo_Total, Alto_Total, Radio_Pral):
 	Alto_Y = Alto_Total
 	Radio_Y = Radio_Pral
 	
+	# Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
+	Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1, Guia_X = False):
+	Crear_Contorno(Lista01, Boceto_LVS_T, Largo_Total = Largo_Y, Alto_Total = Alto_Y, Guia_X = True)
+	
+	
 	Largo_Y += 1.5 + 1.5
 	Alto_Y += 1.5 + 1.5
 	Radio_Y += 1.5
 	
 	# Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
 	Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
-	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
-	Crear_Contorno(Lista01, Boceto_LVS_T, Largo_Total = Largo_Y, Alto_Total = Alto_Y)
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1, Guia_X = False):
+	Crear_Contorno(Lista01, Boceto_LVS_T, Desfase = 1.5)
 	
 	
 	Largo_Y += 13 + 13
@@ -1626,13 +1714,13 @@ def Crear_Boceto_Tapadera(Largo_Total, Alto_Total, Radio_Pral):
 	
 	# Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
 	Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
-	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1, Guia_X = False):
 	Crear_Contorno(Lista01, Boceto_LVS_T, Desfase = 13)
 	
 	
 	# Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero = 1.5, 
-	# Separacion = 76, Inicio_Centro = False, Incluir_Arco = False, Grupo_Base = ['', '']):
-	Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_LVS_T, 1.5, Grupo_Base = ['Grupo_001', 'Grupo_002'])
+	# Separacion = 76, Inicio_Centro = False, Incluir_Arco = False, Grupo_Base = ['', ''], Titulo_X = 'Radio'):
+	Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_LVS_T, 1.5, Grupo_Base = ['Grupo_002', 'Grupo_003'], Titulo_X = 'Hoyo')
 	
 	
 
@@ -1682,7 +1770,7 @@ def Crear_Boceto_P1(Largo_Total, Alto_Total, Radio_Pral):
 		]
 		
 	
-	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1, Guia_X = False):
 	Crear_Contorno(Lista04, Boceto_LVS_P1, Simetria = True)
 	
 	
@@ -1700,7 +1788,7 @@ def Crear_Boceto_P1(Largo_Total, Alto_Total, Radio_Pral):
 	]
 	
 	
-	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1, Guia_X = False):
 	Crear_Contorno(Lista05, Boceto_LVS_H_P1, Espejo = True)
 	
 	
@@ -1717,7 +1805,7 @@ def Crear_Boceto_P1(Largo_Total, Alto_Total, Radio_Pral):
 	]
 	
 	
-	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1, Guia_X = False):
 	Crear_Contorno(Lista06, Boceto_LVS_H_P1, Espejo = True)
 	
 	
@@ -1767,7 +1855,7 @@ def Crear_Boceto_P2(Largo_Total, Alto_Total, Radio_Pral):
 		]
 	
 	
-	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1, Guia_X = False):
 	Crear_Contorno(Lista07, Boceto_LVS_P2, Simetria = True)
 	
 	
@@ -1785,7 +1873,7 @@ def Crear_Boceto_P2(Largo_Total, Alto_Total, Radio_Pral):
 	]
 	
 	
-	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1, Guia_X = False):
 	Crear_Contorno(Lista08, Boceto_LVS_H_P2, Espejo = True)
 	
 	
@@ -1801,7 +1889,7 @@ def Crear_Boceto_P2(Largo_Total, Alto_Total, Radio_Pral):
 	]
 	
 	
-	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1):
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1, Guia_X = False):
 	Crear_Contorno(Lista09, Boceto_LVS_H_P2, Espejo = True)
 	
 	
@@ -1820,10 +1908,35 @@ def Crear_Boceto_Iman(Largo_Total, Alto_Total, Radio_Pral):
 	if not type(Radio_Pral) in (float, int):
 		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Boceto_Iman \n\t {type(Radio_Pral) = }')
 	
+	
+	Largo_Y = Largo_Total
+	Alto_Y = Alto_Total
+	Radio_Y = Radio_Pral
+	
+	Largo_Y += 1 + 1
+	Alto_Y += 1 + 1
+	Radio_Y += 1
+	
+	# Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
+	Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1, Guia_X = False):
+	Crear_Contorno(Lista01, Boceto_LVS_I, Largo_Total = Largo_Y, Alto_Total = Alto_Y, Guia_X = True)
+	
+	
+	Largo_Y += 14 + 14
+	Alto_Y += 14 + 14
+	Radio_Y += 14
+	
+	# Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
+	Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, Desfase = -1, Guia_X = False):
+	Crear_Contorno(Lista01, Boceto_LVS_I, Desfase = 14, Guia_X = True)
+	
+	
 	# Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero = 1.5, 
-	# Separacion = 76, Inicio_Centro = False, Incluir_Arco = False, Grupo_Base = ['', '']):
-	Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_LVS_I, 7, 76, True, True)
-
+	# Separacion = 76, Inicio_Centro = False, Incluir_Arco = False, Grupo_Base = ['', ''], Titulo_X = 'Radio'):
+	Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_LVS_I, 7, 76, True, True, Grupo_Base = ['Grupo_001', 'Grupo_002'], Titulo_X = 'Iman')
+	
 
 
 #! Estas son las funciones para las partes que forman el Hoop
@@ -1872,10 +1985,10 @@ def Crear_Hoop(Largo_Total = '156 mm', Alto_Total = '156 mm', Radio_Pral = '35 m
 	
 	# Crear_Boceto_P2(Largo_Total, Alto_Total, Radio_Pral):
 	Crear_Boceto_P2(LT, AT, RP)
-	'''
+	
 	# Crear_Boceto_Iman(Largo_Total, Alto_Total, Radio_Pral):
 	Crear_Boceto_Iman(LT, AT, RP)
-	'''
+	
 
 
 
