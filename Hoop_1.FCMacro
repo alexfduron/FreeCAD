@@ -189,6 +189,7 @@ def Crear_Contenedor_2D():
 	global Pieza_H1
 	Pieza_H1 = Crear_Pieza()
 	
+	global Variable_H1
 	### Begin command Var_Set
 	Variable_H1 = Crear_Variables('VarSet001', 'Variables', Pieza_H1)
 	
@@ -815,9 +816,9 @@ def Restriccion_Igual_Arco(Lista_X, Boceto_X, Obj_X = 'arco', Restriccion = Fals
 									Validar = True
 									break
 							if Validar == True:
-								Titulo_Temp4 = int(Titulo_Temp.split('_')[1]) + 1
-								Titulo_Temp3 = str(Titulo_Temp4).zfill(2)
-								Titulo_Temp = Titulo + '_' + Titulo_Temp3 + '_' + Boceto_X.Label.split('_', 1)[1]
+								Titulo_Temp3 = int(Titulo_Temp.split('_')[1]) + 1
+								Titulo_Temp2 = str(Titulo_Temp3).zfill(2)
+								Titulo_Temp = Titulo + '_' + Titulo_Temp2 + '_' + Boceto_X.Label.split('_', 1)[1]
 							else:
 								break
 						Boceto_X.renameConstraint(Restriccion_ID[-1], Titulo_Temp)
@@ -866,7 +867,7 @@ def Restriccion_DistanciaX_linea(Lista_X, Boceto_X, Valor_X, Desfase = False):
 					Restriccion_ID.append(Boceto_X.addConstraint(Sketcher.Constraint('DistanceX', Linea01_ID[1], 2, Linea01_ID[0], 1, Valor_X)))
 					Boceto_X.renameConstraint(Restriccion_ID[-1], u'Largo_Total')
 					Boceto_X.setVirtualSpace(Restriccion_ID[-1], False)
-					Boceto_X.setExpression('.Constraints.Largo_Total', u'VarSet001.Largo_Total < 50 ? 50 : (VarSet001.Largo_Total > 800 ? 800 : VarSet001.Largo_Total)')
+					Boceto_X.setExpression('.Constraints.Largo_Total', u'VarSet001.Largo_Total < 2.1 * VarSet001.Radio_Principal ? 50 + 2 * VarSet001.Radio_Principal : (VarSet001.Largo_Total > 800 ? 800 : VarSet001.Largo_Total)')
 					
 					Lista_Restriccion.append(list(Restriccion_ID))
 					Lista_Restriccion[-1].append('DistanceX')
@@ -912,7 +913,7 @@ def Restriccion_DistanciaY_linea(Lista_X, Boceto_X, Valor_X):
 				Restriccion_ID.append(Boceto_X.addConstraint(Sketcher.Constraint('DistanceY', Linea_ID[1], 2, Linea_ID[0], 1, Valor_X)))
 				Boceto_X.renameConstraint(Restriccion_ID[-1], u'Alto_Total')
 				Boceto_X.setVirtualSpace(Restriccion_ID[-1], False)
-				Boceto_X.setExpression('.Constraints.Alto_Total', u'VarSet001.Alto_Total < 50 ? 50 : (VarSet001.Alto_Total > 800 ? 800 : VarSet001.Alto_Total)')
+				Boceto_X.setExpression('.Constraints.Alto_Total', u'VarSet001.Alto_Total < 2.1 * VarSet001.Radio_Principal ? 50 + 2 * VarSet001.Radio_Principal : (VarSet001.Alto_Total > 800 ? 800 : VarSet001.Alto_Total)')
 				
 				Lista_Restriccion.append(list(Restriccion_ID))
 				Lista_Restriccion[-1].append('DistanceY')
