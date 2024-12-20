@@ -247,9 +247,18 @@ def Imprimir_Lista(Lista_X, Nom_Lista = 'Lista X'):
 	pd.set_option('display.max_columns', None)
 	pd.set_option('display.max_rows', None)
 	pd.set_option('display.width', 150)
+	df = pd.DataFrame(Lista_X)
+	if Nom_Lista == 'Lista_Linea':
+		df[5] = df[5].apply(lambda x : str(round(x, 3)).rstrip('0').rstrip('.'))
+		df[6] = df[6].apply(lambda x : [ str(float(round(n, 3))).rstrip('0').rstrip('.').center(3) for n in x ])
+		df[7] = df[7].apply(lambda x : [ str(float(round(n, 3))).rstrip('0').rstrip('.').center(3) for n in x ])
+		df[8] = df[8].apply(lambda x : [ str(float(round(n, 3))).rstrip('0').rstrip('.').center(3) for n in x ])
+		
+	if Nom_Lista == 'Lista_Restriccion':
+		df[6] = df[6].apply(lambda x : str(round(x, 3)).rstrip('0').rstrip('.').center(3))
 	
 	print(f'{Nom_Lista} = {len(Lista_X)}')
-	print(pd.DataFrame(Lista_X))
+	print(df)
 	
 	print()
 	
@@ -914,7 +923,7 @@ def Restriccion_Igual_Arco(Boceto_X, Total_Lista, Obj_X = 'arco', Restriccion = 
 						
 						Lista_Restriccion.append(list(Restriccion_ID))
 						Lista_Restriccion[-1].append('Radius')
-						Lista_Restriccion[-1].append(str(Arco_ID[0]).zfill(2))
+						Lista_Restriccion[-1].append(Arco_ID[0])
 						Lista_Restriccion[-1].append('NA')
 						Lista_Restriccion[-1].append('NA')
 						Lista_Restriccion[-1].append('NA')
@@ -949,7 +958,7 @@ def Restriccion_Igual_Arco(Boceto_X, Total_Lista, Obj_X = 'arco', Restriccion = 
 						
 						Lista_Restriccion.append(list(Restriccion_ID))
 						Lista_Restriccion[-1].append('Radius')
-						Lista_Restriccion[-1].append(str(Arco_ID[0]).zfill(2))
+						Lista_Restriccion[-1].append(Arco_ID[0])
 						Lista_Restriccion[-1].append('NA')
 						Lista_Restriccion[-1].append('NA')
 						Lista_Restriccion[-1].append('NA')
@@ -997,10 +1006,10 @@ def Restriccion_DistanciaX_linea(Lista_X, Boceto_X, Valor_X, Desfase = False, Gr
 					
 					Lista_Restriccion.append(list(Restriccion_ID))
 					Lista_Restriccion[-1].append('DistanceX')
-					Lista_Restriccion[-1].append(str(Linea01_ID[1]).zfill(2))
-					Lista_Restriccion[-1].append('02')
-					Lista_Restriccion[-1].append(str(Linea01_ID[0]).zfill(2))
-					Lista_Restriccion[-1].append('01')
+					Lista_Restriccion[-1].append(Linea01_ID[1])
+					Lista_Restriccion[-1].append(2)
+					Lista_Restriccion[-1].append(Linea01_ID[0])
+					Lista_Restriccion[-1].append(1)
 					Lista_Restriccion[-1].append(Valor_X)
 					Lista_Restriccion[-1].append(Titulo_Y)
 					Lista_Restriccion[-1].append(Grupo_A[::-1][j][9])
@@ -1031,10 +1040,10 @@ def Restriccion_DistanciaX_linea(Lista_X, Boceto_X, Valor_X, Desfase = False, Gr
 					
 					Lista_Restriccion.append(list(Restriccion_ID))
 					Lista_Restriccion[-1].append('DistanceX')
-					Lista_Restriccion[-1].append(str(Linea02_ID[0]).zfill(2))
-					Lista_Restriccion[-1].append('01')
-					Lista_Restriccion[-1].append(str(Linea01_ID[0]).zfill(2))
-					Lista_Restriccion[-1].append('01')
+					Lista_Restriccion[-1].append(Linea02_ID[0])
+					Lista_Restriccion[-1].append(1)
+					Lista_Restriccion[-1].append(Linea01_ID[0])
+					Lista_Restriccion[-1].append(1)
 					Lista_Restriccion[-1].append(Valor_X)
 					Lista_Restriccion[-1].append(Titulo_Y)
 					Lista_Restriccion[-1].append(Grupo_B[::-1][j][9])
@@ -1073,10 +1082,10 @@ def Restriccion_DistanciaY_linea(Lista_X, Boceto_X, Valor_X, Desfase = False, Gr
 					
 					Lista_Restriccion.append(list(Restriccion_ID))
 					Lista_Restriccion[-1].append('DistanceY')
-					Lista_Restriccion[-1].append(str(Linea01_ID[1]).zfill(2))
-					Lista_Restriccion[-1].append('02')
-					Lista_Restriccion[-1].append(str(Linea01_ID[0]).zfill(2))
-					Lista_Restriccion[-1].append('01')
+					Lista_Restriccion[-1].append(Linea01_ID[1])
+					Lista_Restriccion[-1].append(2)
+					Lista_Restriccion[-1].append(Linea01_ID[0])
+					Lista_Restriccion[-1].append(1)
 					Lista_Restriccion[-1].append(Valor_X)
 					Lista_Restriccion[-1].append(Titulo_Y)
 					Lista_Restriccion[-1].append(Grupo_A[::-1][j][9])
@@ -1104,10 +1113,10 @@ def Restriccion_DistanciaY_linea(Lista_X, Boceto_X, Valor_X, Desfase = False, Gr
 					
 					Lista_Restriccion.append(list(Restriccion_ID))
 					Lista_Restriccion[-1].append('DistanceY')
-					Lista_Restriccion[-1].append(str(Linea02_ID[0]).zfill(2))
-					Lista_Restriccion[-1].append('01')
-					Lista_Restriccion[-1].append(str(Linea01_ID[0]).zfill(2))
-					Lista_Restriccion[-1].append('01')
+					Lista_Restriccion[-1].append(Linea02_ID[0])
+					Lista_Restriccion[-1].append(1)
+					Lista_Restriccion[-1].append(Linea01_ID[0])
+					Lista_Restriccion[-1].append(1)
 					Lista_Restriccion[-1].append(Valor_X)
 					Lista_Restriccion[-1].append(Titulo_Y)
 					Lista_Restriccion[-1].append(Grupo_B[::-1][j][9])
