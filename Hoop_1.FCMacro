@@ -248,6 +248,7 @@ def Imprimir_Lista(Lista_X, Nom_Lista = 'Lista X'):
 	pd.set_option('display.max_rows', None)
 	pd.set_option('display.width', 150)
 	df = pd.DataFrame(Lista_X)
+	
 	if Nom_Lista == 'Lista_Linea':
 		df[5] = df[5].apply(lambda x : str(round(x, 3)).rstrip('0').rstrip('.'))
 		df[6] = df[6].apply(lambda x : [ str(float(round(n, 3))).rstrip('0').rstrip('.').center(3) for n in x ])
@@ -1583,6 +1584,64 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_To
 			Actualizar_Lista_Restr(20, 'DistanceY', 0, 1, -1, 1, 315, 'Alto_01', 'G_001', 'NA',    Boceto_X.Label)
 			Actualizar_Lista_Restr(21, 'DistanceY', 5, 2,  0, 1,  21, 'Alto_02', 'G_001', 'G_001', Boceto_X.Label)
 			
+			
+		if Boceto_X.Label == 'B_LVS_Pieza2' and Lista_Linea[-1][9] == 'G_001':
+			
+			# Restriccion_Igual_Arco(Boceto_X, Total_Lista, Obj_X = 'arco', Restriccion = False, Titulo = 'Radio_Pral', Omitir = [-1]):
+			Restriccion_Igual_Arco(Boceto_X, 2 * len(Lista_X), 'arco', True, 'Radio_01')
+			
+			Boceto_X.delConstraint(14)
+			Boceto_X.delConstraint(15)
+			
+			constrGeoList = []
+			constrGeoList.append(Part.LineSegment(App.Vector(45, 318, 0),App.Vector(43, 318, 0)))
+			constrGeoList.append(Part.LineSegment(App.Vector(45, 318, 0),App.Vector(45, 316, 0)))
+			constrGeoList.append(Part.LineSegment(App.Vector(-43, 318, 0),App.Vector(-45, 318, 0)))
+			constrGeoList.append(Part.LineSegment(App.Vector(-45, 318, 0),App.Vector(-45, 316, 0)))
+			
+			Boceto_X.addGeometry(constrGeoList,True)
+			
+			del constrGeoList
+			
+			constraintList = []
+			constraintList.append(Sketcher.Constraint('PointOnObject', 0, 1, -2))
+			constraintList.append(Sketcher.Constraint('PointOnObject', 5, 2, -2))
+			constraintList.append(Sketcher.Constraint('Coincident', 3, 3, 12, 1))
+			constraintList.append(Sketcher.Constraint('Coincident', 3, 3, 13, 1))
+			constraintList.append(Sketcher.Constraint('Coincident', 12, 2, 2, 2))
+			constraintList.append(Sketcher.Constraint('Coincident', 3, 2, 13, 2))
+			constraintList.append(Sketcher.Constraint('Coincident', 8, 3, 14, 1))
+			constraintList.append(Sketcher.Constraint('Coincident', 15, 1, 8, 3))
+			constraintList.append(Sketcher.Constraint('Coincident', 14, 2, 8, 2))
+			constraintList.append(Sketcher.Constraint('Coincident', 7, 1, 15, 2))
+			constraintList.append(Sketcher.Constraint('Angle', 12, 1, 13, 1, math.radians(90)))
+			constraintList.append(Sketcher.Constraint('Angle', 15, 1, 14, 1, math.radians(90)))
+			constraintList.append(Sketcher.Constraint('Parallel', 13, 4))
+			constraintList.append(Sketcher.Constraint('Parallel', 15, 7))
+			constraintList.append(Sketcher.Constraint('DistanceY', -1, 1, 5, 2, 315))
+			constraintList.append(Sketcher.Constraint('DistanceY', 5, 2, 0, 1, 7))
+			constraintList.append(Sketcher.Constraint('DistanceX', 0, 1, 1, 1, 43))
+			constraintList.append(Sketcher.Constraint('DistanceX', 9, 1, 0, 1, 43))
+			constraintList.append(Sketcher.Constraint('DistanceY', 2, 2, 2, 1, 2))
+			constraintList.append(Sketcher.Constraint('DistanceY', 9, 2, 9, 1, 2))
+			
+			Boceto_X.addConstraint(constraintList)
+			
+			del constraintList
+			
+			Boceto_X.renameConstraint(34, u'Alto_01')
+			Boceto_X.setVirtualSpace(34, False)
+			Boceto_X.setExpression('Constraints.Alto_01', u'VarSet001.Aro_Alto < 2 * VarSet001.Aro_Radio + 50 mm ? VarSet001.Aro_Radio + 25 mm + VarSet001.Aro_Margen + VarSet001.Aro_Grosor : (VarSet001.Aro_Alto > 800 mm ? 400 mm + VarSet001.Aro_Margen + VarSet001.Aro_Grosor : VarSet001.Aro_Alto / 2 + VarSet001.Aro_Margen + VarSet001.Aro_Grosor)')
+			
+			Boceto_X.renameConstraint(35, u'Alto_02')
+			Boceto_X.setVirtualSpace(35, False)
+			Boceto_X.setExpression('.Constraints.Alto_02', u'6 mm + VarSet001.Aro_Margen')
+			
+			# Actualizar_Lista_Restr(ID, Nom_Obj, Obj01_ID, P01 = 'NA', Obj02_ID = 'NA', P02 = 'NA', Magnitud = 0, Nom_Restr = 'Rad', Gr01 = 'G_001', Gr02 = 'NA', Nom_Cont = 'Body'):
+			Actualizar_Lista_Restr(34, 'DistanceY', -1, 1, 5, 2, 315, 'Alto_01', 'G_001', 'NA',    Boceto_X.Label)
+			Actualizar_Lista_Restr(35, 'DistanceY', 5, 2,  0, 1,  7, 'Alto_02', 'G_001', 'G_001', Boceto_X.Label)
+			
+			
 	if Espejo == True:
 		
 		# Unir_Lineas(Boceto_X, Total_Lista):
@@ -2208,7 +2267,7 @@ def Crear_Boceto_P1(Largo_Total, Alto_Total, Radio_Pral):
 	# Desfase = -1, Guia_X = False, Grupo_Base = ['G_001', 'G_002'], Titulo_X = 'Margen_01'):
 	Crear_Contorno(Lista05, Boceto_LVS_H_P1, Espejo = True)
 	
-	Seleccionar_Objeto(Boceto_LVS_H_P1)
+	
 	
 	
 	Lista06 = [
@@ -2279,8 +2338,9 @@ def Crear_Boceto_P2(Largo_Total, Alto_Total, Radio_Pral):
 	# Desfase = -1, Guia_X = False, Grupo_Base = ['G_001', 'G_002'], Titulo_X = 'Margen_01'):
 	Crear_Contorno(Lista07, Boceto_LVS_P2, Simetria = True)
 	
+	Seleccionar_Objeto(Boceto_LVS_P2)
 	
-	
+	'''
 	#$ crear Boceto Hoyo Pieza 2
 	Lista08 = [
 		['linea', 'Horizontal', Origen_X + 2, Origen_Y + 5, Origen_X + 35, Origen_Y + 5],
@@ -2315,6 +2375,7 @@ def Crear_Boceto_P2(Largo_Total, Alto_Total, Radio_Pral):
 	# Desfase = -1, Guia_X = False, Grupo_Base = ['G_001', 'G_002'], Titulo_X = 'Margen_01'):
 	Crear_Contorno(Lista09, Boceto_LVS_H_P2, Espejo = True)
 	
+	'''
 	
 
 
@@ -2407,10 +2468,10 @@ def Crear_Hoop(Largo_Total = '156 mm', Alto_Total = '156 mm', Radio_Pral = '35 m
 	
 	# Crear_Boceto_P1(Largo_Total, Alto_Total, Radio_Pral):
 	Crear_Boceto_P1(LT, AT, RP)
-	'''
+	
 	# Crear_Boceto_P2(Largo_Total, Alto_Total, Radio_Pral):
 	Crear_Boceto_P2(LT, AT, RP)
-	
+	'''
 	# Crear_Boceto_Iman(Largo_Total, Alto_Total, Radio_Pral):
 	Crear_Boceto_Iman(LT, AT, RP)
 	'''
