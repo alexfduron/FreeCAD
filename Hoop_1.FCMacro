@@ -951,7 +951,7 @@ def Restriccion_Igual_Arco(Boceto_X, Total_Lista, Obj_X = 'arco', Restriccion = 
 						Boceto_X.setVirtualSpace(Restriccion_ID[-1], False)
 						
 						if Titulo_Temp.split('_')[0] == 'Iman':
-							Boceto_X.setExpression('.Constraints.' + Titulo_Temp, u'VarSet001.Radio_Iman > 7 mm ? 7 mm : (VarSet001.Radio_Iman < 3 mm ? 3 mm : VarSet001.Radio_Iman)')
+							Boceto_X.setExpression('.Constraints.' + Titulo_Temp, u'VarSet001.Radio_Iman > VarSet001.Aro_Grosor / 2 ? VarSet001.Aro_Grosor / 2 : (VarSet001.Radio_Iman < 3 mm ? 3 mm : VarSet001.Radio_Iman)')
 						elif Titulo_Temp.split('_')[0] == 'Hoyo':
 							Boceto_X.setExpression('.Constraints.' + Titulo_Temp, u'VarSet001.Radio_Agujero > 3 mm ? 3 mm : (VarSet001.Radio_Agujero < 1 mm ? 1 mm : VarSet001.Radio_Agujero)')
 						else:
@@ -1221,7 +1221,7 @@ def Restriccion_Agujeros_a_Cuerpo(Indice_X, Lista_Circulo, Boceto_X, Grupo_Temp)
 		Eje_Temp = -1
 		Restriccion_Temp = 'DistanceY'
 	
-	#Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Simetria = False, Grupo_X = 'G_001', Guia = False):
+	# Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Simetria = False, Grupo_X = 'G_001', Guia = False):
 	Crear_Linea(Lista_Circulo[Indice_X][1][0][6], Lista_Circulo[Indice_X][1][1][6], Boceto_X, Grupo_X = Grupo_Temp, Guia = True)
 	
 	Boceto_X.addConstraint(Sketcher.Constraint('Coincident', Lista_Circulo[Indice_X][1][0][0], 1, Lista_Linea[-1][0], 1))
@@ -1229,7 +1229,7 @@ def Restriccion_Agujeros_a_Cuerpo(Indice_X, Lista_Circulo, Boceto_X, Grupo_Temp)
 	
 	Plano.recompute()
 	
-	#Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Simetria = False, Grupo_X = 'G_001', Guia = False):
+	# Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Simetria = False, Grupo_X = 'G_001', Guia = False):
 	Crear_Linea(Lista_Circulo[Indice_X][1][0][7], Lista_Circulo[Indice_X][1][1][7], Boceto_X, Grupo_X = Grupo_Temp, Guia = True)
 	
 	Boceto_X.addConstraint(Sketcher.Constraint('Coincident', Lista_Circulo[Indice_X][1][0][0], 2, Lista_Linea[-1][0], 1))
@@ -1237,7 +1237,7 @@ def Restriccion_Agujeros_a_Cuerpo(Indice_X, Lista_Circulo, Boceto_X, Grupo_Temp)
 	
 	Plano.recompute()
 	
-	#Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Simetria = False, Grupo_X = 'G_001', Guia = False):
+	# Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Simetria = False, Grupo_X = 'G_001', Guia = False):
 	Crear_Linea(Lista_Circulo[Indice_X][1][0][6], Lista_Circulo[Indice_X][1][0][7], Boceto_X, Grupo_X = Grupo_Temp, Guia = True)
 	
 	Boceto_X.addConstraint(Sketcher.Constraint('Symmetric', Lista_Circulo[Indice_X][1][0][0], 1, Lista_Circulo[Indice_X][1][1][0], 1, Lista_Linea[-1][0], 1))
@@ -1341,6 +1341,20 @@ def Fijar_Agujeros_a_Cuerpo(Lista01_X, Lista02_X, Boceto_X, Grupo_X, Grupo_Y):
 	
 	
 	
+def Fijar_Agujero_a_Arco(Boceto_X, Total_Lista_Cir, Grupo_X, Lista_Arc):
+	
+	Grupo_Cir = []
+	
+	for k in range(0, len(Lista_Linea)):
+		if Lista_Linea[k][4] == Boceto_X.Label and Lista_Linea[k][9] == Grupo_X:
+			Grupo_Cir.append(Lista_Linea[k])
+	
+	for k in range(0, Total_Lista_Cir):
+		j = math.floor(k / len(Lista_Arc))
+		Boceto_X.addConstraint(Sketcher.Constraint('PointOnObject', Grupo_Cir[k][0], 3, Lista_Arc[j]))
+	
+	
+	
 def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, 
 					Desfase = -1, Guia_X = False, Grupo_Base = ['G_001', 'G_002'], Titulo_X = 'Margen_01'):
 	
@@ -1371,8 +1385,8 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_To
 	Grupo_Y = Actualizar_Grupo(Boceto_X)
 	
 	
-	#Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Simetria = False, Grupo_X = 'G_001', Guia = False):
-	#Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Simetria = False, Restriccion = False, Grupo_X = 'G_001', Guia = False):
+	# Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Simetria = False, Grupo_X = 'G_001', Guia = False):
+	# Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Simetria = False, Restriccion = False, Grupo_X = 'G_001', Guia = False):
 	for j in range(0, len(Lista_X)):
 		if Lista_X[j][0] == 'linea':
 			Crear_Linea([Lista_X[j][2], Lista_X[j][3], 0], [Lista_X[j][4], Lista_X[j][5], 0], Boceto_X, Grupo_X = Grupo_Y, Guia = Guia_X)
@@ -1393,7 +1407,7 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_To
 		if Largo_Total != -1:
 			# Restriccion_Igual_Arco(Boceto_X, Total_Lista, Obj_X = 'arco', Restriccion = False, Titulo = 'Radio_Pral', Omitir = [-1]):
 			Restriccion_Igual_Arco(Boceto_X, len(Lista_X), 'arco', True, 'Radio_Pral')
-		
+			
 			# Restriccion_DistanciaX_linea(Lista_X, Boceto_X, Valor_X, Desfase = False, Grupo_Base_X = ['G_001', 'G_002'], Titulo_Y = 'Margen_01'):
 			Restriccion_DistanciaX_linea(Lista_X, Boceto_X, Largo_Total, Titulo_Y = 'Largo_Total')
 			
@@ -1452,12 +1466,21 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_To
 			# Restriccion_Igual_Arco(Boceto_X, Total_Lista, Obj_X = 'arco', Restriccion = False, Titulo = 'Radio_Pral', Omitir = [-1]):
 			Restriccion_Igual_Arco(Boceto_X, len(Lista_X), 'arco', True, 'Radio_06', [0, 2, 3, 4])
 			
+			Grupo_Z = Actualizar_Grupo(Boceto_X)
+			
+			# Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Simetria = False, Grupo_X = 'G_001', Guia = False):
+			Crear_Linea([33, -321, 0], [26, -321, 0], Boceto_X, Grupo_X = Grupo_Z, Guia = True)
+			Crear_Linea([33, -321, 0], [26.937822, -317.5, 0], Boceto_X, Grupo_X = Grupo_Z, Guia = True)
+			
+			'''
 			constrGeoList = []
 			constrGeoList.append(Part.LineSegment(App.Vector(33, -321, 0),App.Vector(26, -321, 0)))
 			constrGeoList.append(Part.LineSegment(App.Vector(33, -321, 0),App.Vector(26.937822, -317.5, 0)))
 			
 			Boceto_X.addGeometry(constrGeoList,True)
+			
 			del constrGeoList
+			'''
 			
 			constraintList = []
 			constraintList.append(Sketcher.Constraint('DistanceX', -1, 1, 23, 2, 1))
@@ -1533,8 +1556,8 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_To
 
 	
 	
-	#Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Simetria = False, Grupo_X = 'G_001', Guia = False):
-	#Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Simetria = False, Restriccion = False, Grupo_X = 'G_001', Guia = False):
+	# Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Simetria = False, Grupo_X = 'G_001', Guia = False):
+	# Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Simetria = False, Restriccion = False, Grupo_X = 'G_001', Guia = False):
 	if Simetria == True:
 		#$ Objeto Simetrico en el centro
 		for k in range(0, len(Lista_X)):
@@ -1576,6 +1599,15 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_To
 			Boceto_X.delConstraint(13)
 			Boceto_X.delConstraint(16)
 			
+			Grupo_Z = Actualizar_Grupo(Boceto_X)
+			
+			# Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Simetria = False, Grupo_X = 'G_001', Guia = False):
+			Crear_Linea([33, -321, 0], [28, -321, 0], Boceto_X, Grupo_X = Grupo_Z, Guia = True)
+			Crear_Linea([33, -321, 0], [33, -316, 0], Boceto_X, Grupo_X = Grupo_Z, Guia = True)
+			Crear_Linea([-33, -321, 0], [-28, -321, 0], Boceto_X, Grupo_X = Grupo_Z, Guia = True)
+			Crear_Linea([-33, -321, 0], [-33, -316, 0], Boceto_X, Grupo_X = Grupo_Z, Guia = True)
+			
+			'''
 			constrGeoList = []
 			constrGeoList.append(Part.LineSegment(App.Vector(33, -321, 0),App.Vector(28, -321, 0)))
 			constrGeoList.append(Part.LineSegment(App.Vector(33, -321, 0),App.Vector(33, -316, 0)))
@@ -1585,6 +1617,7 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_To
 			Boceto_X.addGeometry(constrGeoList,True)
 			
 			del constrGeoList
+			'''
 			
 			constraintList = []
 			constraintList.append(Sketcher.Constraint('DistanceY', 0, 1, -1, 1, 315))
@@ -1633,6 +1666,15 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_To
 			Boceto_X.delConstraint(14)
 			Boceto_X.delConstraint(15)
 			
+			Grupo_Z = Actualizar_Grupo(Boceto_X)
+			
+			# Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Simetria = False, Grupo_X = 'G_001', Guia = False):
+			Crear_Linea([45, 318, 0], [43, 318, 0], Boceto_X, Grupo_X = Grupo_Z, Guia = True)
+			Crear_Linea([45, 318, 0], [45, 316, 0], Boceto_X, Grupo_X = Grupo_Z, Guia = True)
+			Crear_Linea([-43, 318, 0], [-45, 318, 0], Boceto_X, Grupo_X = Grupo_Z, Guia = True)
+			Crear_Linea([-45, 318, 0], [-45, 316, 0], Boceto_X, Grupo_X = Grupo_Z, Guia = True)
+			
+			'''
 			constrGeoList = []
 			constrGeoList.append(Part.LineSegment(App.Vector(45, 318, 0),App.Vector(43, 318, 0)))
 			constrGeoList.append(Part.LineSegment(App.Vector(45, 318, 0),App.Vector(45, 316, 0)))
@@ -1642,6 +1684,7 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_To
 			Boceto_X.addGeometry(constrGeoList,True)
 			
 			del constrGeoList
+			'''
 			
 			constraintList = []
 			constraintList.append(Sketcher.Constraint('PointOnObject', 0, 1, -2))
@@ -1729,13 +1772,22 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_To
 			# Restriccion_Igual_Arco(Boceto_X, Total_Lista, Obj_X = 'arco', Restriccion = False, Titulo = 'Radio_Pral', Omitir = [-1]):
 			Restriccion_Igual_Arco(Boceto_X, len(Lista_X), 'arco', True, 'Radio_08', [0, 2, 3, 4])
 			
+			
+			Grupo_Z = Actualizar_Grupo(Boceto_X)
+			
+			# Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Simetria = False, Grupo_X = 'G_001', Guia = False):
+			Crear_Linea([-33, -321, 0], [-26, -321, 0], Boceto_X, Grupo_X = Grupo_Z, Guia = True)
+			Crear_Linea([-33, -321, 0], [-26.937822, -317.5, 0], Boceto_X, Grupo_X = Grupo_Z, Guia = True)
+			
+			
+			'''
 			constrGeoList = []
 			constrGeoList.append(Part.LineSegment(App.Vector(-33, -321, 0),App.Vector(-26, -321, 0)))
 			constrGeoList.append(Part.LineSegment(App.Vector(-33, -321, 0),App.Vector(-26.937822, -317.5, 0)))
 			
 			Boceto_X.addGeometry(constrGeoList,True)
 			del constrGeoList
-			
+			'''
 			
 			constraintList = []
 			constraintList.append(Sketcher.Constraint('DistanceX', 34, 2, -1, 1, 1))
@@ -1809,7 +1861,8 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_To
 	Plano.recompute()
 	
 
-def Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero = 1.5, Separacion = 76, Inicio_Centro = False, Incluir_Arco = False, Grupo_Base = ['', ''], Titulo_X = 'Radio'):
+def Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero = 1.5, 
+					Separacion = 76, Inicio_Centro = False, Incluir_Arco = False, Grupo_Base = ['', ''], Titulo_X = 'Radio'):
 	
 	# Validamos los argumentos de la funcion
 	if not type(Largo_Total) in (float, int):
@@ -1950,12 +2003,63 @@ def Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero 
 		for k in range(0, len(Lista03)):
 			# Crear_Circulo(Pt1, Eje, Radio, Boceto_X, Restriccion = True, Grupo_X = 'G_001', Guia = False):
 			Crear_Circulo(Lista03[k][0], Lista03[k][1], Lista03[k][2], Boceto_X, False, Grupo_Y)
-		
+			
 		# Restriccion_Igual_Arco(Boceto_X, Total_Lista, Obj_X = 'arco', Restriccion = False, Titulo = 'Radio_Pral', Omitir = [-1]):
 		Restriccion_Igual_Arco(Boceto_X, len(Lista03), Obj_X = 'circulo', Restriccion = True, Titulo = Titulo_X)
 		
+		# aqui creamos las lineas de soporte para anclar los circulos
 		
-	
+		# centro_arco
+		Cx = (Largo_Total - 2 * Radio_Pral) / 2
+		Cy = (Alto_Total - 2 * Radio_Pral) / 2
+		Ra = App.Units.Quantity(Variable_H1.Aro_Radio + Variable_H1.Aro_Margen + Variable_H1.Aro_Grosor).Value
+		
+		Grupo_Z = Actualizar_Grupo(Boceto_X)
+		
+		# Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Simetria = False, Restriccion = False, Grupo_X = 'G_001', Guia = False):
+		Crear_Arco(App.Vector(Cx, Cy, 0), App.Vector(0, 0, 1), Ra, Boceto_X, math.radians(0), math.radians(90), Grupo_X = Grupo_Z, Guia = True)
+		Crear_Arco(App.Vector(-Cx, Cy, 0), App.Vector(0, 0, 1), Ra, Boceto_X, math.radians(90), math.radians(180), Grupo_X = Grupo_Z, Guia = True)
+		Crear_Arco(App.Vector(-Cx, -Cy, 0), App.Vector(0, 0, 1), Ra, Boceto_X, math.radians(180), math.radians(270), Grupo_X = Grupo_Z, Guia = True)
+		Crear_Arco(App.Vector(Cx, -Cy, 0), App.Vector(0, 0, 1), Ra, Boceto_X, math.radians(270), math.radians(360), Grupo_X = Grupo_Z, Guia = True)
+		
+		
+		'''
+		constrGeoList = []
+		constrGeoList.append(Part.ArcOfCircle(Part.Circle(App.Vector(Cx, Cy, 0), App.Vector(0, 0, 1), Ra), math.radians(0), math.radians(90)))
+		constrGeoList.append(Part.ArcOfCircle(Part.Circle(App.Vector(-Cx, Cy, 0), App.Vector(0, 0, 1), Ra), math.radians(90), math.radians(180)))
+		constrGeoList.append(Part.ArcOfCircle(Part.Circle(App.Vector(-Cx, -Cy, 0), App.Vector(0, 0, 1), Ra), math.radians(180), math.radians(270)))
+		constrGeoList.append(Part.ArcOfCircle(Part.Circle(App.Vector(Cx, -Cy, 0), App.Vector(0, 0, 1), Ra), math.radians(270), math.radians(360)))
+		
+		Boceto_X.addGeometry(constrGeoList,True)
+		
+		del constrGeoList
+		'''
+		
+		constraintList = []
+		constraintList.append(Sketcher.Constraint('Coincident', 72, 3, 1, 3))
+		constraintList.append(Sketcher.Constraint('Coincident', 73, 3, 7, 3))
+		constraintList.append(Sketcher.Constraint('Coincident', 74, 3, 5, 3))
+		constraintList.append(Sketcher.Constraint('Coincident', 75, 3, 3, 3))
+		constraintList.append(Sketcher.Constraint('Symmetric', 9, 1, 17, 1, 72, 1))
+		constraintList.append(Sketcher.Constraint('PointOnObject', 72, 2, 45))
+		constraintList.append(Sketcher.Constraint('Symmetric', 16, 1, 8, 1, 73, 1))
+		constraintList.append(Sketcher.Constraint('PointOnObject', 73, 2, 54))
+		constraintList.append(Sketcher.Constraint('Symmetric', 21, 1, 13, 1, 74, 1))
+		constraintList.append(Sketcher.Constraint('PointOnObject', 74, 2, 51))
+		constraintList.append(Sketcher.Constraint('Symmetric', 11, 1, 19, 1, 75, 1))
+		constraintList.append(Sketcher.Constraint('PointOnObject', 75, 2, 48))
+		
+		Boceto_X.addConstraint(constraintList)
+			
+		del constraintList
+		
+		# Fijar_Agujero_a_Arco(Boceto_X, Total_Lista_Cir, Grupo_X, Lista_Arc):
+		Fijar_Agujero_a_Arco(Boceto_X, len(Lista03), 'G_006', [72, 75, 74, 73])
+		
+		
+		
+		
+		
 
 def Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
 	
@@ -2481,6 +2585,13 @@ def Crear_Boceto_Iman(Largo_Total, Alto_Total, Radio_Pral):
 	Alto_Y = Alto_Total
 	Radio_Y = Radio_Pral
 	
+	# Actualizar_Lista01(Largo_X, Alto_X, Radio_X):
+	Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
+	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, 
+	# Desfase = -1, Guia_X = False, Grupo_Base = ['G_001', 'G_002'], Titulo_X = 'Margen_01'):
+	Crear_Contorno(Lista01, Boceto_LVS_I, Largo_Total = Largo_Y, Alto_Total = Alto_Y, Guia_X = True)
+	
+	
 	Largo_Y += 1 + 1
 	Alto_Y += 1 + 1
 	Radio_Y += 1
@@ -2489,7 +2600,7 @@ def Crear_Boceto_Iman(Largo_Total, Alto_Total, Radio_Pral):
 	Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
 	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, 
 	# Desfase = -1, Guia_X = False, Grupo_Base = ['G_001', 'G_002'], Titulo_X = 'Margen_01'):
-	Crear_Contorno(Lista01, Boceto_LVS_I, Largo_Total = Largo_Y, Alto_Total = Alto_Y, Guia_X = True)
+	Crear_Contorno(Lista01, Boceto_LVS_I, Desfase = 1, Guia_X = True, Grupo_Base = ['G_001', 'G_002'], Titulo_X = 'Margen_01')
 	
 	
 	Largo_Y += 14 + 14
@@ -2500,12 +2611,12 @@ def Crear_Boceto_Iman(Largo_Total, Alto_Total, Radio_Pral):
 	Lista01 = Actualizar_Lista01(Largo_Y, Alto_Y, Radio_Y)
 	# Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_Total = -1, Alto_Total = -1, 
 	# Desfase = -1, Guia_X = False, Grupo_Base = ['G_001', 'G_002'], Titulo_X = 'Margen_01'):
-	Crear_Contorno(Lista01, Boceto_LVS_I, Desfase = 14, Guia_X = True)
+	Crear_Contorno(Lista01, Boceto_LVS_I, Desfase = 14, Guia_X = True, Grupo_Base = ['G_002', 'G_003'], Titulo_X = 'Grosor_01')
 	
 	
 	# Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero = 1.5, 
 	# Separacion = 76, Inicio_Centro = False, Incluir_Arco = False, Grupo_Base = ['', ''], Titulo_X = 'Radio'):
-	Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_LVS_I, 7, 76, True, True, Grupo_Base = ['G_001', 'G_002'], Titulo_X = 'Iman')
+	Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_LVS_I, 7, 76, True, True, Grupo_Base = ['G_002', 'G_003'], Titulo_X = 'Iman')
 	
 
 
@@ -2555,10 +2666,10 @@ def Crear_Hoop(Largo_Total = '156 mm', Alto_Total = '156 mm', Radio_Pral = '35 m
 	
 	# Crear_Boceto_P2(Largo_Total, Alto_Total, Radio_Pral):
 	Crear_Boceto_P2(LT, AT, RP)
-	'''
+	
 	# Crear_Boceto_Iman(Largo_Total, Alto_Total, Radio_Pral):
 	Crear_Boceto_Iman(LT, AT, RP)
-	'''
+	
 	Seleccionar_Objeto(Boceto_LVS_I)
 	
 	
