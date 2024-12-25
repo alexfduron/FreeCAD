@@ -1352,6 +1352,57 @@ def Fijar_Agujero_a_Arco(Boceto_X, Total_Lista_Cir, Grupo_X, Lista_Arc):
 	for k in range(0, Total_Lista_Cir):
 		j = math.floor(k / len(Lista_Arc))
 		Boceto_X.addConstraint(Sketcher.Constraint('PointOnObject', Grupo_Cir[k][0], 3, Lista_Arc[j]))
+		
+		
+		
+def Fijar_Angulo_a_Arco(Boceto_X, C_X, C_Y, Grupo_X):
+	
+	Grupo_Cir = []
+	
+	# Actualizar_Grupo(Boceto_X):
+	Grupo_Y = Actualizar_Grupo(Boceto_X)
+	
+	for k in range(0, len(Lista_Linea)):
+		if Lista_Linea[k][3] == 'circulo' and Lista_Linea[k][4] == Boceto_X.Label and Lista_Linea[k][9] == Grupo_X:
+			Grupo_Cir.append(Lista_Linea[k])
+	
+	# Crear_Linea(Pt1, Pt2, Boceto_X, Restriccion_X = '', Simetria = False, Grupo_X = 'G_001', Guia = False):
+	for j in range(0, len(Grupo_Cir)):
+		# Arriba-Derecha
+		if Grupo_Cir[j][8][0] > 0 and Grupo_Cir[j][8][1] > 0:
+			# linea de centro a circulo
+			Ang = math.atan((Grupo_Cir[j][8][1] - C_Y) / (Grupo_Cir[j][8][0] - C_X))
+			Crear_Linea([C_X, C_Y, 0], Grupo_Cir[j][8], Boceto_X, Grupo_X = Grupo_Y, Guia = True)
+			Boceto_X.addConstraint(Sketcher.Constraint('Coincident', Lista_Linea[-1][0], 1, 1, 3))
+			Boceto_X.addConstraint(Sketcher.Constraint('Coincident', Lista_Linea[-1][0], 2, Grupo_Cir[j][0], 3))
+			Boceto_X.addConstraint(Sketcher.Constraint('Angle', Lista_Linea[-1][0], Ang))
+			
+		# Abajo-Derecha
+		if Grupo_Cir[j][8][0] > 0 and Grupo_Cir[j][8][1] < 0:
+			# linea de centro a circulo
+			Ang = math.atan((Grupo_Cir[j][8][1] + C_Y) / (Grupo_Cir[j][8][0] - C_X))
+			Crear_Linea([C_X, -C_Y, 0], Grupo_Cir[j][8], Boceto_X, Grupo_X = Grupo_Y, Guia = True)
+			Boceto_X.addConstraint(Sketcher.Constraint('Coincident', Lista_Linea[-1][0], 1, 3, 3))
+			Boceto_X.addConstraint(Sketcher.Constraint('Coincident', Lista_Linea[-1][0], 2, Grupo_Cir[j][0], 3))
+			Boceto_X.addConstraint(Sketcher.Constraint('Angle', Lista_Linea[-1][0], Ang))
+			
+		# Abajo-Izquierda
+		if Grupo_Cir[j][8][0] < 0 and Grupo_Cir[j][8][1] < 0:
+			# linea de circulo a centro
+			Ang = math.atan((Grupo_Cir[j][8][1] + C_Y) / (Grupo_Cir[j][8][0] + C_X))
+			Crear_Linea(Grupo_Cir[j][8], [-C_X, -C_Y, 0], Boceto_X, Grupo_X = Grupo_Y, Guia = True)
+			Boceto_X.addConstraint(Sketcher.Constraint('Coincident', Lista_Linea[-1][0], 1, Grupo_Cir[j][0], 3))
+			Boceto_X.addConstraint(Sketcher.Constraint('Coincident', Lista_Linea[-1][0], 2, 5, 3))
+			Boceto_X.addConstraint(Sketcher.Constraint('Angle', Lista_Linea[-1][0], Ang))
+			
+		# Arriba-Izquierda
+		if Grupo_Cir[j][8][0] < 0 and Grupo_Cir[j][8][1] > 0:
+			# linea de circulo a centro
+			Ang = math.atan((Grupo_Cir[j][8][1] - C_Y) / (Grupo_Cir[j][8][0] + C_X))
+			Crear_Linea(Grupo_Cir[j][8], [-C_X, C_Y, 0], Boceto_X, Grupo_X = Grupo_Y, Guia = True)
+			Boceto_X.addConstraint(Sketcher.Constraint('Coincident', Lista_Linea[-1][0], 1, Grupo_Cir[j][0], 3))
+			Boceto_X.addConstraint(Sketcher.Constraint('Coincident', Lista_Linea[-1][0], 2, 7, 3))
+			Boceto_X.addConstraint(Sketcher.Constraint('Angle', Lista_Linea[-1][0], Ang))
 	
 	
 	
@@ -1472,15 +1523,6 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_To
 			Crear_Linea([33, -321, 0], [26, -321, 0], Boceto_X, Grupo_X = Grupo_Z, Guia = True)
 			Crear_Linea([33, -321, 0], [26.937822, -317.5, 0], Boceto_X, Grupo_X = Grupo_Z, Guia = True)
 			
-			'''
-			constrGeoList = []
-			constrGeoList.append(Part.LineSegment(App.Vector(33, -321, 0),App.Vector(26, -321, 0)))
-			constrGeoList.append(Part.LineSegment(App.Vector(33, -321, 0),App.Vector(26.937822, -317.5, 0)))
-			
-			Boceto_X.addGeometry(constrGeoList,True)
-			
-			del constrGeoList
-			'''
 			
 			constraintList = []
 			constraintList.append(Sketcher.Constraint('DistanceX', -1, 1, 23, 2, 1))
@@ -1607,17 +1649,6 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_To
 			Crear_Linea([-33, -321, 0], [-28, -321, 0], Boceto_X, Grupo_X = Grupo_Z, Guia = True)
 			Crear_Linea([-33, -321, 0], [-33, -316, 0], Boceto_X, Grupo_X = Grupo_Z, Guia = True)
 			
-			'''
-			constrGeoList = []
-			constrGeoList.append(Part.LineSegment(App.Vector(33, -321, 0),App.Vector(28, -321, 0)))
-			constrGeoList.append(Part.LineSegment(App.Vector(33, -321, 0),App.Vector(33, -316, 0)))
-			constrGeoList.append(Part.LineSegment(App.Vector(-33, -321, 0),App.Vector(-28, -321, 0)))
-			constrGeoList.append(Part.LineSegment(App.Vector(-33, -321, 0),App.Vector(-33, -316, 0)))
-			
-			Boceto_X.addGeometry(constrGeoList,True)
-			
-			del constrGeoList
-			'''
 			
 			constraintList = []
 			constraintList.append(Sketcher.Constraint('DistanceY', 0, 1, -1, 1, 315))
@@ -1674,17 +1705,6 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_To
 			Crear_Linea([-43, 318, 0], [-45, 318, 0], Boceto_X, Grupo_X = Grupo_Z, Guia = True)
 			Crear_Linea([-45, 318, 0], [-45, 316, 0], Boceto_X, Grupo_X = Grupo_Z, Guia = True)
 			
-			'''
-			constrGeoList = []
-			constrGeoList.append(Part.LineSegment(App.Vector(45, 318, 0),App.Vector(43, 318, 0)))
-			constrGeoList.append(Part.LineSegment(App.Vector(45, 318, 0),App.Vector(45, 316, 0)))
-			constrGeoList.append(Part.LineSegment(App.Vector(-43, 318, 0),App.Vector(-45, 318, 0)))
-			constrGeoList.append(Part.LineSegment(App.Vector(-45, 318, 0),App.Vector(-45, 316, 0)))
-			
-			Boceto_X.addGeometry(constrGeoList,True)
-			
-			del constrGeoList
-			'''
 			
 			constraintList = []
 			constraintList.append(Sketcher.Constraint('PointOnObject', 0, 1, -2))
@@ -1779,15 +1799,6 @@ def Crear_Contorno(Lista_X, Boceto_X, Simetria = False, Espejo = False, Largo_To
 			Crear_Linea([-33, -321, 0], [-26, -321, 0], Boceto_X, Grupo_X = Grupo_Z, Guia = True)
 			Crear_Linea([-33, -321, 0], [-26.937822, -317.5, 0], Boceto_X, Grupo_X = Grupo_Z, Guia = True)
 			
-			
-			'''
-			constrGeoList = []
-			constrGeoList.append(Part.LineSegment(App.Vector(-33, -321, 0),App.Vector(-26, -321, 0)))
-			constrGeoList.append(Part.LineSegment(App.Vector(-33, -321, 0),App.Vector(-26.937822, -317.5, 0)))
-			
-			Boceto_X.addGeometry(constrGeoList,True)
-			del constrGeoList
-			'''
 			
 			constraintList = []
 			constraintList.append(Sketcher.Constraint('DistanceX', 34, 2, -1, 1, 1))
@@ -2010,8 +2021,8 @@ def Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero 
 		# aqui creamos las lineas de soporte para anclar los circulos
 		
 		# centro_arco
-		Cx = (Largo_Total - 2 * Radio_Pral) / 2
-		Cy = (Alto_Total - 2 * Radio_Pral) / 2
+		Cx = Delta_X
+		Cy = Delta_Y
 		Ra = App.Units.Quantity(Variable_H1.Aro_Radio + Variable_H1.Aro_Margen + Variable_H1.Aro_Grosor).Value
 		
 		Grupo_Z = Actualizar_Grupo(Boceto_X)
@@ -2022,18 +2033,6 @@ def Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero 
 		Crear_Arco(App.Vector(-Cx, -Cy, 0), App.Vector(0, 0, 1), Ra, Boceto_X, math.radians(180), math.radians(270), Grupo_X = Grupo_Z, Guia = True)
 		Crear_Arco(App.Vector(Cx, -Cy, 0), App.Vector(0, 0, 1), Ra, Boceto_X, math.radians(270), math.radians(360), Grupo_X = Grupo_Z, Guia = True)
 		
-		
-		'''
-		constrGeoList = []
-		constrGeoList.append(Part.ArcOfCircle(Part.Circle(App.Vector(Cx, Cy, 0), App.Vector(0, 0, 1), Ra), math.radians(0), math.radians(90)))
-		constrGeoList.append(Part.ArcOfCircle(Part.Circle(App.Vector(-Cx, Cy, 0), App.Vector(0, 0, 1), Ra), math.radians(90), math.radians(180)))
-		constrGeoList.append(Part.ArcOfCircle(Part.Circle(App.Vector(-Cx, -Cy, 0), App.Vector(0, 0, 1), Ra), math.radians(180), math.radians(270)))
-		constrGeoList.append(Part.ArcOfCircle(Part.Circle(App.Vector(Cx, -Cy, 0), App.Vector(0, 0, 1), Ra), math.radians(270), math.radians(360)))
-		
-		Boceto_X.addGeometry(constrGeoList,True)
-		
-		del constrGeoList
-		'''
 		
 		constraintList = []
 		constraintList.append(Sketcher.Constraint('Coincident', 72, 3, 1, 3))
@@ -2056,7 +2055,8 @@ def Crear_Agujeros(Largo_Total, Alto_Total, Radio_Pral, Boceto_X, Radio_Agujero 
 		# Fijar_Agujero_a_Arco(Boceto_X, Total_Lista_Cir, Grupo_X, Lista_Arc):
 		Fijar_Agujero_a_Arco(Boceto_X, len(Lista03), 'G_006', [72, 75, 74, 73])
 		
-		
+		# Fijar_Angulo_a_Arco(Boceto_X, C_X, C_Y, Grupo_X):
+		Fijar_Angulo_a_Arco(Boceto_X, Delta_X, Delta_Y, 'G_006')
 		
 		
 		
