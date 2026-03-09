@@ -1,0 +1,231 @@
+import FreeCAD as App
+import FreeCADGui as Gui
+import Part
+import Draft
+from PySide2 import QtWidgets
+
+# Paso 0: Inicialización del documento y lectura del factor de escala visual
+doc = App.ActiveDocument
+
+factor = 1.0
+if hasattr(doc, "EscalaVisual") and hasattr(doc.EscalaVisual, "Factor"):
+    factor = doc.EscalaVisual.Factor
+App.Console.PrintMessage(f"\U0001F4CF Factor de Escala Visual usado para flechas: {factor:.2f}\n")
+
+# Paso 1: Validar selección múltiple
+sel = Gui.Selection.getSelection()
+nodos = [obj for obj in sel if obj.Name.startswith("Nodo_")]
+if not nodos:
+    App.Console.PrintError("❌ Selecciona al menos un nodo llamado Nodo_#.\n")
+    raise Exception("Selección inválida")
+
+# Paso 2: Ventana de entrada para las 6 componentes de carga
+campos = ["Fx", "Fy", "Fz", "Mx", "My", "Mz"]
+inputs = []
+
+dialog = QtWidgets.QDialog()
+dialog.setWindowTitle("Asignar carga a nodos seleccionados")
+layout = QtWidgets.QFormLayout(dialog)
+
+for campo in campos:
+    box = QtWidgets.QDoubleSpinBox()
+    box.setRange(-1e6, 1e6)
+    box.setDecimals(3)
+    box.setValue(0.0)
+    inputs.append(box)
+    layout.addRow(campo, box)
+
+boton = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+layout.addWidget(boton)
+boton.accepted.connect(dialog.accept)
+boton.rejected.connect(dialog.reject)
+
+if dialog.exec_() != QtWidgets.QDialog.Accepted:
+    App.Console.PrintMessage("⚠ Asignación de carga cancelada.\n")
+    raise Exception("Carga cancelada")
+
+valores = [box.value() for box in inputs]
+
+# Paso 3: Crear o recuperar grupo de cargas
+grupo = getattr(doc, "Cargas_Puntuales", None)
+if not grupo:
+    App.ActiveDocument.openTransaction("Crear grupo de cargas")
+    grupo = doc.addObject("App::DocumentObjectGroup", "Cargas_Puntuales")
+    if hasattr(doc, "Group"):
+        doc.Group.append(grupo)
+
+# Configuración visual de los símbolos de carga
+fuente = "C:/Windows/Fonts/arial.ttf"
+altura_triangulo = 80 * factor
+ancho_triangulo = 60 * factor
+long_flecha = 400 * factor
+escala_texto = 120 * factor
+
+def crear_flechas(nodo, nodo_id, valores):
+    fx, fy, fz, mx, my, mz = valores
+    origen = nodo.Placement.Base
+
+    def crear_linea(p1, p2, color, nombre):
+        linea = doc.addObject("Part::Feature", nombre)
+        linea.Shape = Part.makeLine(p1, p2)
+        linea.ViewObject.LineColor = color
+        linea.ViewObject.LineWidth = 5
+        return linea
+
+    def crear_triangulo(punta, base, color, nombre):
+        p2 = base + App.Vector(0, 0, ancho_triangulo / 2)
+        p3 = base + App.Vector(0, 0, -ancho_triangulo / 2)
+        tri = Part.makePolygon([punta, p2, p3, punta])
+        triangulo = doc.addObject("Part::Feature", nombre)
+        triangulo.Shape = Part.Face(tri)
+        triangulo.ViewObject.ShapeColor = color
+        return triangulo
+
+    def crear_texto(texto_str, posicion, angulo, nombre):
+        texto = Draft.makeShapeString(texto_str, fuente, escala_texto)
+        texto.Label = nombre
+        texto.Placement.Base = posicion
+        texto.Placement.Rotation = App.Rotation(App.Vector(1, 0, 0), 90).multiply(App.Rotation(App.Vector(0, 0, 1), angulo))
+        return texto
+
+    # Cargas en X, Y, Z y momentos en X, Y, Z
+    # Se dibujan flechas con texto y se agrupan por nodo si las componentes no son cero
+    if fx != 0:
+        signo = 1 if fx > 0 else -1
+        base = origen + App.Vector(signo * long_flecha, 0, 0)
+        punta = base + App.Vector(signo * altura_triangulo, 0, 0)
+        parte = doc.addObject("App::Part", f"Flecha_Fx_Nodo_{nodo_id}")
+        parte.addObject(crear_linea(origen, base, (1, 0, 0), f"LineaFx_Nodo_{nodo_id}"))
+        p2 = base + App.Vector(0, 0, ancho_triangulo / 2)
+        p3 = base + App.Vector(0, 0, -ancho_triangulo / 2)
+        tri = Part.makePolygon([punta, p2, p3, punta])
+        triangulo = doc.addObject("Part::Feature", f"TrianguloFx_Nodo_{nodo_id}")
+        triangulo.Shape = Part.Face(tri)
+        triangulo.ViewObject.ShapeColor = (1, 0, 0)
+        parte.addObject(triangulo)
+        texto = crear_texto(f"{fx:.2f}", base + App.Vector(signo * 40 * factor, 0, 40 * factor), 0, f"TextoFx_Nodo_{nodo_id}")
+        parte.addObject(texto)
+        grupo.addObject(parte)
+
+    # Fy
+    if fy != 0:
+        signo = 1 if fy > 0 else -1
+        base = origen + App.Vector(0, signo * long_flecha, 0)
+        punta = base + App.Vector(0, signo * altura_triangulo, 0)
+        parte = doc.addObject("App::Part", f"Flecha_Fy_Nodo_{nodo_id}")
+        parte.addObject(crear_linea(origen, base, (1, 0, 0), f"LineaFy_Nodo_{nodo_id}"))
+        parte.addObject(crear_triangulo(punta, base, (1, 0, 0), f"TrianguloFy_Nodo_{nodo_id}"))
+        texto = Draft.makeShapeString(f"{fy:.2f}", fuente, escala_texto)
+        texto.Label = f"TextoFy_Nodo_{nodo_id}"
+        texto.Placement.Base = base + App.Vector(0, signo * 40 * factor, 40 * factor)
+        texto.Placement.Rotation = App.Rotation(App.Vector(0, 0, 1), -90) * App.Rotation(App.Vector(1, 0, 0), 90)
+        parte.addObject(texto)
+        grupo.addObject(parte)
+
+    # Fz
+    if fz != 0:
+        signo = 1 if fz > 0 else -1
+        base = origen + App.Vector(0, 0, signo * long_flecha)
+        punta = base + App.Vector(0, 0, signo * altura_triangulo)
+        parte = doc.addObject("App::Part", f"Flecha_Fz_Nodo_{nodo_id}")
+        parte.addObject(crear_linea(origen, base, (1, 0, 0), f"LineaFz_Nodo_{nodo_id}"))
+        p2 = base + App.Vector(ancho_triangulo / 2, 0, 0)
+        p3 = base + App.Vector(-ancho_triangulo / 2, 0, 0)
+        tri = Part.makePolygon([punta, p2, p3, punta])
+        triangulo = doc.addObject("Part::Feature", f"TrianguloFz_Nodo_{nodo_id}")
+        triangulo.Shape = Part.Face(tri)
+        triangulo.ViewObject.ShapeColor = (1, 0, 0)
+        parte.addObject(triangulo)
+        texto = crear_texto(f"{fz:.2f}", base + App.Vector(40 * factor, 0, signo * 40 * factor), 0, f"TextoFz_Nodo_{nodo_id}")
+        parte.addObject(texto)
+        grupo.addObject(parte)
+
+    # Mx
+    if mx != 0:
+        signo = 1 if mx > 0 else -1
+        base = origen + App.Vector(signo * long_flecha, 0, 0)
+        punta1 = base + App.Vector(signo * altura_triangulo, 0, 0)
+        punta2 = punta1 + App.Vector(signo * altura_triangulo, 0, 0)
+        parte = doc.addObject("App::Part", f"Flecha_Mx_Nodo_{nodo_id}")
+        parte.addObject(crear_linea(origen, base, (0, 1, 1), f"LineaMx_Nodo_{nodo_id}"))
+        p2_1 = base + App.Vector(0, 0, ancho_triangulo / 2)
+        p3_1 = base + App.Vector(0, 0, -ancho_triangulo / 2)
+        tri1 = Part.makePolygon([punta1, p2_1, p3_1, punta1])
+        triangulo1 = doc.addObject("Part::Feature", f"TrianguloMx1_Nodo_{nodo_id}")
+        triangulo1.Shape = Part.Face(tri1)
+        triangulo1.ViewObject.ShapeColor = (0, 1, 1)
+        parte.addObject(triangulo1)
+        p2_2 = punta1 + App.Vector(0, 0, ancho_triangulo / 2)
+        p3_2 = punta1 + App.Vector(0, 0, -ancho_triangulo / 2)
+        tri2 = Part.makePolygon([punta2, p2_2, p3_2, punta2])
+        triangulo2 = doc.addObject("Part::Feature", f"TrianguloMx2_Nodo_{nodo_id}")
+        triangulo2.Shape = Part.Face(tri2)
+        triangulo2.ViewObject.ShapeColor = (0, 1, 1)
+        parte.addObject(triangulo2)
+        parte.addObject(crear_texto(f"{mx:.2f}", base + App.Vector(signo * 80 * factor, 0, -160 * factor), 0, f"TextoMx_Nodo_{nodo_id}"))
+        grupo.addObject(parte)
+
+    # My
+    if my != 0:
+        signo = 1 if my > 0 else -1
+        base = origen + App.Vector(0, signo * long_flecha, 0)
+        punta1 = base + App.Vector(0, signo * altura_triangulo, 0)
+        punta2 = punta1 + App.Vector(0, signo * altura_triangulo, 0)
+        parte = doc.addObject("App::Part", f"Flecha_My_Nodo_{nodo_id}")
+        parte.addObject(crear_linea(origen, base, (0, 1, 1), f"LineaMy_Nodo_{nodo_id}"))
+        parte.addObject(crear_triangulo(punta1, base, (0, 1, 1), f"TrianguloMy1_Nodo_{nodo_id}"))
+        parte.addObject(crear_triangulo(punta2, punta1, (0, 1, 1), f"TrianguloMy2_Nodo_{nodo_id}"))
+        texto = Draft.makeShapeString(f"{my:.2f}", fuente, escala_texto)
+        texto.Label = f"TextoMy_Nodo_{nodo_id}"
+        texto.Placement.Base = base + App.Vector(0, signo * 80 * factor, -160 * factor)
+        texto.Placement.Rotation = App.Rotation(App.Vector(0, 0, 1), -90) * App.Rotation(App.Vector(1, 0, 0), 90)
+        parte.addObject(texto)
+        grupo.addObject(parte)
+
+    # Mz
+    if mz != 0:
+        signo = 1 if mz > 0 else -1
+        base = origen + App.Vector(0, 0, signo * long_flecha)
+        punta1 = base + App.Vector(0, 0, signo * altura_triangulo)
+        punta2 = punta1 + App.Vector(0, 0, signo * altura_triangulo)
+        parte = doc.addObject("App::Part", f"Flecha_Mz_Nodo_{nodo_id}")
+        parte.addObject(crear_linea(origen, base, (0, 1, 1), f"LineaMz_Nodo_{nodo_id}"))
+        for i, (punt, b) in enumerate([(punta1, base), (punta2, punta1)]):
+            p2 = b + App.Vector(ancho_triangulo / 2, 0, 0)
+            p3 = b + App.Vector(-ancho_triangulo / 2, 0, 0)
+            tri = Part.makePolygon([punt, p2, p3, punt])
+            triangulo = doc.addObject("Part::Feature", f"TrianguloMz{i+1}_Nodo_{nodo_id}")
+            triangulo.Shape = Part.Face(tri)
+            triangulo.ViewObject.ShapeColor = (0, 1, 1)
+            parte.addObject(triangulo)
+        texto = Draft.makeShapeString(f"{mz:.2f}", fuente, escala_texto)
+        texto.Label = f"TextoMz_Nodo_{nodo_id}"
+        texto.Placement.Base = base + App.Vector(-160 * factor, 0, signo * 80 * factor)
+        texto.Placement.Rotation = App.Rotation(App.Vector(0, 1, 0), 90) * App.Rotation(App.Vector(1, 0, 0), 90)
+        parte.addObject(texto)
+        grupo.addObject(parte)
+
+# Paso 4: Aplicar cargas a cada nodo
+for nodo in nodos:
+    nodo_id = int(nodo.Name.split("_")[1])
+    prefixes = [f"Flecha_Fx_Nodo_{nodo_id}", f"Flecha_Fy_Nodo_{nodo_id}", f"Flecha_Fz_Nodo_{nodo_id}",
+                f"Flecha_Mx_Nodo_{nodo_id}", f"Flecha_My_Nodo_{nodo_id}", f"Flecha_Mz_Nodo_{nodo_id}"]
+
+    for obj in list(grupo.Group):
+        if obj.Name == f"Carga_Nodo_{nodo_id}" or any(obj.Name.startswith(pref) for pref in prefixes):
+            if hasattr(obj, "Group"):
+                for sub in list(obj.Group):
+                    doc.removeObject(sub.Name)
+            doc.removeObject(obj.Name)
+    doc.recompute()
+
+    obj = doc.addObject("App::FeaturePython", f"Carga_Nodo_{nodo_id}")
+    obj.Label = f"Carga_Nodo_{nodo_id}"
+    obj.addProperty("App::PropertyInteger", "NodoID", "Carga").NodoID = nodo_id
+    for i, nombre in enumerate(campos):
+        obj.addProperty("App::PropertyFloat", nombre, "Carga").__setattr__(nombre, valores[i])
+    grupo.addObject(obj)
+    crear_flechas(nodo, nodo_id, valores)
+
+doc.recompute()
+App.Console.PrintMessage(f"✅ Cargas asignadas correctamente a {len(nodos)} nodo(s).\n")

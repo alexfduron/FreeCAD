@@ -1,0 +1,68 @@
+import FreeCAD as App
+import FreeCADGui as Gui
+import Draft
+
+
+doc = App.ActiveDocument
+factor = 1.0  # valor por defecto
+if hasattr(doc, "EscalaVisual") and hasattr(doc.EscalaVisual, "Factor"):
+    factor = doc.EscalaVisual.Factor
+App.Console.PrintMessage(f"📏 Factor de Escala Visual usado para etiquetas: {factor:.2f}\n")
+tolerancia = 1e-6
+
+# Crear grupo de etiquetas si no existe
+if not hasattr(doc, "Etiquetas_Miembros"):
+    grupo_etiquetas = doc.addObject("App::DocumentObjectGroup", "Etiquetas_Miembros")
+else:
+    grupo_etiquetas = doc.Etiquetas_Miembros
+
+# Eliminar etiquetas anteriores
+group_copy = list(grupo_etiquetas.Group)
+for obj in group_copy:
+    doc.removeObject(obj.Name)
+
+# Fuente para Draft.makeShapeString
+fuente = "C:/Windows/Fonts/arial.ttf"
+
+# Recorrer miembros y generar etiquetas
+for obj in doc.Objects:
+    if obj.Label.startswith("Miembro_") and hasattr(obj, "Shape") and len(obj.Shape.Edges) == 1:
+        edge = obj.Shape.Edges[0]
+        if len(edge.Vertexes) != 2:
+            continue
+
+        p1 = edge.Vertexes[0].Point
+        p2 = edge.Vertexes[1].Point
+        medio = (p1 + p2).multiply(0.5)
+
+        # Extraer solo el número para el texto
+        numero = obj.Label.split("_")[1]
+        texto_visible = numero
+        texto = Draft.makeShapeString(texto_visible, fuente, 100 * factor)
+        texto.Label = f"Etiqueta_Miembro_{numero}"
+
+        # Detección de plano y orientación
+        if abs(p1.y - p2.y) < tolerancia:
+            # Plano XZ
+            texto.Placement.Rotation = App.Rotation(App.Vector(1, 0, 0), -90).multiply(App.Rotation(App.Vector(1, 0, 0), 180))
+            offset = App.Vector(0, 0, factor * 50)
+        elif abs(p1.z - p2.z) < tolerancia:
+            # Plano XY
+            texto.Placement.Rotation = App.Rotation(App.Vector(0, 0, 1), -90).multiply(App.Rotation(App.Vector(1, 0, 0), 90))
+            offset = App.Vector(0, factor * 50, 0)
+        elif abs(p1.x - p2.x) < tolerancia:
+            # Plano YZ
+            texto.Placement.Rotation = App.Rotation(App.Vector(0, 0, 1), -90).multiply(App.Rotation(App.Vector(1, 0, 0), 90))
+            offset = App.Vector(0, factor * 50, 0)
+        else:
+            # Plano inclinado o 3D arbitrario
+            texto.Placement.Rotation = App.Rotation(App.Vector(0, 0, 1), 45).multiply(App.Rotation(App.Vector(1, 0, 0), -90))
+            offset = App.Vector(factor * 50, factor * 50, 0)
+
+        texto.Placement.Base = medio + offset
+        texto.ViewObject.Visibility = True
+
+        grupo_etiquetas.addObject(texto)
+
+doc.recompute()
+App.Console.PrintMessage("✅ Etiquetas de miembros generadas correctamente.\n")

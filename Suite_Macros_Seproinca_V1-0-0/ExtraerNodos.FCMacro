@@ -1,0 +1,121 @@
+import FreeCAD as App
+import FreeCADGui as Gui
+from PySide2 import QtWidgets
+import Part
+
+doc = App.ActiveDocument
+
+# Leer el factor de escala visual
+factor = 1.0  # valor por defecto
+if hasattr(doc, "EscalaVisual") and hasattr(doc.EscalaVisual, "Factor"):
+    factor = doc.EscalaVisual.Factor
+App.Console.PrintMessage(f"\U0001F4CF Factor de Escala Visual usado para esferas: {factor:.2f}\n")
+
+# Variables de control
+tolerancia = 1e-6
+nodos = []
+
+# Preguntar si el modelo es 2D o 3D
+dimension_opciones = ["2D (XZ)", "3D (XYZ)"]
+dimension, ok = QtWidgets.QInputDialog.getItem(
+    None, "¿Qué tipo de modelo estás usando?",
+    "Selecciona la dimensionalidad del modelo:",
+    dimension_opciones, 0, False
+)
+if not ok:
+    raise Exception("Operación cancelada por el usuario.")
+
+usar_2d = (dimension == "2D (XZ)")
+
+# Verificar visibilidad real (objeto y jerarquía)
+def esta_visible(obj):
+    try:
+        if not obj.ViewObject.Visibility:
+            return False
+        while obj.getParentGroup():
+            obj = obj.getParentGroup()
+            if not obj.ViewObject.Visibility:
+                return False
+        return True
+    except:
+        return False
+
+# Verificar duplicado de coordenadas
+def existe(coord, lista):
+    return any(
+        abs(coord[0]-n[0]) < tolerancia and
+        abs(coord[1]-n[1]) < tolerancia and
+        abs(coord[2]-n[2]) < tolerancia
+        for n in lista
+    )
+
+# Obtener objetos a revisar (grupo "Miembros" si existe, o raíz)
+grupo_miembros = doc.getObject("Miembros")
+objetos_a_revisar = grupo_miembros.Group if grupo_miembros else doc.Objects
+
+# Recorrer líneas válidas y visibles para extraer nodos
+for obj in objetos_a_revisar:
+    if not esta_visible(obj):
+        continue
+    if hasattr(obj, "Shape") and len(obj.Shape.Edges) == 1:
+        edge = obj.Shape.Edges[0]
+        if edge.Curve.__class__.__name__ == "Line" and len(edge.Vertexes) == 2:
+            puntos = [edge.Vertexes[0].Point, edge.Vertexes[1].Point]
+            for p in puntos:
+                coord = [round(p.x / 1000, 6), round(p.y / 1000, 6), round(p.z / 1000, 6)]
+                if not existe(coord, nodos):
+                    nodos.append(coord)
+
+# Crear texto de salida para copiar en OpenSeesPy
+mensaje = "\u2705 ✅ Nodos dibujados con éxito. Aquí tienes el arreglo NumPy:\n\n"
+texto = "nodos = np.array([\n"
+for n in nodos:
+    if usar_2d:
+        texto += f"    [{n[0]}, {n[2]}],\n"
+    else:
+        texto += f"    [{n[0]}, {n[1]}, {n[2]}],\n"
+texto += "])"
+App.Console.PrintMessage(mensaje + texto + "\n")
+
+# Crear grupo de nodos si no existe
+if not hasattr(doc, "Nodos"):
+    grupo_nodos = doc.addObject("App::DocumentObjectGroup", "Nodos")
+else:
+    grupo_nodos = doc.Nodos
+
+# Reubicar esferas existentes al grupo
+for obj in doc.Objects:
+    if obj.Name.startswith("Nodo_") and obj not in grupo_nodos.Group:
+        grupo_nodos.addObject(obj)
+
+# Eliminar nodos (esferas) que ya no están en uso
+eliminados = 0
+for esfera in list(grupo_nodos.Group):
+    if not esfera.Name.startswith("Nodo_"):
+        continue
+    base = esfera.Placement.Base
+    coord = [round(base.x / 1000, 6), round(base.y / 1000, 6), round(base.z / 1000, 6)]
+    if not existe(coord, nodos):
+        doc.removeObject(esfera.Name)
+        eliminados += 1
+
+# Crear esferas para cada nodo (si no existen)
+nuevos = 0
+for i, n in enumerate(nodos):
+    nombre = f"Nodo_{i+1}"
+    if not doc.getObject(nombre):
+        esfera = doc.addObject("Part::Sphere", nombre)
+        esfera.ViewObject.ShapeColor = (0.0, 1.0, 0.0)
+        esfera.Radius = 70 * factor  # mm escalado visualmente
+        esfera.Placement.Base = App.Vector(n[0]*1000, n[1]*1000, n[2]*1000)
+        grupo_nodos.addObject(esfera)
+        nuevos += 1
+
+doc.recompute()
+
+# Mostrar resumen
+App.Console.PrintMessage(
+    f"\U0001F4CC Total de nodos activos: {len(nodos)}\n"
+    f"\u2795 Nuevos nodos creados: {nuevos}\n"
+    f"\u2796 Nodos eliminados por ya no estar conectados a líneas: {eliminados}\n"
+)

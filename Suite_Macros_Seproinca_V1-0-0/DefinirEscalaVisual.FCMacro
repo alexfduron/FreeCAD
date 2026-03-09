@@ -1,0 +1,67 @@
+import FreeCAD as App
+from PySide2 import QtWidgets
+
+doc = App.ActiveDocument
+if not doc:
+    raise Exception("No hay documento activo.")
+
+# ==============================
+# Ventana de entrada de datos
+# ==============================
+dialog = QtWidgets.QDialog()
+dialog.setWindowTitle("Definir Escala Visual")
+
+layout = QtWidgets.QFormLayout(dialog)
+
+# Mayor dimensión del modelo (m)
+input_dim_max = QtWidgets.QDoubleSpinBox()
+input_dim_max.setRange(0.1, 1000.0)  # metros
+input_dim_max.setDecimals(3)
+input_dim_max.setValue(3.000)
+input_dim_max.setSuffix(" m")
+layout.addRow("Mayor Dimensión del Modelo (m):", input_dim_max)
+
+# Longitud mínima de elemento (m)
+input_dim_min = QtWidgets.QDoubleSpinBox()
+input_dim_min.setRange(0.01, 100.0)  # metros
+input_dim_min.setDecimals(3)
+input_dim_min.setValue(1.000)
+input_dim_min.setSuffix(" m")
+layout.addRow("Longitud Mínima de Elemento (m):", input_dim_min)
+
+# Botones
+botones = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+layout.addWidget(botones)
+botones.accepted.connect(dialog.accept)
+botones.rejected.connect(dialog.reject)
+
+if dialog.exec_() != QtWidgets.QDialog.Accepted:
+    App.Console.PrintMessage("⚠ Escalado cancelado por el usuario.\n")
+    raise Exception("Cancelado por el usuario")
+
+# ==============================
+# Cálculo del factor de escala
+# ==============================
+dim_max = input_dim_max.value()
+dim_min = input_dim_min.value()
+
+# Calcular factor usando el menor valor de los dos criterios
+factor_min = dim_min * 1.2
+factor_max = dim_max / 3.0
+factor = min(factor_min, factor_max)
+
+# Limitar factor al rango práctico
+FACTOR_MIN = 0.5
+FACTOR_MAX = 10.0
+factor = max(FACTOR_MIN, min(factor, FACTOR_MAX))
+
+# ==============================
+# Guardar factor en el documento
+# ==============================
+obj = getattr(doc, "EscalaVisual", None)
+if not obj:
+    obj = doc.addObject("App::FeaturePython", "EscalaVisual")
+    obj.addProperty("App::PropertyFloat", "Factor", "Escala", "Factor de escala visual")
+obj.Factor = factor
+
+App.Console.PrintMessage(f"✅ Factor de escala visual definido: {factor:.2f}\n")

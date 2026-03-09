@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "name": "3.175mm_Chamfer",
+  "shape": "chamfer.fcstd",
+  "parameter": {
+    "Chipload": "0.000 mm",
+    "CuttingEdgeAngle": "90.000 \u00b0",
+    "CuttingEdgeHeight": "1.590 mm",
+    "Diameter": "0.100 mm",
+    "Flutes": "2",
+    "Length": "38.000 mm",
+    "Material": "HSS",
+    "ShankDiameter": "3.175 mm",
+    "TipDiameter": "0.100 mm"
+  },
+  "attribute": {}
+}

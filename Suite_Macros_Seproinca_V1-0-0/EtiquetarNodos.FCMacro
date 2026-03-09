@@ -1,0 +1,49 @@
+import FreeCAD as App
+import FreeCADGui as Gui
+import Draft
+
+doc = App.ActiveDocument
+factor = 1.0  # valor por defecto
+
+# Leer el factor desde EscalaVisual si existe
+if hasattr(doc, "EscalaVisual") and hasattr(doc.EscalaVisual, "Factor"):
+    factor = doc.EscalaVisual.Factor
+App.Console.PrintMessage(f"📏 Factor de Escala Visual usado para etiquetas: {factor:.2f}\n")
+
+# Crear grupo de etiquetas si no existe
+if not hasattr(doc, "Etiquetas_Nodos"):
+    grupo_etiquetas = doc.addObject("App::DocumentObjectGroup", "Etiquetas_Nodos")
+else:
+    grupo_etiquetas = doc.Etiquetas_Nodos
+
+# Eliminar etiquetas anteriores del grupo
+for obj in list(grupo_etiquetas.Group):
+    doc.removeObject(obj.Name)
+
+# Fuente para el texto
+fuente = "C:/Windows/Fonts/arial.ttf"
+tolerancia = 1e-6
+
+# Recorrer nodos del documento
+for obj in doc.Objects:
+    if obj.Label.startswith("Nodo_") and hasattr(obj, "Shape") and obj.Shape.BoundBox:
+        centro = obj.Shape.BoundBox.Center
+
+        # Extraer el número del nodo
+        numero = obj.Label.split("_")[1]
+        texto_visible = numero
+        texto = Draft.makeShapeString(texto_visible, fuente, 100 * factor)
+        texto.Label = f"Etiqueta_Nodo_{numero}"
+
+        # Colocar etiqueta suficientemente alejada del nodo
+        offset = App.Vector(factor * 90, 0, factor * 90)  # 100 > radio (70) para evitar solapamiento
+        texto.Placement.Base = centro + offset
+
+        # Rotación simple para que sea visible en plano XZ
+        texto.Placement.Rotation = App.Rotation(App.Vector(1, 0, 0), -90).multiply(App.Rotation(App.Vector(1, 0, 0), 180))
+
+        texto.ViewObject.Visibility = True
+        grupo_etiquetas.addObject(texto)
+
+doc.recompute()
+App.Console.PrintMessage("✅ Etiquetas de nodos generadas correctamente.\n")

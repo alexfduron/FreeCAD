@@ -1,0 +1,174 @@
+import FreeCAD as App
+import FreeCADGui as Gui
+import numpy as np
+from PySide2 import QtWidgets
+
+doc = App.ActiveDocument
+tolerancia = 1e-6
+nodos = []
+
+# Nombres de grupos prohibidos
+grupos_excluidos = ["Cargas_Puntuales", "Restricciones", "Nodos"]
+
+# Crear grupo "Miembros" si no existe
+if not hasattr(doc, "Miembros"):
+    grupo_miem = doc.addObject("App::DocumentObjectGroup", "Miembros")
+else:
+    grupo_miem = doc.Miembros
+
+# 🔍 Obtener todos los objetos dentro de los grupos prohibidos (recursivamente)
+objetos_prohibidos = set()
+
+def recolectar_objetos_prohibidos(grupo):
+    for obj in grupo.Group:
+        objetos_prohibidos.add(obj)
+        if hasattr(obj, "Group"):  # si también es un grupo
+            recolectar_objetos_prohibidos(obj)
+
+for g in doc.Objects:
+    if g.Name in grupos_excluidos and hasattr(g, "Group"):
+        recolectar_objetos_prohibidos(g)
+
+# ✅ Verifica visibilidad real
+def esta_visible(obj):
+    try:
+        if not obj.ViewObject.Visibility:
+            return False
+        while obj.getParentGroup():
+            obj = obj.getParentGroup()
+            if not obj.ViewObject.Visibility:
+                return False
+        return True
+    except:
+        return False
+
+# ✅ Verifica si la coordenada ya está registrada
+def existe(coord, lista):
+    for i, n in enumerate(lista):
+        if (abs(coord[0] - n[0]) < tolerancia and
+            abs(coord[1] - n[1]) < tolerancia and
+            abs(coord[2] - n[2]) < tolerancia):
+            return i + 1
+    return None
+
+# 🔢 Obtener siguiente número libre para renombrar
+def obtener_siguiente_numero():
+    maximo = 0
+    for obj in doc.Objects:
+        if obj.Label.startswith("Miembro_"):
+            try:
+                numero = int(obj.Label.split("_")[1])
+                if numero > maximo:
+                    maximo = numero
+            except:
+                pass
+    return maximo + 1
+
+# 🚀 PASADA 1: detectar/renombrar/acumular (sin mover al grupo)
+lineas_validas = []
+contador = obtener_siguiente_numero()
+
+for obj in doc.Objects:
+    if obj in objetos_prohibidos:
+        continue
+    if not esta_visible(obj):
+        continue
+    if hasattr(obj, "Shape") and len(obj.Shape.Edges) == 1:
+        edge = obj.Shape.Edges[0]
+        if edge.Curve.__class__.__name__ == "Line" and len(edge.Vertexes) == 2:
+            puntos = [edge.Vertexes[0].Point, edge.Vertexes[1].Point]
+            for p in puntos:
+                coord = [round(p.x / 1000, 6), round(p.y / 1000, 6), round(p.z / 1000, 6)]
+                if existe(coord, nodos) is None:
+                    nodos.append(coord)
+            lineas_validas.append(obj)
+
+            # Renombrar si no tiene nombre válido
+            if not obj.Label.startswith("Miembro_"):
+                obj.Label = f"Miembro_{contador:02d}"
+                contador += 1
+
+# ⚠ Aviso si no se encontraron miembros (sin cerrar FreeCAD)
+if not lineas_validas:
+    App.Console.PrintWarning("⚠ No se encontraron miembros\n")
+    try:
+        # Si hay GUI, mostrar también un aviso modal
+        msg = QtWidgets.QMessageBox()
+        msg.setWindowTitle("Aviso")
+        msg.setText("⚠ No se encontraron miembros")
+        msg.setIcon(QtWidgets.QMessageBox.Warning)
+        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        msg.exec_()
+    except Exception:
+        pass
+    doc.recompute()
+    # No levantar SystemExit ni exceptions: simplemente terminamos aquí.
+else:
+    # ✅ PASADA 2: añadir al grupo "Miembros"
+    for obj in lineas_validas:
+        if obj not in grupo_miem.Group:
+            grupo_miem.addObject(obj)
+
+    # 📐 Generar arreglo de miembros [i, j] sin duplicados
+    miembros = []
+    miembros_set = set()
+    duplicados = []
+    objetos_duplicados = []
+    for obj in lineas_validas:
+        edge = obj.Shape.Edges[0]
+        if len(edge.Vertexes) != 2:
+            continue
+        inicio = edge.Vertexes[0].Point
+        fin = edge.Vertexes[1].Point
+
+        nodo_inicio = existe(
+            [round(inicio.x / 1000, 6), round(inicio.y / 1000, 6), round(inicio.z / 1000, 6)],
+            nodos
+        )
+        nodo_final = existe(
+            [round(fin.x / 1000, 6), round(fin.y / 1000, 6), round(fin.z / 1000, 6)],
+            nodos
+        )
+
+        if nodo_inicio and nodo_final:
+            clave = tuple(sorted((nodo_inicio, nodo_final)))
+            if clave not in miembros_set:
+                miembros_set.add(clave)
+                miembros.append([nodo_inicio, nodo_final])
+            else:
+                duplicados.append(obj.Label)
+                objetos_duplicados.append(obj)
+        else:
+            App.Console.PrintError(f"❌ Error: Nodo no encontrado en {obj.Label}\n")
+
+    # 📤 Mostrar resultado
+    App.Console.PrintMessage("✅ Mapeo de miembros generado con éxito. Recibes: [Nodo i, Nodo j]\n\n")
+    texto = "miembros = np.array([\n"
+    for m in miembros:
+        texto += f"    [{m[0]}, {m[1]}],\n"
+    texto += "])\n"
+    App.Console.PrintMessage(texto)
+
+    total = len(lineas_validas)
+    unicos = len(miembros)
+    repetidos = len(duplicados)
+
+    resumen = f"\n\n🔎 Revisión completa:\n- Total de líneas válidas: {total}\n- Miembros únicos generados: {unicos}\n- Duplicados ignorados: {repetidos}\n"
+    App.Console.PrintMessage(resumen)
+
+    if duplicados:
+        msg = QtWidgets.QMessageBox()
+        msg.setWindowTitle("Duplicados detectados")
+        msg.setText(f"Se ignoraron {repetidos} miembros duplicados.\n\nEtiquetas: {', '.join(duplicados)}\n\n¿Deseas eliminarlos del modelo?")
+        msg.setIcon(QtWidgets.QMessageBox.Question)
+        msg.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+        respuesta = msg.exec_()
+
+        if respuesta == QtWidgets.QMessageBox.Yes:
+            for obj in objetos_duplicados:
+                doc.removeObject(obj.Name)
+            App.Console.PrintMessage("🗑️ Miembros Duplicados eliminados del modelo.\n")
+        else:
+            App.Console.PrintMessage("❎ Miembros Duplicados conservados en el modelo.\n")
+
+    doc.recompute()

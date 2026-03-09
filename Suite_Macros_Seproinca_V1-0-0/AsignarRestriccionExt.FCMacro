@@ -1,0 +1,120 @@
+import FreeCAD as App
+import FreeCADGui as Gui
+from PySide2 import QtWidgets
+import Part
+import math
+
+doc = App.ActiveDocument
+sel = Gui.Selection.getSelection()
+
+# Leer el factor de escala visual
+factor = 1.0  # valor por defecto
+if hasattr(doc, "EscalaVisual") and hasattr(doc.EscalaVisual, "Factor"):
+    factor = doc.EscalaVisual.Factor
+App.Console.PrintMessage(f"\U0001F4CF Factor de Escala Visual usado para restricciones: {factor:.2f}\n")
+
+if not sel:
+    raise Exception("Selecciona al menos un nodo.")
+
+# Validar visibilidad real del nodo (objeto y jerarquía)
+def esta_visible(obj):
+    try:
+        if not obj.ViewObject.Visibility:
+            return False
+        while obj.getParentGroup():
+            obj = obj.getParentGroup()
+            if not obj.ViewObject.Visibility:
+                return False
+        return True
+    except:
+        return False
+
+# Validar nodos (deben comenzar con "Nodo_")
+nodos_validos = [obj for obj in sel if obj.Name.startswith("Nodo_") and esta_visible(obj)]
+if not nodos_validos:
+    raise Exception("Selecciona nodos visibles cuyo nombre comience por 'Nodo_'.")
+
+# Crear grupo de restricciones si no existe
+if not hasattr(doc, "Restricciones"):
+    group = doc.addObject("App::DocumentObjectGroup", "Restricciones")
+else:
+    group = doc.Restricciones
+
+# Diálogo para elegir tipo de restricción
+tipos = {
+    "Empotramiento": "cubo",
+    "Articulación Fija": "cono",
+    "Rodillo": "esfera_grande",
+    "Libre": "ninguno"
+}
+
+tipo, ok = QtWidgets.QInputDialog.getItem(
+    None, "Asignar Restricción",
+    "Selecciona el tipo de restricción:",
+    list(tipos.keys()), 0, False
+)
+
+if not ok:
+    raise Exception("Operación cancelada por el usuario.")
+
+# Quitar restricción anterior si ya existe en ese nodo
+def eliminar_restriccion_previa(nodo):
+    for obj in list(group.Group):
+        if hasattr(obj, "Label") and obj.Label.endswith(nodo.Label):
+            try:
+                doc.removeObject(obj.Name)
+            except:
+                pass
+    doc.recompute()
+
+# Crear la figura simbólica según tipo
+def crear_figura_simbolica(nodo, tipo_figura):
+    base_pos = nodo.Placement.Base
+    name_suffix = nodo.Label
+
+    if tipo_figura == "cubo":
+        tam = 300 * factor  # mm escalado
+        cubo = doc.addObject("Part::Box", f"Empotramiento_{name_suffix}")
+        doc.recompute()
+        cubo.Length = tam
+        cubo.Width = tam
+        cubo.Height = tam
+        cubo.Placement.Base = App.Vector(
+            base_pos.x - tam / 2,
+            base_pos.y - tam / 2,
+            base_pos.z - tam
+        )
+        cubo.ViewObject.ShapeColor = (0.2, 0.8, 0.2)  # Verde
+        group.addObject(cubo)
+
+    elif tipo_figura == "cono":
+        height = 300 * factor  # mm escalado
+        radius = 150 * factor  # mm escalado
+        cono = doc.addObject("Part::Cone", f"ArticulacionFija_{name_suffix}")
+        cono.Radius1 = 0
+        cono.Radius2 = radius
+        cono.Height = height
+        placement = App.Placement()
+        placement.Base = base_pos
+        placement.Rotation = App.Rotation(App.Vector(1, 0, 0), 180)
+        cono.Placement = placement
+        cono.ViewObject.ShapeColor = (1.0, 0.5, 0.0)  # Naranja
+        group.addObject(cono)
+
+    elif tipo_figura == "esfera_grande":
+        esf = doc.addObject("Part::Sphere", f"Rodillo_{name_suffix}")
+        esf.Radius = 150 * factor  # mm escalado
+        esf.Placement.Base = App.Vector(base_pos.x, base_pos.y, base_pos.z - 100 * factor)
+        esf.ViewObject.ShapeColor = (0.0, 0.4, 1.0)  # Azul
+        group.addObject(esf)
+
+    elif tipo_figura == "ninguno":
+        return
+
+# Aplicar a todos los nodos seleccionados
+for nodo in nodos_validos:
+    eliminar_restriccion_previa(nodo)
+    crear_figura_simbolica(nodo, tipos[tipo])
+
+doc.recompute()
+App.Console.PrintMessage(f"Restricción '{tipo}' aplicada a {len(nodos_validos)} nodo(s).\n")

@@ -1,0 +1,118 @@
+{
+  "Desc": "Pasos para crear codigo GRBL con FreeCAD",
+  "Fixtures": [
+    {
+      "G54": true
+    }
+  ],
+  "OrderOutputBy": "Operation",
+  "Post": "grbl",
+  "PostArgs": "",
+  "SetupSheet": {
+    "ClearanceHeightExpression": "OpStockZMax+${SetupSheet}.ClearanceHeightOffset",
+    "ClearanceHeightOffset": "5.000 mm",
+    "FinalDepthExpression": "OpFinalDepth",
+    "HorizRapid": "1200.000 mm/s",
+    "SafeHeightExpression": "OpStockZMax+${SetupSheet}.SafeHeightOffset",
+    "SafeHeightOffset": "5.000 mm",
+    "StartDepthExpression": "OpStartDepth",
+    "StepDownExpression": "0.2",
+    "VertRapid": "700.000 mm/s"
+  },
+  "SplitOutput": true,
+  "Stock": {
+    "create": "CreateBox",
+    "height": "4.0 mm",
+    "length": "200.0 mm",
+    "posX": 0.0,
+    "posY": 0.0,
+    "posZ": -4.0,
+    "rotW": 1.0,
+    "rotX": 0.0,
+    "rotY": 0.0,
+    "rotZ": 0.0,
+    "version": 1,
+    "width": "200.0 mm"
+  },
+  "Tolerance": "0.01",
+  "ToolController": [
+    {
+      "dir": "Forward",
+      "hfeed": "350.0 mm/s",
+      "hrapid": "1200.0 mm/s",
+      "label": "TC: 3.175mm_Chamfer",
+      "name": "TC__3_175mm_Chamfer",
+      "nr": 2,
+      "speed": 12000.0,
+      "tool": {
+        "attribute": {},
+        "name": "3.175mm_Chamfer",
+        "parameter": {
+          "Chipload": "0.000 mm",
+          "CuttingEdgeAngle": "90.000 \u00b0",
+          "CuttingEdgeHeight": "1.590 mm",
+          "Diameter": "0.100 mm",
+          "Flutes": "2",
+          "Length": "38.000 mm",
+          "Material": "HSS",
+          "ShankDiameter": "3.175 mm",
+          "TipDiameter": "0.100 mm"
+        },
+        "shape": "chamfer.fcstd",
+        "version": 2
+      },
+      "version": 1,
+      "vfeed": "200.0 mm/s",
+      "vrapid": "700.0 mm/s",
+      "xengine": [
+        {
+          "expr": "${SetupSheet}.HorizRapid",
+          "prop": "HorizRapid"
+        },
+        {
+          "expr": "${SetupSheet}.VertRapid",
+          "prop": "VertRapid"
+        }
+      ]
+    },
+    {
+      "dir": "Forward",
+      "hfeed": "500.0 mm/s",
+      "hrapid": "1200.0 mm/s",
+      "label": "TC: 3.175mm_Endmill",
+      "name": "TC__3_175mm_Endmill",
+      "nr": 1,
+      "speed": 12000.0,
+      "tool": {
+        "attribute": {},
+        "name": "3.175mm_Endmill",
+        "parameter": {
+          "Chipload": "0.000 mm",
+          "CuttingEdgeHeight": "12.000 mm",
+          "Diameter": "3.175 mm",
+          "Flutes": "1",
+          "Length": "38.000 mm",
+          "Material": "HSS",
+          "ShankDiameter": "3.175 mm",
+          "SpindleDirection": "Forward"
+        },
+        "shape": "endmill.fcstd",
+        "version": 2
+      },
+      "version": 1,
+      "vfeed": "200.0 mm/s",
+      "vrapid": "700.0 mm/s",
+      "xengine": [
+        {
+          "expr": "${SetupSheet}.HorizRapid",
+          "prop": "HorizRapid"
+        },
+        {
+          "expr": "${SetupSheet}.VertRapid",
+          "prop": "VertRapid"
+        }
+      ]
+    }
+  ],
+  "Version": 1
+}

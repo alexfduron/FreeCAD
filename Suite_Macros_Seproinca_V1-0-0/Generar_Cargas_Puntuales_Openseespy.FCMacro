@@ -1,0 +1,68 @@
+import FreeCAD as App
+import FreeCADGui as Gui
+from PySide2 import QtWidgets
+
+doc = App.ActiveDocument
+grupo = getattr(doc, "Cargas_Puntuales", None)
+
+if not grupo or not grupo.Group:
+    App.Console.PrintError("❌ No hay cargas asignadas aún en el grupo 'Cargas_Puntuales'.\n")
+    raise Exception("Sin datos")
+
+# Paso 1: Preguntar grados de libertad
+tipos_ndf = {
+    "2 (X, Z)": 2,
+    "3 (X, Z, Ry)": 3,
+    "6 (X, Y, Z, Rx, Ry, Rz)": 6
+}
+tipo, ok = QtWidgets.QInputDialog.getItem(
+    None, "Tipo de Modelo",
+    "¿Cuántos grados de libertad por nodo (-ndf) tiene tu modelo?",
+    list(tipos_ndf.keys()), 0, False
+)
+if not ok:
+    App.Console.PrintMessage("⚠ Operación cancelada por el usuario.\n")
+    raise Exception("Cancelado")
+
+ndf = tipos_ndf[tipo]
+
+# Mapeo de componentes según orientación del modelo (plano XZ)
+campos_por_ndf = {
+    2: ["Fx", "Fz"],
+    3: ["Fx", "Fz", "My"],
+    6: ["Fx", "Fy", "Fz", "Mx", "My", "Mz"]
+}
+campos_usar = campos_por_ndf[ndf]
+
+# Paso 2: Recopilar cargas por nodo
+cargas = []
+for obj in grupo.Group:
+    if hasattr(obj, "NodoID"):
+        try:
+            nodo = obj.NodoID
+            valores = [getattr(obj, c) for c in campos_usar]
+            
+            # Solo incluir si al menos una carga es distinta de cero
+            if any(abs(v) > 1e-6 for v in valores):
+                linea = f"load({nodo}, " + ", ".join(f"{v:.3f}" for v in valores) + ")"
+                cargas.append((nodo, linea))
+        except Exception as e:
+            App.Console.PrintError(f"⚠ No se pudo leer carga en {obj.Name}: {str(e)}\n")
+
+# Paso 3: Ordenar por número de nodo y mostrar
+cargas.sort(key=lambda x: x[0])
+
+if cargas:
+    bloque = "cargas = np.array([\n"
+    for _, linea in cargas:
+        # Extraer los valores numéricos de la línea "load(...)" usando split
+        valores = linea[linea.find("(")+1:linea.find(")")].split(",")
+        valores = [v.strip() for v in valores]
+        bloque += "    [" + ", ".join(f"{float(v):8.3f}" if i > 0 else f"{int(float(v))}" 
+                                      for i, v in enumerate(valores)) + "],\n"
+    bloque += "])"
+
+    App.Console.PrintMessage("✅ Bloque de cargas generado con éxito:\n\n" + bloque + "\n")
+else:
+    App.Console.PrintMessage("⚠ No se encontraron cargas diferentes de cero para exportar.\n")
+
