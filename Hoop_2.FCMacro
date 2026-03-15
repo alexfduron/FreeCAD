@@ -1,0 +1,631 @@
+#Diseño parametrico de una Caja
+
+
+'''
+##############################################################################
+#'                                                                          '#
+#'                                                                          '#
+#'   Copyright (c) 2026                                                     '#
+#'   Original code by:                                                      '#
+#'                       :::====   :::=====  :::====                        '#
+#'                       :::  ===  :::       :::  ===                       '#
+#'                       ========  ======    ===  ===                       '#
+#'                       ===  ===  ===       ===  ===                       '#
+#'                       ===  ===  ===       =======                        '#
+#'                                                                          '#
+#'   This program is free software, you can redistribute it and/or modify   '#
+#'   it under the terms of the GNU Lesser General Public Licence ( LGPL )   '#
+#'   as published by the Free Software Fundation;  either  version  2  of   '#
+#'   the Licence, or (at your option) any later version.                    '#
+#'   for detail see the LICENCE text file.                                  '#
+#'                                                                          '#
+#'   Use at your own risk. The author assumes no liability for data loss.   '#
+#'              It is advised to backup your data frequently.               '#
+#'             If you do not trust the software do not use it.              '#
+#'                                                                          '#
+#'   This software is distributed in the hope that  it  will  be  useful,   '#
+#'   but WITHOUT ANY WARRANTY,  without  even  the  implied  warranty  of   '#
+#'   MERCHANTABILITY  or  FITNESS  FOR  A  PARTICULAR  PURPOSE.  See  the   '#
+#'   GNU Library General Public Licence for more details.                   '#
+#'                                                                          '#
+#'   You should have received a copy of the GNU  Library  General  Public   '#
+#'   Licence along with this macro,  if not, write to the  Free  Software   '#
+#'   Foundation Inc., 59 Temple Place, Suite 330,  Boston,  MA 02111-1307   '#
+#'   USA.                                                                   '#
+#'                                                                          '#
+#'                                                                          '#
+##############################################################################
+'''
+
+__Title__    = "FC_Bastidor"
+__Author__   = "AFD"
+__Version__  = "1.1.0rc3"
+__Date__     = "2026/03/14" #YYYY/MMM/DD
+
+__Comment__  = "Esta macro crea un Bastidor para bordar en cintas"
+__Web__      = "https://www.fastframes.com/product-page/nametape-hoops"
+__Help__     = "inicia la Macro y sigue las instrucciones"
+__Status__   = "estable"
+__Requires__ = "freecad 1.1.0rc3 and higher"
+
+
+# importamos la libreria de "FreeCAD"
+import FreeCAD as App
+# importamo las librerias de "FreeCADGui" y "PySide" para limpiar la consola de python y la vista de informe
+import FreeCADGui as Gui
+from PySide import QtGui
+# importamos la libreria de "PartDesign"
+import PartDesign
+# importamos la libreria de "Sketcher"
+import Sketcher
+
+# importamos la libreria de "math" para las funciones trigonometricas
+import math
+# importamos la libreria de "pandas" para el manejo de listas y tablas
+import pandas as pd
+# importamos la libreria de "datetime" para los nombres de la semana
+import datetime
+# importamos la libreria "time" para obtener la hora del sistema
+import time
+
+
+
+def Imprimir_Lista(Lista_X, Nom_Lista = 'Lista X'):
+	
+	# Aqui ajustamos las opciones de Pandas
+	pd.set_option('display.max_columns', None)
+	pd.set_option('display.max_rows', None)
+	pd.set_option('display.width', 150)
+	df = pd.DataFrame(Lista_X)
+	
+	# Aqui modificamos la apariencia de los datos
+	df[1] = df[1].apply(lambda x : str(round(x, 4)).rstrip('0').rstrip('.'))
+	df[2] = df[2].apply(lambda x : [ str(float(round(n, 4))).rstrip('0').rstrip('.').center(3) for n in x ])
+	df[3] = df[3].apply(lambda x : [ str(float(round(n, 4))).rstrip('0').rstrip('.').center(3) for n in x ])
+	df[4] = df[4].apply(lambda x : [ str(float(round(n, 4))).rstrip('0').rstrip('.').center(3) for n in x ])
+	
+	# Aqui agregamos los encabezados de las columnas
+	newRow = pd.DataFrame(["ID objeto", "Longitud", "Punto inicio", "Punto final", "Centro curva", "Nombre objeto", "Contenedor"]).T
+	#df = df.set_axis(newRow.values[0], axis = "columns")
+	df = pd.concat([df[:0], newRow.rename(columns=dict(zip(newRow.columns, df.columns))), df[0:]]).reset_index(drop = True)
+	
+	df = df.add_prefix("--", axis = "index")
+	df = df.add_suffix("--", axis = "index")
+	
+	# Aqui mostramos la tabla en la consola de FreeCAD
+	print(f'{Nom_Lista} = {len(Lista_X)}')
+	print(df)
+	
+	print()
+	
+	
+	
+def Limpiar_Pantalla():
+	
+	mw = Gui.getMainWindow()
+	
+	rv = mw.findChild(QtGui.QTextEdit, "Report view")
+	rv.clear()
+	
+	pc = mw.findChild(QtGui.QPlainTextEdit,"Python console")
+	pc.onClearConsole()
+	
+	
+
+#! Estas son las funciones para las partes que forman el Bastidor
+def Crear_Hoop2(Largo_Total, Ancho_Total, Alto_Total):
+	
+	# aqui convertimos el texto a numero con las unidades por defecto en FreeCAD
+	try:
+		LaT = App.Units.Quantity(Largo_Total).Value
+	except:
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Bastidor \n\t (Largo_Total) = "{Largo_Total}"  ==>  {type(Largo_Total)}')
+	
+	try:
+		AnT = App.Units.Quantity(Ancho_Total).Value
+	except:
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Bastidor \n\t (Ancho_Total) = "{Ancho_Total}"  ==>  {type(Ancho_Total)}')
+	try:
+		AlT = App.Units.Quantity(Alto_Total).Value
+	except:
+		raise TypeError(f'\n\n\t Mensaje = No es Numero \n\t Funcion = Crear_Bastidor \n\t (Alto_Total) = "{Alto_Total}"  ==>  {type(Alto_Total)}')
+	
+	# Limpiar_Pantalla():
+	Limpiar_Pantalla()
+	
+	# Crear_Contenedor_3D(LaT, AnT, AlT):
+	Crear_Contenedor_3D(LaT, AnT, AlT)
+	
+	# Crear_Bastidor_3D():
+	Crear_Bastidor_3D()
+	
+	
+	
+	
+	
+	
+	
+	
+#! Crea el contenedor del objeto 3D
+def Crear_Contenedor_3D(LaT, AnT, AlT):
+	
+	### iniciar la orden Std_Part
+	global Pieza_B1
+	Pieza_B1 = Crear_Pieza('Part_B001', 'Pieza_B001')
+	
+	global Variable_B1
+	### iniciar la orden Var_Set
+	Variable_B1 = Crear_Variables('VarSet_B001', 'Variables_B001', Pieza_B1, LaT, AnT, AlT)
+	
+	### iniciar la orden PartDesign_Body
+	global Cuerpo_B1
+	Cuerpo_B1 = Crear_Cuerpo('Body_B001', 'Cuerpo_B001', Pieza_B1)
+	
+	
+	
+def Crear_Pieza(Titulo, Etiqueta = ''):
+	
+	Crear_Doc()
+	Pieza_X = Doc.addObject('App::Part', Titulo)
+	Doc.Tip = Pieza_X
+	if Etiqueta == '':
+		Pieza_X.Label = Titulo
+	else:
+		Pieza_X.Label = Etiqueta
+	Doc.recompute()
+	return Pieza_X
+	
+
+
+def Crear_Doc():
+	
+	# Tomamos el archivo activo
+	global Doc
+	Doc = App.activeDocument()
+	
+	
+
+def Crear_Variables(Titulo, Etiqueta, Objeto_X, LaT, AnT, AlT):
+	
+	# creamos las variables del objeto
+	Var_X = Doc.addObject("App::VarSet", Titulo)
+	Var_X.Label = Etiqueta
+	Objeto_X.addObject(Var_X)
+	
+	
+	Var_X.addProperty("App::PropertyLength", "Largo",     group="Grupo_Bastidor",    doc="Esta propiedad modifica el Largo del Bastidor")
+	Var_X.Largo = LaT
+	Var_X.addProperty("App::PropertyLength", "Ancho",     group="Grupo_Bastidor",    doc="Esta propiedad modifica el Ancho del Bastidor")
+	Var_X.Ancho = AnT
+	Var_X.addProperty("App::PropertyLength", "Alto",      group="Grupo_Bastidor",    doc="Esta propiedad modifica el Alto del Bastidor")
+	Var_X.Alto = AlT
+	Var_X.addProperty("App::PropertyLength", "Espesor",   group="Grupo_Bastidor",    doc="Esta propiedad modifica el grosor del Bastidor")
+	Var_X.Espesor = "2 mm"
+	
+	'''
+	Var_X.addProperty("App::PropertyLength", "Diametro_1",		group="Grupo_Opcional", 		doc="Esta propiedad modifica el diametro del cilindro")
+	Var_X.Diametro_1 = "7 mm"
+	Var_X.addProperty("App::PropertyLength", "Distancia_X",		group="Grupo_Opcional",		doc="Esta propiedad modifica la posicion del accesorio en x")
+	Var_X.Distancia_X = "10 mm"
+	Var_X.addProperty("App::PropertyLength", "Distancia_Y",		group="Grupo_Opcional",		doc="Esta propiedad modifica la posicion del accesorio en y")
+	Var_X.Distancia_Y = "15 mm"
+	Var_X.addProperty("App::PropertyLength", "Altura_1",			group="Grupo_Opcional",		doc="Esta propiedad modifica la altura del cilindro")
+	Var_X.Altura_1 = "20 mm"
+	'''
+	
+	Doc.recompute()
+	return Var_X
+	
+	
+	
+def Crear_Cuerpo(Titulo, Etiqueta = '', Objeto_X = False):
+	
+	Cuerpo_X = Doc.addObject('PartDesign::Body', Titulo)
+	if Etiqueta == '':
+		Cuerpo_X.Label = Titulo
+	else:
+		Cuerpo_X.Label = Etiqueta
+	if Objeto_X == False:
+		Doc.Tip = Cuerpo_X
+	else:
+		Objeto_X.addObject(Cuerpo_X)
+	Doc.recompute()
+	return Cuerpo_X
+	
+	
+	
+def Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = ''):
+	
+	Boceto_X = Doc.addObject('Sketcher::SketchObject', Titulo)
+	Doc.Tip = Boceto_X
+	if Etiqueta == '':
+		Boceto_X.Label = Titulo
+	else:
+		Boceto_X.Label = Etiqueta
+	Boceto_X.MapMode = 'FlatFace'
+	if Modelado_X == '':
+		if Plano_X == '':
+			Plano_X = 'XY_Plane'
+		if Objeto_X == False:
+			Doc.Tip = Boceto_X
+			Cuerpo_New = Crear_Cuerpo('New_Body', '', Pieza_C1)
+			Cuerpo_New.addObject(Boceto_X)
+			for k in Cuerpo_New.Origin.OriginFeatures:
+				if k.Role == Plano_X:
+					XY_Plano = k
+			Boceto_X.AttachmentSupport = (Cuerpo_New.Origin, [XY_Plano.Name])
+			del XY_Plano
+		else:
+			Objeto_X.addObject(Boceto_X)
+			for k in Objeto_X.Origin.OriginFeatures:
+				if k.Role == Plano_X:
+					XY_Plano = k
+			Boceto_X.AttachmentSupport = (Objeto_X.Origin, [XY_Plano.Name])
+			del XY_Plano
+	else:
+		Objeto_X.addObject(Boceto_X)
+		Boceto_X.AttachmentSupport = (Modelado_X, [Plano_X])
+		
+	Doc.recompute()
+	return Boceto_X	
+	
+
+	
+#! Estos son las funciones para crear Objetos 2D
+def Crear_Linea(Pt1, Pt2, Boceto_X, Guia = False):
+	
+	# aqui guardamos el ID de la linea.
+	Lista_Obj.append(list(Boceto_X.addGeometry([Part.LineSegment(Pt1, Pt2)], Guia)))
+	# aqui redondeamos los valores numericos de los vectores
+	Pt1_Temp = [round(Pt1[0], 8), round(Pt1[1], 8), round(Pt1[2], 8)]
+	Pt2_Temp = [round(Pt2[0], 8), round(Pt2[1], 8), round(Pt2[2], 8)]
+	# aqui guardamos la magnitud de la linea.
+	Pt3 = App.Vector(Pt2) - App.Vector(Pt1)
+	Lista_Obj[-1].append(round(Pt3.Length, 8))
+	# aqui guardamos el punto inicial de la linea.
+	Lista_Obj[-1].append(Pt1_Temp)
+	# aqui guardamos el punto final de la linea.
+	Lista_Obj[-1].append(Pt2_Temp)
+	# aqui guardamos el punto centro => N/A.
+	Lista_Obj[-1].append([0.0, 0.0, 0.0])
+	# aqui guardamos el nombre de la linea.
+	Lista_Obj[-1].append('linea')
+	# aqui guardamos el Boceto que contiene la linea.
+	Lista_Obj[-1].append(Boceto_X.Label)
+	
+
+
+def Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Guia = False):
+	
+	# aqui guardamos el ID del arco.
+	Lista_Obj.append(list(Boceto_X.addGeometry([Part.ArcOfCircle(Part.Circle(Pt1, Eje , Radio), Ang_Ini, Ang_Fin)], Guia)))
+	# aqui creamos los puntos de los extremos del arco con los valores numericos redondeados
+	Pt1_Temp = App.Vector(round(Pt1.x + Radio * math.cos(Ang_Ini), 8), round(Pt1.y + Radio * math.sin(Ang_Ini), 8), round(Pt1.z, 8))
+	Pt2_Temp = App.Vector(round(Pt1.x + Radio * math.cos(Ang_Fin), 8), round(Pt1.y + Radio * math.sin(Ang_Fin), 8), round(Pt1.z, 8))
+	Eje_Temp = App.Vector(round(Pt1.x, 8), round(Pt1.y, 8), round(Pt1.z, 8))
+	# aqui guardamos el radio del arco.
+	Lista_Obj[-1].append(round(Radio, 8))
+	# aqui guardamos el punto inicial del arco.
+	Lista_Obj[-1].append(list(Pt1_Temp))
+	# aqui guardamos el punto final del arco.
+	Lista_Obj[-1].append(list(Pt2_Temp))
+	# aqui guardamos el punto central del arco.
+	Lista_Obj[-1].append(list(Eje_Temp))
+	# aqui guardamos el nombre del arco.
+	Lista_Obj[-1].append('arco')
+	# aqui guardamos el Boceto que contiene al arco.
+	Lista_Obj[-1].append(Boceto_X.Label)
+	
+
+
+def Crear_Circulo(Pt1, Eje, Radio, Boceto_X, Guia = False):
+	
+	# aqui guardamos el ID del circulo.
+	Lista_Obj.append(list(Boceto_X.addGeometry([Part.Circle(Pt1, Eje, Radio)], Guia)))
+	# aqui creamos el punto centro del circulo con los valores numericos redondeados
+	Eje_Temp = App.Vector(round(Pt1.x, 8), round(Pt1.y, 8), round(Pt1.z, 8))
+	# aqui guardamos el radio del circulo.
+	Lista_Obj[-1].append(round(Radio, 8))
+	# aqui guardamos el punto inicial del circulo => N/A.
+	Lista_Obj[-1].append([0, 0, 0])
+	# aqui guardamos el punto final del circulo => N/A.
+	Lista_Obj[-1].append([0, 0, 0])
+	# aqui guardamos el punto central del circulo.
+	Lista_Obj[-1].append(list(Eje_Temp))
+	# aqui guardamos el nombre del circulo.
+	Lista_Obj[-1].append('circulo')
+	# aqui guardamos el Boceto que contiene al circulo.
+	Lista_Obj[-1].append(Boceto_X.Label)
+	
+	
+	
+#! Estos son las funciones para crear Modelado 3D
+def Crear_Relleno(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False):
+	
+	Relleno_X = Doc.addObject('PartDesign::Pad', Titulo)
+	if Objeto_X == False:
+		Doc.Tip = Relleno_X
+	else:
+		Objeto_X.addObject(Relleno_X)
+	if Etiqueta == '':
+		Relleno_X.Label = Titulo
+	else:
+		Relleno_X.Label = Etiqueta
+	
+	Relleno_X.Profile = (Boceto_X, [''])
+	Relleno_X.ReferenceAxis = (Boceto_X,['N_Axis'])
+	Boceto_X.Visibility = False
+	
+	Doc.recompute()
+	return Relleno_X
+	
+	
+	
+def Crear_Hueco(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False):
+	
+	Hueco_X = Doc.addObject('PartDesign::Pocket', Titulo)
+	if Objeto_X == False:
+		Doc.Tip = Hueco_X
+	else:
+		Objeto_X.addObject(Hueco_X)
+	if Etiqueta == '':
+		Hueco_X.Label = Titulo
+	else:
+		Hueco_X.Label = Etiqueta
+	
+	Hueco_X.Profile = (Boceto_X, [''])
+	Hueco_X.ReferenceAxis = (Boceto_X,['N_Axis'])
+	Boceto_X.Visibility = False
+	
+	Doc.recompute()
+	return Hueco_X
+	
+	
+	
+def Crear_Agujero(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False, Plano_X = '', Modelado_X = ''):
+	
+	Agujero_X = Doc.addObject('PartDesign::Hole', Titulo)
+	if Objeto_X == False:
+		Doc.Tip = Agujero_X
+	else:
+		Objeto_X.addObject(Agujero_X)
+	if Etiqueta == '':
+		Agujero_X.Label = Titulo
+	else:
+		Agujero_X.Label = Etiqueta
+	
+	if Boceto_X == False:
+		Agujero_X.Profile = (Modelado_X, [Plano_X])
+	else:
+		Agujero_X.Profile = (Boceto_X, [''])
+		Boceto_X.Visibility = False
+	
+	Doc.recompute()
+	return Agujero_X
+	
+	
+	
+def Actualizar_Lista(Boceto_X, Total_Lista):
+	
+	for k in range(0, Total_Lista)[::-1]:
+		if Lista_Obj[::-1][k][6] == Boceto_X.Label:
+			if Lista_Obj[k][5] == 'linea':
+				Pt1_temp = [round(Boceto_X.Geometry[k].StartPoint[0],8), round(Boceto_X.Geometry[k].StartPoint[1],8), round(Boceto_X.Geometry[k].StartPoint[2],8)]
+				Pt2_temp = [round(Boceto_X.Geometry[k].EndPoint[0],8),   round(Boceto_X.Geometry[k].EndPoint[1],8),   round(Boceto_X.Geometry[k].EndPoint[2],8)]
+				Vector3 = App.Vector(Pt2_temp) - App.Vector(Pt1_temp)
+				Longitud = round(Vector3.Length, 8)
+				# Longitud
+				Lista_Obj[k][1] = Longitud
+				# Punto inicio
+				Lista_Obj[k][2] = Pt1_temp
+				# Punto final
+				Lista_Obj[k][3] = Pt2_temp
+			if Lista_Obj[k][5] == 'arco':
+				Pt1_temp = [round(Boceto_X.Geometry[k].StartPoint[0], 8), round(Boceto_X.Geometry[k].StartPoint[1], 8), round(Boceto_X.Geometry[k].StartPoint[2], 8)]
+				Pt2_temp = [round(Boceto_X.Geometry[k].EndPoint[0], 8),   round(Boceto_X.Geometry[k].EndPoint[1], 8),   round(Boceto_X.Geometry[k].EndPoint[2], 8)]
+				Eje_temp = [round(Boceto_X.Geometry[k].Center[0], 8),     round(Boceto_X.Geometry[k].Center[1], 8),     round(Boceto_X.Geometry[k].Center[2], 8)]
+				# Radio
+				Lista_Obj[k][1] = round(Boceto_X.Geometry[k].Radius, 8)
+				# Punto inicio
+				Lista_Obj[k][2] = Pt1_temp
+				# Punto final
+				Lista_Obj[k][3] = Pt2_temp
+				# Centro curva
+				Lista_Obj[k][4] = Eje_temp
+			if Lista_Obj[k][5] == 'circulo':
+				Eje_temp = [round(Boceto_X.Geometry[k].Center[0], 8), round(Boceto_X.Geometry[k].Center[1], 8), round(Boceto_X.Geometry[k].Center[2], 8)]
+				# Radio
+				Lista_Obj[k][1] = round(Boceto_X.Geometry[k].Radius, 8)
+				# Centro curva
+				Lista_Obj[k][4] = Eje_temp
+	
+	
+	
+#! crear Bastidor 3D
+def Crear_Bastidor_3D():
+	
+	### iniciar la orden PartDesign_Sketch
+	global Boceto_Base
+	# Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = ''):
+	Boceto_Base = Crear_Boceto('Sketch_Base_B001', 'Boceto_Base_B001', Cuerpo_B1, 'XZ_Plane')
+	
+	# creamos la lista de puntos por cada linea
+	geoList = []
+	# [Punto inicial, Punto final]
+	geoList.append([App.Vector(-278, 19, 0), App.Vector(-151, 19, 0)])		#Object[0]
+	geoList.append([App.Vector(-146, 17, 0), App.Vector(-131,  2, 0)])		#Object[1]
+	geoList.append([App.Vector(-127,  0, 0), App.Vector( 127,  0, 0)])		#Object[2]
+	geoList.append([App.Vector( 131,  2, 0), App.Vector( 146, 17, 0)])		#Object[3]
+	geoList.append([App.Vector( 151, 19, 0), App.Vector( 278, 19, 0)])		#Object[4]
+	
+	for NewLinea in geoList:
+		# Crear_Linea(Pt1, Pt2, Boceto_X, Guia = False):
+		Crear_Linea(NewLinea[0], NewLinea[1], Boceto_Base)
+	
+	del geoList
+	
+	# creamos la lista de puntos por cada arco
+	geoList = []
+	geoList.append([App.Vector(-151, 12, 0), App.Vector(0, 0, 1), 6.35, math.radians( 45), math.radians( 90)])	#Object[5]
+	geoList.append([App.Vector(-127,  6, 0), App.Vector(0, 0, 1), 6.35, math.radians(225), math.radians(270)])	#Object[6]
+	geoList.append([App.Vector( 127,  6, 0), App.Vector(0, 0, 1), 6.35, math.radians(270), math.radians(315)])	#Object[7]
+	geoList.append([App.Vector( 151, 12, 0), App.Vector(0, 0, 1), 6.35, math.radians( 90), math.radians(135)])	#Object[8]
+	
+	for NewArco in geoList:
+		# Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Guia = False):
+		Crear_Arco(NewArco[0], NewArco[1], NewArco[2], Boceto_Base, NewArco[3], NewArco[4])
+	
+	del geoList
+	
+	# creamos la lista de restricciones
+	constraintList = []
+	constraintList.append(Sketcher.Constraint('Tangent',0,2,5,2))					#Constraints[0]
+	constraintList.append(Sketcher.Constraint('Tangent',1,1,5,1))					#Constraints[1]
+	constraintList.append(Sketcher.Constraint('Tangent',1,2,6,1))					#Constraints[2]
+	constraintList.append(Sketcher.Constraint('Tangent',2,1,6,2))					#Constraints[3]
+	constraintList.append(Sketcher.Constraint('Tangent',2,2,7,1))					#Constraints[4]
+	constraintList.append(Sketcher.Constraint('Tangent',3,1,7,2))					#Constraints[5]
+	constraintList.append(Sketcher.Constraint('Tangent',3,2,8,2))					#Constraints[6]
+	constraintList.append(Sketcher.Constraint('Tangent',4,1,8,1))					#Constraints[7]
+	constraintList.append(Sketcher.Constraint('Horizontal',0))						#Constraints[8]
+	constraintList.append(Sketcher.Constraint('Horizontal',2))						#Constraints[9]
+	constraintList.append(Sketcher.Constraint('Horizontal',4))						#Constraints[10]
+	constraintList.append(Sketcher.Constraint('Symmetric',2,1,2,2,-1,1))				#Constraints[11]
+	constraintList.append(Sketcher.Constraint('Symmetric',0,1,4,2,-2))				#Constraints[12]
+	constraintList.append(Sketcher.Constraint('DistanceX',2,1,2,2,241))				#Constraints[13]
+	constraintList.append(Sketcher.Constraint('Radius',5,6.35))						#Constraints[14]
+	constraintList.append(Sketcher.Constraint('Radius',6,6.35))						#Constraints[15]
+	constraintList.append(Sketcher.Constraint('Radius',7,6.35))						#Constraints[16]
+	constraintList.append(Sketcher.Constraint('Radius',8,6.35))						#Constraints[17]
+	constraintList.append(Sketcher.Constraint('Angle',0,2,1,1,math.radians(135)))		#Constraints[18]
+	constraintList.append(Sketcher.Constraint('Angle',3,2,4,1,math.radians(135)))		#Constraints[19]
+	constraintList.append(Sketcher.Constraint('DistanceY',2,1,0,1,19))				#Constraints[20]
+	constraintList.append(Sketcher.Constraint('DistanceX',0,1,4,2,508))				#Constraints[21]
+	
+	Boceto_Base.addConstraint(constraintList)
+	Boceto_Base.setExpression('Constraints[20]', u'' + Variable_B1.Name + '.Alto')
+	Boceto_Base.setExpression('Constraints[21]', u'' + Variable_B1.Name + '.Largo')
+	
+	del constraintList
+	
+	
+	
+	# creamos la lista de puntos por cada linea
+	geoList = []
+	# [Punto inicial, Punto final]
+	geoList.append([App.Vector(-247, 19, 0), App.Vector(-247, 16, 0)])		#Object[9]
+	geoList.append([App.Vector(-247, 16, 0), App.Vector(-144, 16, 0)])		#Object[10]
+	geoList.append([App.Vector(-140, 14, 0), App.Vector(-128,  0, 0)])		#Object[11]
+	geoList.append([App.Vector(-120, -3, 0), App.Vector( 120, -3, 0)])		#Object[12]
+	geoList.append([App.Vector( 128,  0, 0), App.Vector( 140, 14, 0)])		#Object[13]
+	geoList.append([App.Vector( 144, 16, 0), App.Vector( 247, 16, 0)])		#Object[14]
+	geoList.append([App.Vector( 247, 16, 0), App.Vector( 247, 19, 0)])		#Object[15]
+	
+	for NewLinea in geoList:
+		# Crear_Linea(Pt1, Pt2, Boceto_X, Guia = False):
+		Crear_Linea(NewLinea[0], NewLinea[1], Boceto_Base)
+	
+	del geoList
+	
+	# creamos la lista de puntos por cada arco
+	geoList = []
+	geoList.append([App.Vector(-144, 12, 0), App.Vector(0, 0, 1), 3.35, math.radians( 45), math.radians( 90)])	#Object[16]
+	geoList.append([App.Vector(-120,  6, 0), App.Vector(0, 0, 1), 9.35, math.radians(225), math.radians(270)])	#Object[17]
+	geoList.append([App.Vector( 120,  6, 0), App.Vector(0, 0, 1), 9.35, math.radians(270), math.radians(315)])	#Object[18]
+	geoList.append([App.Vector( 144, 12, 0), App.Vector(0, 0, 1), 3.35, math.radians( 90), math.radians(135)])	#Object[19]
+	
+	for NewArco in geoList:
+		# Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Guia = False):
+		Crear_Arco(NewArco[0], NewArco[1], NewArco[2], Boceto_Base, NewArco[3], NewArco[4])
+	
+	del geoList
+	
+	# creamos la lista de restricciones
+	constraintList = []
+	constraintList.append(Sketcher.Constraint('Coincident',9,1,0,1))			#Constraints[22]
+	constraintList.append(Sketcher.Constraint('Coincident',9,2,10,1))		#Constraints[23]
+	constraintList.append(Sketcher.Constraint('Coincident',5,3,16,3))		#Constraints[24]
+	constraintList.append(Sketcher.Constraint('Coincident',6,3,17,3))		#Constraints[25]
+	constraintList.append(Sketcher.Constraint('Coincident',7,3,18,3))		#Constraints[26]
+	constraintList.append(Sketcher.Constraint('Coincident',8,3,19,3))		#Constraints[27]
+	constraintList.append(Sketcher.Constraint('Coincident',15,2,4,2))		#Constraints[28]
+	constraintList.append(Sketcher.Constraint('Coincident',14,2,15,1))		#Constraints[29]
+	constraintList.append(Sketcher.Constraint('Tangent',10,2,16,2))			#Constraints[30]
+	constraintList.append(Sketcher.Constraint('Tangent',11,1,16,1))			#Constraints[31]
+	constraintList.append(Sketcher.Constraint('Tangent',11,2,17,1))			#Constraints[32]
+	constraintList.append(Sketcher.Constraint('Tangent',12,1,17,2))			#Constraints[33]
+	constraintList.append(Sketcher.Constraint('Tangent',12,2,18,1))			#Constraints[34]
+	constraintList.append(Sketcher.Constraint('Tangent',13,1,18,2))			#Constraints[35]
+	constraintList.append(Sketcher.Constraint('Tangent',13,2,19,2))			#Constraints[36]
+	constraintList.append(Sketcher.Constraint('Tangent',14,1,19,1))			#Constraints[37]
+	constraintList.append(Sketcher.Constraint('Parallel',11,1))				#Constraints[38]
+	constraintList.append(Sketcher.Constraint('Parallel',13,3))				#Constraints[39]
+	constraintList.append(Sketcher.Constraint('Vertical',9))					#Constraints[40]
+	constraintList.append(Sketcher.Constraint('Horizontal',10))				#Constraints[41]
+	constraintList.append(Sketcher.Constraint('Horizontal',12))				#Constraints[42]
+	constraintList.append(Sketcher.Constraint('Horizontal',14))				#Constraints[43]
+	constraintList.append(Sketcher.Constraint('Vertical',15))				#Constraints[44]
+	constraintList.append(Sketcher.Constraint('DistanceY',14,2,4,2,2))		#Constraints[45]
+	
+	Boceto_Base.addConstraint(constraintList)
+	Boceto_Base.setExpression('Constraints[45]', u'' + Variable_B1.Name + '.Espesor')
+	
+	del constraintList
+	
+	Doc.recompute()
+	
+	# Actualizar_Lista(Boceto_X, Total_Lista):
+	Actualizar_Lista(Boceto_Base, len(Boceto_Base.Geometry))
+	
+	
+	
+	global Relleno_Base
+	# Crear_Relleno(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False):
+	Relleno_Base = Crear_Relleno('Pad_Base_B001', 'Relleno_Base_B001', Cuerpo_B1, Boceto_Base)
+	Relleno_Base.setExpression('Length', u'' + Variable_B1.Name + '.Ancho')
+	
+	Doc.recompute()
+	
+	
+
+	
+	
+
+	
+	
+
+	
+	
+	
+	
+
+
+#! Variable Global
+#$ Esta es la memoria de los Objetos 2D para revision y analisis
+# Lista_Obj = [
+#	ID objeto, Longitud / Radio, Lista punto inicial, Lista punto final, Lista centro / NA,
+#   Nombre del Objeto, Nombre del Contenedor
+# ]
+Lista_Obj = []
+
+dias = ('Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom')
+Ini = time.time()
+
+#! Esta es la funcion que inicia la Macro
+# Crear_Hoop2(Largo_Total, Ancho_Total, Alto_Total):
+Crear_Hoop2('19.5 in', '3.5 in', '3/4 in')
+
+
+# Imprimir_Lista(Lista_X, Nom_Lista = 'Lista X'):
+Imprimir_Lista(Lista_Obj, 'Lista_Objetos')
+
+Fin = time.time()
+indice = datetime.date.weekday(datetime.datetime.now())
+
+print()
+
+App.Console.PrintMessage(f'Fin de la {Pieza_B1.Label} en {round(Fin - Ini, 2)} seg\n')
+
+print(f'{dias[indice]}  {time.strftime("%d/%m/%Y  %H:%M:%S", time.localtime())}')
+
+

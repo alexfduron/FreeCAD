@@ -83,12 +83,12 @@ def Crear_Grupo(Titulo, Etiqueta = '', Objeto_X = False):
 	return Grupo_X
 
 
-def Crear_Pieza():
+def Crear_Pieza(Titulo, Etiqueta = ''):
 	
 	Crear_Plano()
-	Pieza_X = Plano.addObject('App::Part','Part_H001')
+	Pieza_X = Plano.addObject('App::Part', Titulo)
 	Plano.Tip = Pieza_X
-	Pieza_X.Label = 'Pieza_H001'
+	Pieza_X.Label = Etiqueta
 	Plano.recompute()
 	return Pieza_X
 
@@ -195,7 +195,7 @@ def Crear_Contenedor_2D(LT, AT, RT):
 	
 	### Begin command Std_Part
 	global Pieza_H1
-	Pieza_H1 = Crear_Pieza()
+	Pieza_H1 = Crear_Pieza('Part_H001', 'Pieza_H001')
 	
 	global Variable_H1
 	### Begin command Var_Set
