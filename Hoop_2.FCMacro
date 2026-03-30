@@ -39,14 +39,14 @@
 
 __Title__    = "FC_Bastidor"
 __Author__   = "AFD"
-__Version__  = "1.1.0rc3"
-__Date__     = "2026/03/14" #YYYY/MMM/DD
+__Version__  = "1.1.0"
+__Date__     = "2026/03/29" #YYYY/MMM/DD
 
 __Comment__  = "Esta macro crea un Bastidor para bordar en cintas"
 __Web__      = "https://www.fastframes.com/product-page/nametape-hoops"
 __Help__     = "inicia la Macro y sigue las instrucciones"
 __Status__   = "estable"
-__Requires__ = "freecad 1.1.0rc3 and higher"
+__Requires__ = "freecad 1.1.0 and higher"
 
 
 # importamos la libreria de "FreeCAD"
@@ -142,8 +142,29 @@ def Crear_Hoop2(Largo_Total, Ancho_Total, Alto_Total):
 	# Crear_Huecos01_3D():
 	Crear_Huecos01_3D()
 	
-	# Crear_Huecos02_3D():
-	Crear_Huecos02_3D()
+	# Crear_Huecos02_3D(LaT, AnT, AlT):
+	Crear_Huecos02_3D(LaT, AnT, AlT)
+	
+	# Crear_Huecos03_3D(LaT, AnT, AlT):
+	Crear_Huecos03_3D(LaT, AnT, AlT)
+	
+	# Crear_Doblez01():
+	Crear_Doblez01()
+	#Crear_Doblez02()
+	#Crear_Doblez03()
+	#Crear_Doblez04()
+	#Crear_Doblez05()
+	#Crear_Doblez06()
+	#Crear_Doblez07()
+	#Crear_Doblez08()
+	
+	# Crear_Huecos04_3D(LaT, AnT, AlT):
+	#Crear_Huecos04_3D(LaT, AnT, AlT)
+	
+	# Crear_Huecos05_3D(LaT, AnT, AlT):
+	#Crear_Huecos05_3D(LaT, AnT, AlT)
+	
+	
 	
 	
 	
@@ -206,7 +227,6 @@ def Crear_Variables(Titulo, Etiqueta, Objeto_X, LaT, AnT, AlT):
 	Var_X.Label = Etiqueta
 	Objeto_X.addObject(Var_X)
 	
-	
 	Var_X.addProperty("App::PropertyLength", "Largo",     group="Grupo_Bastidor",    doc="Esta propiedad modifica el Largo del Bastidor")
 	Var_X.Largo = LaT
 	Var_X.addProperty("App::PropertyLength", "Ancho",     group="Grupo_Bastidor",    doc="Esta propiedad modifica el Ancho del Bastidor")
@@ -215,17 +235,6 @@ def Crear_Variables(Titulo, Etiqueta, Objeto_X, LaT, AnT, AlT):
 	Var_X.Alto = AlT
 	Var_X.addProperty("App::PropertyLength", "Espesor",   group="Grupo_Bastidor",    doc="Esta propiedad modifica el grosor del Bastidor")
 	Var_X.Espesor = "2 mm"
-	
-	'''
-	Var_X.addProperty("App::PropertyLength", "Diametro_1",		group="Grupo_Opcional", 		doc="Esta propiedad modifica el diametro del cilindro")
-	Var_X.Diametro_1 = "7 mm"
-	Var_X.addProperty("App::PropertyLength", "Distancia_X",		group="Grupo_Opcional",		doc="Esta propiedad modifica la posicion del accesorio en x")
-	Var_X.Distancia_X = "10 mm"
-	Var_X.addProperty("App::PropertyLength", "Distancia_Y",		group="Grupo_Opcional",		doc="Esta propiedad modifica la posicion del accesorio en y")
-	Var_X.Distancia_Y = "15 mm"
-	Var_X.addProperty("App::PropertyLength", "Altura_1",			group="Grupo_Opcional",		doc="Esta propiedad modifica la altura del cilindro")
-	Var_X.Altura_1 = "20 mm"
-	'''
 	
 	Doc.recompute()
 	return Var_X
@@ -243,12 +252,13 @@ def Crear_Cuerpo(Titulo, Etiqueta = '', Objeto_X = False):
 		Doc.Tip = Cuerpo_X
 	else:
 		Objeto_X.addObject(Cuerpo_X)
+		
 	Doc.recompute()
 	return Cuerpo_X
 	
 	
 	
-def Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = ''):
+def Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = '', Mapa_X = 'FlatFace'):
 	
 	Boceto_X = Doc.addObject('Sketcher::SketchObject', Titulo)
 	Doc.Tip = Boceto_X
@@ -256,7 +266,7 @@ def Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado
 		Boceto_X.Label = Titulo
 	else:
 		Boceto_X.Label = Etiqueta
-	Boceto_X.MapMode = 'FlatFace'
+	Boceto_X.MapMode = Mapa_X
 	if Modelado_X == '':
 		if Plano_X == '':
 			Plano_X = 'XY_Plane'
@@ -281,9 +291,47 @@ def Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado
 		Boceto_X.AttachmentSupport = (Modelado_X, [Plano_X])
 		
 	Doc.recompute()
-	return Boceto_X	
+	return Boceto_X
 	
-
+	
+	
+def Crear_LineaRef(Titulo, Etiqueta = '', Objeto_X = False, Eje_X = '', Modelado_X = ''):
+	
+	LinRef_X = Doc.addObject('Part::DatumLine', Titulo)
+	if Etiqueta == '':
+		LinRef_X.Label = Titulo
+	else:
+		LinRef_X.Label = Etiqueta
+	if Objeto_X == False:
+		Doc.Tip = LinRef_X
+	else:
+		Objeto_X.addObject(LinRef_X)
+	LinRef_X.MapMode = 'TwoPointLine'
+	LinRef_X.AttachmentSupport = [(Modelado_X, Eje_X)]
+	
+	Doc.recompute()
+	return LinRef_X
+	
+	
+	
+def Crear_PlanoRef(Titulo, Etiqueta = '', Objeto_X = False, Eje_X = '', Modelado_X = ''):
+	
+	PlanRef_X = Doc.addObject('Part::DatumPlane', Titulo)
+	if Etiqueta == '':
+		PlanRef_X.Label = Titulo
+	else:
+		PlanRef_X.Label = Etiqueta
+	if Objeto_X == False:
+		Doc.Tip = PlanRef_X
+	else:
+		Objeto_X.addObject(PlanRef_X)
+	PlanRef_X.MapMode = 'NormalToEdge'
+	PlanRef_X.AttachmentSupport = [(Modelado_X, Eje_X)]
+	
+	Doc.recompute()
+	return PlanRef_X
+	
+	
 	
 #! Estos son las funciones para crear Objetos 2D
 def Crear_Linea(Pt1, Pt2, Boceto_X, Guia = False):
@@ -392,23 +440,23 @@ def Crear_Cuadrado(Pt1, Boceto_X, Tipo = 'Borde', Dist_X = False, Dist_Y = False
 	if Radio == False:
 		Radio = 10
 	
-	newID = len(Boceto_X.Geometry)
+	lastID = len(Boceto_X.Geometry)
 	
 	# creamos la lista de puntos por cada linea
 	geoList = []
 	if Tipo == 'Borde':
 		# [Punto inicial, Punto final]
-		geoList.append([App.Vector(-Dist_X + Pt1.x,          Dist_Y - Radio + Pt1.y, Pt1.z), App.Vector(-Dist_X + Pt1.x,         -Dist_Y + Radio + Pt1.y, Pt1.z)])		#Object[0]
-		geoList.append([App.Vector(-Dist_X + Radio + Pt1.x, -Dist_Y + Pt1.y,         Pt1.z), App.Vector( Dist_X - Radio + Pt1.x, -Dist_Y + Pt1.y,         Pt1.z)])		#Object[1]
-		geoList.append([App.Vector( Dist_X + Pt1.x,         -Dist_Y + Radio + Pt1.y, Pt1.z), App.Vector( Dist_X + Pt1.x,          Dist_Y - Radio + Pt1.y, Pt1.z)])		#Object[2]
-		geoList.append([App.Vector( Dist_X - Radio +Pt1.x,   Dist_Y + Pt1.y,         Pt1.z), App.Vector(-Dist_X + Radio + Pt1.x,  Dist_Y + Pt1.y,         Pt1.z)])		#Object[3]
+		geoList.append([App.Vector(-Dist_X + Pt1.x,          Dist_Y - Radio + Pt1.y, Pt1.z), App.Vector(-Dist_X + Pt1.x,         -Dist_Y + Radio + Pt1.y, Pt1.z)])		#Object[B0]
+		geoList.append([App.Vector(-Dist_X + Radio + Pt1.x, -Dist_Y + Pt1.y,         Pt1.z), App.Vector( Dist_X - Radio + Pt1.x, -Dist_Y + Pt1.y,         Pt1.z)])		#Object[B1]
+		geoList.append([App.Vector( Dist_X + Pt1.x,         -Dist_Y + Radio + Pt1.y, Pt1.z), App.Vector( Dist_X + Pt1.x,          Dist_Y - Radio + Pt1.y, Pt1.z)])		#Object[B2]
+		geoList.append([App.Vector( Dist_X - Radio +Pt1.x,   Dist_Y + Pt1.y,         Pt1.z), App.Vector(-Dist_X + Radio + Pt1.x,  Dist_Y + Pt1.y,         Pt1.z)])		#Object[B3]
 	
 	if Tipo == 'Esquina':
 		# [Punto inicial, Punto final]
-		geoList.append([App.Vector(-Dist_X + Pt1.x,  Dist_Y + Pt1.y, Pt1.z), App.Vector(-Dist_X + Pt1.x, -Dist_Y + Pt1.y, Pt1.z)])		#Object[0]
-		geoList.append([App.Vector(-Dist_X + Pt1.x, -Dist_Y + Pt1.y, Pt1.z), App.Vector( Dist_X + Pt1.x, -Dist_Y + Pt1.y, Pt1.z)])		#Object[1]
-		geoList.append([App.Vector( Dist_X + Pt1.x, -Dist_Y + Pt1.y, Pt1.z), App.Vector( Dist_X + Pt1.x,  Dist_Y + Pt1.y, Pt1.z)])		#Object[2]
-		geoList.append([App.Vector( Dist_X + Pt1.x,  Dist_Y + Pt1.y, Pt1.z), App.Vector(-Dist_X + Pt1.x,  Dist_Y + Pt1.y, Pt1.z)])		#Object[3]
+		geoList.append([App.Vector(-Dist_X + Pt1.x,  Dist_Y + Pt1.y, Pt1.z), App.Vector(-Dist_X + Pt1.x, -Dist_Y + Pt1.y, Pt1.z)])		#Object[E0]
+		geoList.append([App.Vector(-Dist_X + Pt1.x, -Dist_Y + Pt1.y, Pt1.z), App.Vector( Dist_X + Pt1.x, -Dist_Y + Pt1.y, Pt1.z)])		#Object[E1]
+		geoList.append([App.Vector( Dist_X + Pt1.x, -Dist_Y + Pt1.y, Pt1.z), App.Vector( Dist_X + Pt1.x,  Dist_Y + Pt1.y, Pt1.z)])		#Object[E2]
+		geoList.append([App.Vector( Dist_X + Pt1.x,  Dist_Y + Pt1.y, Pt1.z), App.Vector(-Dist_X + Pt1.x,  Dist_Y + Pt1.y, Pt1.z)])		#Object[E3]
 	
 	for NewLinea in geoList:
 		# Crear_Linea(Pt1, Pt2, Boceto_X, Guia = False):
@@ -420,10 +468,10 @@ def Crear_Cuadrado(Pt1, Boceto_X, Tipo = 'Borde', Dist_X = False, Dist_Y = False
 		# creamos la lista de puntos por cada arco
 		geoList = []
 		# [centro curva, Eje, Radio, Angulo inicial, Angulo final]
-		geoList.append([App.Vector(-Dist_X + Radio + Pt1.x,  Dist_Y - Radio + Pt1.y, Pt1.z), App.Vector(0, 0, 1), Radio, math.radians( 90), math.radians(180)])	#Object[4]
-		geoList.append([App.Vector(-Dist_X + Radio + Pt1.x, -Dist_Y + Radio + Pt1.y, Pt1.z), App.Vector(0, 0, 1), Radio, math.radians(180), math.radians(270)])	#Object[5]
-		geoList.append([App.Vector( Dist_X - Radio + Pt1.x, -Dist_Y + Radio + Pt1.y, Pt1.z), App.Vector(0, 0, 1), Radio, math.radians(270), math.radians(360)])	#Object[6]
-		geoList.append([App.Vector( Dist_X - Radio + Pt1.x,  Dist_Y - Radio + Pt1.y, Pt1.z), App.Vector(0, 0, 1), Radio, math.radians(  0), math.radians( 90)])	#Object[7]
+		geoList.append([App.Vector(-Dist_X + Radio + Pt1.x,  Dist_Y - Radio + Pt1.y, Pt1.z), App.Vector(0, 0, 1), Radio, math.radians( 90), math.radians(180)])	#Object[B4]
+		geoList.append([App.Vector(-Dist_X + Radio + Pt1.x, -Dist_Y + Radio + Pt1.y, Pt1.z), App.Vector(0, 0, 1), Radio, math.radians(180), math.radians(270)])	#Object[B5]
+		geoList.append([App.Vector( Dist_X - Radio + Pt1.x, -Dist_Y + Radio + Pt1.y, Pt1.z), App.Vector(0, 0, 1), Radio, math.radians(270), math.radians(360)])	#Object[B6]
+		geoList.append([App.Vector( Dist_X - Radio + Pt1.x,  Dist_Y - Radio + Pt1.y, Pt1.z), App.Vector(0, 0, 1), Radio, math.radians(  0), math.radians( 90)])	#Object[B7]
 		
 		for NewArco in geoList:
 			# Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Guia = False):
@@ -431,15 +479,16 @@ def Crear_Cuadrado(Pt1, Boceto_X, Tipo = 'Borde', Dist_X = False, Dist_Y = False
 		
 		del geoList
 	
-	# creamos la lista de puntos
+	# creamos la lista de puntos auxiliares
 	geoList = []
 	if Tipo == 'Borde':
 		# [Punto inicial]
-		geoList.append([App.Vector(-Dist_X + Pt1.x,  Dist_Y + Pt1.y, Pt1.z)])		#Object[8]
-		geoList.append([App.Vector( Dist_X + Pt1.x,  Dist_Y + Pt1.y, Pt1.z)])		#Object[9]
-		geoList.append([App.Vector( Dist_X + Pt1.x, -Dist_Y + Pt1.y, Pt1.z)])		#Object[10]
+		geoList.append([App.Vector(-Dist_X + Pt1.x,  Dist_Y + Pt1.y, Pt1.z)])		#Object[B8]
+		geoList.append([App.Vector( Dist_X + Pt1.x,  Dist_Y + Pt1.y, Pt1.z)])		#Object[B9]
+		geoList.append([App.Vector( Dist_X + Pt1.x, -Dist_Y + Pt1.y, Pt1.z)])		#Object[B10]
+		geoList.append([App.Vector(-Dist_X + Pt1.x, -Dist_Y + Pt1.y, Pt1.z)])		#Object[B11]
 	# [Punto inicial]
-	geoList.append([App.Vector(Pt1.x, Pt1.y, Pt1.z)])							#Object[11]
+	geoList.append([App.Vector(Pt1.x, Pt1.y, Pt1.z)])							#Object[B12,E4]
 	
 	for NewPunto in geoList:
 		# Crear_Punto(Pt1, Boceto_X, Guia = False):
@@ -447,53 +496,77 @@ def Crear_Cuadrado(Pt1, Boceto_X, Tipo = 'Borde', Dist_X = False, Dist_Y = False
 		
 	del geoList
 	
+	# creamos la lista de puntos por cada linea auxiliar
+	geoList = []
+	# [Punto inicial, Punto final]
+	geoList.append([App.Vector(Pt1.x, Pt1.y, Pt1.z), App.Vector(Radio + Pt1.x, Pt1.y, Pt1.z)])		#Object[B13,E5]
+	geoList.append([App.Vector(Pt1.x, Pt1.y, Pt1.z), App.Vector(Radio + Pt1.x, Pt1.y, Pt1.z)])		#Object[B14,E6]
+	
+	for NewLinea in geoList:
+		# Crear_Linea(Pt1, Pt2, Boceto_X, Guia = False):
+		Crear_Linea(NewLinea[0], NewLinea[1], Boceto_X, True)
+	
+	del geoList
+	
 	# creamos la lista de restricciones
 	constraintList = []
 	if Tipo == 'Borde':
-		constraintList.append(Sketcher.Constraint('Tangent',       newID + 0,1,  newID + 4,2))					#Constraints[0]
-		constraintList.append(Sketcher.Constraint('Tangent',       newID + 0,2,  newID + 5,1))					#Constraints[1]
-		constraintList.append(Sketcher.Constraint('Tangent',       newID + 1,1,  newID + 5,2))					#Constraints[2]
-		constraintList.append(Sketcher.Constraint('Tangent',       newID + 1,2,  newID + 6,1))					#Constraints[3]
-		constraintList.append(Sketcher.Constraint('Tangent',       newID + 2,1,  newID + 6,2))					#Constraints[4]
-		constraintList.append(Sketcher.Constraint('Tangent',       newID + 2,2,  newID + 7,1))					#Constraints[5]
-		constraintList.append(Sketcher.Constraint('Tangent',       newID + 3,1,  newID + 7,2))					#Constraints[6]
-		constraintList.append(Sketcher.Constraint('Tangent',       newID + 3,2,  newID + 4,1))					#Constraints[7]
-		constraintList.append(Sketcher.Constraint('Perpendicular', newID + 0,    newID + 1))						#Constraints[8]
-		constraintList.append(Sketcher.Constraint('Perpendicular', newID + 1,    newID + 2))						#Constraints[9]
-		constraintList.append(Sketcher.Constraint('Perpendicular', newID + 2,    newID + 3))						#Constraints[10]
-		constraintList.append(Sketcher.Constraint('Equal',         newID + 4,    newID + 5))						#Constraints[11]
-		constraintList.append(Sketcher.Constraint('Equal',         newID + 5,    newID + 6))						#Constraints[12]
-		constraintList.append(Sketcher.Constraint('Equal',         newID + 6,    newID + 7))						#Constraints[13]
-		constraintList.append(Sketcher.Constraint('PointOnObject', newID + 8,1,  newID + 0))						#Constraints[14]
-		constraintList.append(Sketcher.Constraint('PointOnObject', newID + 8,1,  newID + 3))						#Constraints[15]
-		constraintList.append(Sketcher.Constraint('PointOnObject', newID + 9,1,  newID + 2))						#Constraints[16]
-		constraintList.append(Sketcher.Constraint('PointOnObject', newID + 9,1,  newID + 3))						#Constraints[17]
-		constraintList.append(Sketcher.Constraint('PointOnObject', newID + 10,1, newID + 1))						#Constraints[18]
-		constraintList.append(Sketcher.Constraint('PointOnObject', newID + 10,1, newID + 2))						#Constraints[19]
-		constraintList.append(Sketcher.Constraint('Radius',        newID + 5,    Radio)) 							#Constraints[20]
-		constraintList.append(Sketcher.Constraint('Distance',      newID + 8,1,  newID + 9,1,  2*Dist_X))			#Constraints[21]
-		constraintList.append(Sketcher.Constraint('Distance',      newID + 9,1,  newID + 10,1, 2*Dist_Y))			#Constraints[22]
-		constraintList.append(Sketcher.Constraint('Symmetric',     newID + 8,1,  newID + 10,1, newID + 11,1))		#Constraints[23]
-		constraintList.append(Sketcher.Constraint('DistanceX',     newID + 11,1, Pt1.x))							#Constraints[24]
-		constraintList.append(Sketcher.Constraint('DistanceY',     newID + 11,1, Pt1.y))							#Constraints[25]
-		constraintList.append(Sketcher.Constraint('Angle',         -1,1,         newID + 3,2,  Angulo))			#Constraints[26]
+		constraintList.append(Sketcher.Constraint('Tangent',       lastID + 0,1,  lastID + 4,2))					#Constraints[0]
+		constraintList.append(Sketcher.Constraint('Tangent',       lastID + 0,2,  lastID + 5,1))					#Constraints[1]
+		constraintList.append(Sketcher.Constraint('Tangent',       lastID + 1,1,  lastID + 5,2))					#Constraints[2]
+		constraintList.append(Sketcher.Constraint('Tangent',       lastID + 1,2,  lastID + 6,1))					#Constraints[3]
+		constraintList.append(Sketcher.Constraint('Tangent',       lastID + 2,1,  lastID + 6,2))					#Constraints[4]
+		constraintList.append(Sketcher.Constraint('Tangent',       lastID + 2,2,  lastID + 7,1))					#Constraints[5]
+		constraintList.append(Sketcher.Constraint('Tangent',       lastID + 3,1,  lastID + 7,2))					#Constraints[6]
+		constraintList.append(Sketcher.Constraint('Tangent',       lastID + 3,2,  lastID + 4,1))					#Constraints[7]
+		constraintList.append(Sketcher.Constraint('Perpendicular', lastID + 0,    lastID + 1))					#Constraints[8]
+		constraintList.append(Sketcher.Constraint('Perpendicular', lastID + 1,    lastID + 2))					#Constraints[9]
+		constraintList.append(Sketcher.Constraint('Perpendicular', lastID + 2,    lastID + 3))					#Constraints[10]
+		constraintList.append(Sketcher.Constraint('Equal',         lastID + 4,    lastID + 5))					#Constraints[11]
+		constraintList.append(Sketcher.Constraint('Equal',         lastID + 5,    lastID + 6))					#Constraints[12]
+		constraintList.append(Sketcher.Constraint('Equal',         lastID + 6,    lastID + 7))					#Constraints[13]
+		constraintList.append(Sketcher.Constraint('PointOnObject', lastID + 8,1,  lastID + 0))					#Constraints[14]
+		constraintList.append(Sketcher.Constraint('PointOnObject', lastID + 8,1,  lastID + 3))					#Constraints[15]
+		constraintList.append(Sketcher.Constraint('PointOnObject', lastID + 9,1,  lastID + 2))					#Constraints[16]
+		constraintList.append(Sketcher.Constraint('PointOnObject', lastID + 9,1,  lastID + 3))					#Constraints[17]
+		constraintList.append(Sketcher.Constraint('PointOnObject', lastID + 10,1, lastID + 1))					#Constraints[18]
+		constraintList.append(Sketcher.Constraint('PointOnObject', lastID + 10,1, lastID + 2))					#Constraints[19]
+		constraintList.append(Sketcher.Constraint('PointOnObject', lastID + 11,1, lastID + 0))					#Constraints[20]
+		constraintList.append(Sketcher.Constraint('PointOnObject', lastID + 11,1, lastID + 1))					#Constraints[21]
+		constraintList.append(Sketcher.Constraint('Radius',        lastID + 5,    Radio)) 						#Constraints[22]
+		constraintList.append(Sketcher.Constraint('Distance',      lastID + 8,1,  lastID + 9,1,  2*Dist_X))		#Constraints[23]
+		constraintList.append(Sketcher.Constraint('Distance',      lastID + 9,1,  lastID + 10,1, 2*Dist_Y))		#Constraints[24]
+		constraintList.append(Sketcher.Constraint('Symmetric',     lastID + 8,1,  lastID + 10,1, lastID + 12,1))	#Constraints[25]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 13,1, lastID + 12,1))					#Constraints[26]
+		constraintList.append(Sketcher.Constraint('Parallel',      lastID + 13,   lastID + 3))					#Constraints[27]
+		constraintList.append(Sketcher.Constraint('Distance',      lastID + 13,1, lastID + 13,2, Radio))			#Constraints[28]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 14,1, lastID + 12,1))					#Constraints[29]
+		constraintList.append(Sketcher.Constraint('Horizontal',    lastID + 14))									#Constraints[30]
+		constraintList.append(Sketcher.Constraint('DistanceX',     lastID + 14,1, lastID + 14,2, Radio))			#Constraints[31]
+		constraintList.append(Sketcher.Constraint('Angle',         lastID + 14,1, lastID + 13,1,  Angulo))		#Constraints[32]
+		constraintList.append(Sketcher.Constraint('DistanceX',     lastID + 12,1, Pt1.x))							#Constraints[33]
+		constraintList.append(Sketcher.Constraint('DistanceY',     lastID + 12,1, Pt1.y))							#Constraints[34]
 	
 	if Tipo == 'Esquina':
-		
-		constraintList.append(Sketcher.Constraint('Coincident',    newID + 0,2, newID + 1,1))						#Constraints[0]
-		constraintList.append(Sketcher.Constraint('Coincident',    newID + 1,2, newID + 2,1))						#Constraints[1]
-		constraintList.append(Sketcher.Constraint('Coincident',    newID + 2,2, newID + 3,1))						#Constraints[2]
-		constraintList.append(Sketcher.Constraint('Coincident',    newID + 3,2, newID + 0,1))						#Constraints[3]
-		constraintList.append(Sketcher.Constraint('Perpendicular', newID + 0,   newID + 1))						#Constraints[4]
-		constraintList.append(Sketcher.Constraint('Perpendicular', newID + 1,   newID + 2))						#Constraints[5]
-		constraintList.append(Sketcher.Constraint('Perpendicular', newID + 2,   newID + 3))						#Constraints[6]
-		constraintList.append(Sketcher.Constraint('Distance',      newID + 3,1, newID + 3,2, 2*Dist_X))			#Constraints[7]
-		constraintList.append(Sketcher.Constraint('Distance',      newID + 0,1, newID + 0,2, 2*Dist_Y))			#Constraints[8]
-		constraintList.append(Sketcher.Constraint('Symmetric',     newID + 0,1, newID + 1,2, newID + 4,1))		#Constraints[9]
-		constraintList.append(Sketcher.Constraint('Angle',         -1,1,        newID + 3,2, Angulo))				#Constraints[10]
-		constraintList.append(Sketcher.Constraint('DistanceX',     newID + 4,1, Pt1.x))							#Constraints[11]
-		constraintList.append(Sketcher.Constraint('DistanceY',     newID + 4,1, Pt1.y))							#Constraints[12]
-		
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 0,2, lastID + 1,1))					#Constraints[0]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 1,2, lastID + 2,1))					#Constraints[1]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 2,2, lastID + 3,1))					#Constraints[2]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 3,2, lastID + 0,1))					#Constraints[3]
+		constraintList.append(Sketcher.Constraint('Perpendicular', lastID + 0,   lastID + 1))						#Constraints[4]
+		constraintList.append(Sketcher.Constraint('Perpendicular', lastID + 1,   lastID + 2))						#Constraints[5]
+		constraintList.append(Sketcher.Constraint('Perpendicular', lastID + 2,   lastID + 3))						#Constraints[6]
+		constraintList.append(Sketcher.Constraint('Distance',      lastID + 3,1, lastID + 3,2, 2*Dist_X))			#Constraints[7]
+		constraintList.append(Sketcher.Constraint('Distance',      lastID + 0,1, lastID + 0,2, 2*Dist_Y))			#Constraints[8]
+		constraintList.append(Sketcher.Constraint('Symmetric',     lastID + 0,1, lastID + 1,2, lastID + 4,1))		#Constraints[9]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 5,1, lastID + 4,1))					#Constraints[10]
+		constraintList.append(Sketcher.Constraint('Parallel',      lastID + 5,   lastID + 3))						#Constraints[11]
+		constraintList.append(Sketcher.Constraint('Distance',      lastID + 5,1, lastID + 5,2, 10))				#Constraints[12]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 6,1, lastID + 4,1))					#Constraints[13]
+		constraintList.append(Sketcher.Constraint('Horizontal',    lastID + 6))									#Constraints[14]
+		constraintList.append(Sketcher.Constraint('DistanceX',     lastID + 6,1, lastID + 6,2, 10))				#Constraints[15]
+		constraintList.append(Sketcher.Constraint('Angle',         lastID + 6,1, lastID + 5,1, Angulo))			#Constraints[16]
+		constraintList.append(Sketcher.Constraint('DistanceX',     lastID + 4,1, Pt1.x))							#Constraints[17]
+		constraintList.append(Sketcher.Constraint('DistanceY',     lastID + 4,1, Pt1.y))							#Constraints[18]
 		
 	Boceto_X.addConstraint(constraintList)
 	
@@ -516,7 +589,7 @@ def Crear_Ranura(Pt1, Boceto_X, Dist_X = False, Dist_Y = False, Angulo = 0, Guia
 		Dist_Y = Dist_Y / 2
 	Radio = Dist_Y
 	
-	newID = len(Boceto_X.Geometry)
+	lastID = len(Boceto_X.Geometry)
 	
 	# creamos la lista de puntos por cada arco
 	geoList = []
@@ -544,26 +617,31 @@ def Crear_Ranura(Pt1, Boceto_X, Dist_X = False, Dist_Y = False, Angulo = 0, Guia
 	
 	del geoList
 	
-	# creamos la lista de puntos por cada linea
+	# creamos la lista de puntos por cada linea auxiliar
 	geoList = []
 	# [Punto inicial, Punto final]
-	geoList.append([App.Vector(-Dist_X + Pt1.x, Pt1.y, Pt1.z), App.Vector(-Dist_X + Radio + Pt1.x, Pt1.y, Pt1.z)])						#Object[6]
+	geoList.append([App.Vector(-Dist_X + Pt1.x, Pt1.y, Pt1.z),         App.Vector(-Dist_X + Radio + Pt1.x, Pt1.y, Pt1.z)])				#Object[6]
 	geoList.append([App.Vector(-Dist_X + Radio + Pt1.x, Pt1.y, Pt1.z), App.Vector(-Dist_X + Radio + Pt1.x, Dist_Y + Pt1.y, Pt1.z)])		#Object[7]
-	geoList.append([App.Vector( Dist_X + Pt1.x, Pt1.y, Pt1.z), App.Vector( Dist_X - Radio + Pt1.x, Pt1.y, Pt1.z)])						#Object[8]
+	geoList.append([App.Vector( Dist_X + Pt1.x, Pt1.y, Pt1.z),         App.Vector( Dist_X - Radio + Pt1.x, Pt1.y, Pt1.z)])				#Object[8]
 	geoList.append([App.Vector( Dist_X - Radio + Pt1.x, Pt1.y, Pt1.z), App.Vector( Dist_X - Radio + Pt1.x, -Dist_Y + Pt1.y, Pt1.z)])		#Object[9]
-	geoList.append([App.Vector(-Dist_X + Pt1.x, Dist_Y + Pt1.y, Pt1.z), App.Vector(-Dist_X + Radio + Pt1.x, Dist_Y + Pt1.y, Pt1.z)])		#Object[10]
+	geoList.append([App.Vector(-Dist_X + Pt1.x,  Dist_Y + Pt1.y, Pt1.z), App.Vector(-Dist_X + Radio + Pt1.x,  Dist_Y + Pt1.y, Pt1.z)])	#Object[10]
 	geoList.append([App.Vector( Dist_X + Pt1.x,  Dist_Y + Pt1.y, Pt1.z), App.Vector( Dist_X - Radio + Pt1.x,  Dist_Y + Pt1.y, Pt1.z)])	#Object[11]
 	geoList.append([App.Vector(-Dist_X + Pt1.x, -Dist_Y + Pt1.y, Pt1.z), App.Vector(-Dist_X + Radio + Pt1.x, -Dist_Y + Pt1.y, Pt1.z)])	#Object[12]
+	geoList.append([App.Vector( Dist_X + Pt1.x, -Dist_Y + Pt1.y, Pt1.z), App.Vector( Dist_X - Radio + Pt1.x, -Dist_Y + Pt1.y, Pt1.z)])	#Object[13]
+	
+	geoList.append([App.Vector( Pt1.x, Pt1.y, Pt1.z), App.Vector( Radio + Pt1.x, Pt1.y, Pt1.z)])			#Object[14]
+	geoList.append([App.Vector( Pt1.x, Pt1.y, Pt1.z), App.Vector( Radio + Pt1.x, Pt1.y, Pt1.z)])			#Object[15]
+	
 	for NewLinea in geoList:
 		# Crear_Linea(Pt1, Pt2, Boceto_X, Guia = False):
 		Crear_Linea(NewLinea[0], NewLinea[1], Boceto_X, True)
 	
 	del geoList
 	
-	# creamos la lista de puntos
+	# creamos la lista de puntos auxiliares
 	geoList = []
 	# [Punto inicial]
-	geoList.append([App.Vector(Pt1.x, Pt1.y, Pt1.z)])			#Object[13]
+	geoList.append([App.Vector(Pt1.x, Pt1.y, Pt1.z)])			#Object[16]
 	
 	for NewPunto in geoList:
 		# Crear_Punto(Pt1, Boceto_X, Guia = False):
@@ -573,40 +651,49 @@ def Crear_Ranura(Pt1, Boceto_X, Dist_X = False, Dist_Y = False, Angulo = 0, Guia
 	
 	# creamos la lista de restricciones
 	constraintList = []
-	constraintList.append(Sketcher.Constraint('Tangent',       newID + 0,1,  newID + 4,1))						#Constraints[0]
-	constraintList.append(Sketcher.Constraint('Tangent',       newID + 0,2,  newID + 1,1))						#Constraints[1]
-	constraintList.append(Sketcher.Constraint('Tangent',       newID + 1,2,  newID + 5,1))						#Constraints[2]
-	constraintList.append(Sketcher.Constraint('Tangent',       newID + 2,1,  newID + 5,2))						#Constraints[3]
-	constraintList.append(Sketcher.Constraint('Tangent',       newID + 2,2,  newID + 3,1))						#Constraints[4]
-	constraintList.append(Sketcher.Constraint('Tangent',       newID + 3,2,  newID + 4,2))						#Constraints[5]
-	constraintList.append(Sketcher.Constraint('Equal',         newID + 0,    newID + 1))							#Constraints[6]
-	constraintList.append(Sketcher.Constraint('Equal',         newID + 1,    newID + 2))							#Constraints[7]
-	constraintList.append(Sketcher.Constraint('Equal',         newID + 2,    newID + 3))							#Constraints[8]
-	constraintList.append(Sketcher.Constraint('Equal',         newID + 6,    newID + 10))							#Constraints[9]
-	constraintList.append(Sketcher.Constraint('Equal',         newID + 8,    newID + 11))							#Constraints[10]
-	constraintList.append(Sketcher.Constraint('Equal',         newID + 6,    newID + 12))							#Constraints[11]
-	constraintList.append(Sketcher.Constraint('Coincident',    newID + 0,2,  newID + 6,1))						#Constraints[12]
-	constraintList.append(Sketcher.Constraint('Coincident',    newID + 6,2,  newID + 0,3))						#Constraints[13]
-	constraintList.append(Sketcher.Constraint('Coincident',    newID + 0,1,  newID + 7,2))						#Constraints[14]
-	constraintList.append(Sketcher.Constraint('Coincident',    newID + 7,1,  newID + 0,3))						#Constraints[15]
-	constraintList.append(Sketcher.Constraint('Coincident',    newID + 2,2,  newID + 8,1))						#Constraints[16]
-	constraintList.append(Sketcher.Constraint('Coincident',    newID + 8,2,  newID + 2,3))						#Constraints[17]
-	constraintList.append(Sketcher.Constraint('Coincident',    newID + 2,1,  newID + 9,2))						#Constraints[18]
-	constraintList.append(Sketcher.Constraint('Coincident',    newID + 9,1,  newID + 2,3))						#Constraints[19]
-	constraintList.append(Sketcher.Constraint('Coincident',    newID + 10,2, newID + 4,1))						#Constraints[20]
-	constraintList.append(Sketcher.Constraint('Coincident',    newID + 11,2, newID + 3,2))						#Constraints[21]
-	constraintList.append(Sketcher.Constraint('Coincident',    newID + 1,2,  newID + 12,2))						#Constraints[22]
-	constraintList.append(Sketcher.Constraint('Perpendicular', newID + 7,    newID + 6))							#Constraints[23]
-	constraintList.append(Sketcher.Constraint('Perpendicular', newID + 9,    newID + 8))							#Constraints[24]
-	constraintList.append(Sketcher.Constraint('Perpendicular', newID + 10,   newID + 7))							#Constraints[25]
-	constraintList.append(Sketcher.Constraint('Perpendicular', newID + 11,   newID + 9))							#Constraints[26]
-	constraintList.append(Sketcher.Constraint('Perpendicular', newID + 12,   newID + 7))							#Constraints[27]
-	constraintList.append(Sketcher.Constraint('Symmetric',     newID + 1,3,  newID + 3,3,  newID + 13,1))			#Constraints[28]
-	constraintList.append(Sketcher.Constraint('Distance',      newID + 10,1, newID + 11,1, 2*Dist_X))				#Constraints[29]
-	constraintList.append(Sketcher.Constraint('Distance',      newID + 10,1, newID + 12,1, 2*Dist_Y))				#Constraints[30]
-	constraintList.append(Sketcher.Constraint('DistanceX',     newID + 13,1, Pt1.x))								#Constraints[31]
-	constraintList.append(Sketcher.Constraint('DistanceY',     newID + 13,1, Pt1.y))								#Constraints[32]
-	constraintList.append(Sketcher.Constraint('Angle',         -1,1,         newID + 8,2,  Angulo))				#Constraints[33]
+	constraintList.append(Sketcher.Constraint('Tangent',       lastID + 0,1,  lastID + 4,1))						#Constraints[0]
+	constraintList.append(Sketcher.Constraint('Tangent',       lastID + 0,2,  lastID + 1,1))						#Constraints[1]
+	constraintList.append(Sketcher.Constraint('Tangent',       lastID + 1,2,  lastID + 5,1))						#Constraints[2]
+	constraintList.append(Sketcher.Constraint('Tangent',       lastID + 2,1,  lastID + 5,2))						#Constraints[3]
+	constraintList.append(Sketcher.Constraint('Tangent',       lastID + 2,2,  lastID + 3,1))						#Constraints[4]
+	constraintList.append(Sketcher.Constraint('Tangent',       lastID + 3,2,  lastID + 4,2))						#Constraints[5]
+	constraintList.append(Sketcher.Constraint('Equal',         lastID + 0,    lastID + 1))						#Constraints[6]
+	constraintList.append(Sketcher.Constraint('Equal',         lastID + 1,    lastID + 2))						#Constraints[7]
+	constraintList.append(Sketcher.Constraint('Equal',         lastID + 2,    lastID + 3))						#Constraints[8]
+	constraintList.append(Sketcher.Constraint('Equal',         lastID + 6,    lastID + 10))						#Constraints[9]
+	constraintList.append(Sketcher.Constraint('Equal',         lastID + 8,    lastID + 11))						#Constraints[10]
+	constraintList.append(Sketcher.Constraint('Equal',         lastID + 6,    lastID + 12))						#Constraints[11]
+	constraintList.append(Sketcher.Constraint('Equal',         lastID + 8,    lastID + 13))						#Constraints[12]
+	constraintList.append(Sketcher.Constraint('Coincident',    lastID + 0,2,  lastID + 6,1))						#Constraints[13]
+	constraintList.append(Sketcher.Constraint('Coincident',    lastID + 6,2,  lastID + 0,3))						#Constraints[14]
+	constraintList.append(Sketcher.Constraint('Coincident',    lastID + 0,1,  lastID + 7,2))						#Constraints[15]
+	constraintList.append(Sketcher.Constraint('Coincident',    lastID + 7,1,  lastID + 0,3))						#Constraints[16]
+	constraintList.append(Sketcher.Constraint('Coincident',    lastID + 2,2,  lastID + 8,1))						#Constraints[17]
+	constraintList.append(Sketcher.Constraint('Coincident',    lastID + 8,2,  lastID + 2,3))						#Constraints[18]
+	constraintList.append(Sketcher.Constraint('Coincident',    lastID + 2,1,  lastID + 9,2))						#Constraints[19]
+	constraintList.append(Sketcher.Constraint('Coincident',    lastID + 9,1,  lastID + 2,3))						#Constraints[20]
+	constraintList.append(Sketcher.Constraint('Coincident',    lastID + 10,2, lastID + 4,1))						#Constraints[21]
+	constraintList.append(Sketcher.Constraint('Coincident',    lastID + 11,2, lastID + 4,2))						#Constraints[22]
+	constraintList.append(Sketcher.Constraint('Coincident',    lastID + 12,2, lastID + 5,1))						#Constraints[23]
+	constraintList.append(Sketcher.Constraint('Coincident',    lastID + 13,2, lastID + 5,2))						#Constraints[24]
+	constraintList.append(Sketcher.Constraint('Perpendicular', lastID + 7,    lastID + 6))						#Constraints[25]
+	constraintList.append(Sketcher.Constraint('Perpendicular', lastID + 9,    lastID + 8))						#Constraints[26]
+	constraintList.append(Sketcher.Constraint('Perpendicular', lastID + 10,   lastID + 7))						#Constraints[27]
+	constraintList.append(Sketcher.Constraint('Perpendicular', lastID + 11,   lastID + 9))						#Constraints[28]
+	constraintList.append(Sketcher.Constraint('Perpendicular', lastID + 12,   lastID + 7))						#Constraints[29]
+	constraintList.append(Sketcher.Constraint('Perpendicular', lastID + 13,   lastID + 9))						#Constraints[30]
+	constraintList.append(Sketcher.Constraint('Symmetric',     lastID + 1,3,  lastID + 3,3,  lastID + 16,1))		#Constraints[31]
+	constraintList.append(Sketcher.Constraint('Distance',      lastID + 10,1, lastID + 11,1, 2*Dist_X))			#Constraints[32]
+	constraintList.append(Sketcher.Constraint('Distance',      lastID + 10,1, lastID + 12,1, 2*Dist_Y))			#Constraints[33]
+	constraintList.append(Sketcher.Constraint('Coincident',    lastID + 16,1, lastID + 14,1))						#Constraints[34]
+	constraintList.append(Sketcher.Constraint('Horizontal',    lastID + 14))										#Constraints[35]
+	constraintList.append(Sketcher.Constraint('DistanceX',     lastID + 14,1, lastID + 14,2, Radio))				#Constraints[36]
+	constraintList.append(Sketcher.Constraint('Coincident',    lastID + 16,1, lastID + 15,1))						#Constraints[37]
+	constraintList.append(Sketcher.Constraint('Parallel',      lastID + 15,   lastID + 4))						#Constraints[38]
+	constraintList.append(Sketcher.Constraint('Distance',      lastID + 15,1, lastID + 15,2, Radio))				#Constraints[39]
+	constraintList.append(Sketcher.Constraint('Angle',         lastID + 14,1, lastID + 15,1, Angulo))				#Constraints[40]
+	constraintList.append(Sketcher.Constraint('DistanceX',     lastID + 16,1, Pt1.x))								#Constraints[41]
+	constraintList.append(Sketcher.Constraint('DistanceY',     lastID + 16,1, Pt1.y))								#Constraints[42]
 	
 	Boceto_X.addConstraint(constraintList)
 	
@@ -616,8 +703,154 @@ def Crear_Ranura(Pt1, Boceto_X, Dist_X = False, Dist_Y = False, Angulo = 0, Guia
 	
 	
 	
-def Crear_Figura_D(Pt1, Boceto_X, Dist_X = False, Dist_Y = False, Angulo = 0, Guia = False):
-	print('OK')
+def Crear_Semicirculo(Pt1, Boceto_X, Dist_X = False, Dist_Y = False, Tipo = 'B', Angulo = 0, Guia = False):
+	
+	# Tipos:
+	#	A => Semicirculo
+	#	B => Semicirculo + Cuadrado
+	
+	# validar entrada
+	if Dist_X == False:
+		Dist_X = 100
+	else:
+		Dist_X = Dist_X / 2
+	if Dist_Y == False:
+		Dist_Y = 200
+	if Dist_Y - Dist_X > 0:
+		Largo = Dist_Y - Dist_X
+	else:
+		Tipo = 'A'
+	Radio = Dist_X
+	
+	lastID = len(Boceto_X.Geometry)
+	
+	# creamos la lista de puntos por cada arco
+	geoList = []
+	# [centro curva, Eje, Radio, Angulo inicial, Angulo final]
+	geoList.append([App.Vector(Pt1.x, Pt1.y, Pt1.z), App.Vector(0, 0, 1), Radio, math.radians( 0), math.radians( 90)])	#Object[A0,B0]
+	geoList.append([App.Vector(Pt1.x, Pt1.y, Pt1.z), App.Vector(0, 0, 1), Radio, math.radians(90), math.radians(180)])	#Object[A1,B0]
+	
+	for NewArco in geoList:
+		# Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Guia = False):
+		Crear_Arco(NewArco[0], NewArco[1], NewArco[2], Boceto_X, NewArco[3], NewArco[4], Guia)
+	
+	del geoList
+	
+	# creamos la lista de puntos por cada linea
+	geoList = []
+	if Tipo == 'A':
+		# [Punto inicial, Punto final]
+		geoList.append([App.Vector(-Dist_X + Pt1.x, Pt1.y, Pt1.z), App.Vector(Dist_X + Pt1.x, Pt1.y, Pt1.z)])				#Object[A2]
+	if Tipo == 'B':
+		# [Punto inicial, Punto final]
+		geoList.append([App.Vector(-Dist_X + Pt1.x, -Largo + Pt1.y, Pt1.z), App.Vector( Dist_X + Pt1.x, -Largo + Pt1.y, Pt1.z)])	#Object[B2]
+		geoList.append([App.Vector(-Dist_X + Pt1.x,          Pt1.y, Pt1.z), App.Vector(-Dist_X + Pt1.x, -Largo + Pt1.y, Pt1.z)])	#Object[B3]
+		geoList.append([App.Vector( Dist_X + Pt1.x,          Pt1.y, Pt1.z), App.Vector( Dist_X + Pt1.x, -Largo + Pt1.y, Pt1.z)])	#Object[B4]
+		
+	for NewLinea in geoList:
+		# Crear_Linea(Pt1, Pt2, Boceto_X, Guia = False):
+		Crear_Linea(NewLinea[0], NewLinea[1], Boceto_X, Guia)
+	
+	del geoList
+	
+	# creamos la lista de puntos por cada linea auxiliar
+	geoList = []
+	# [Punto inicial, Punto final]
+	geoList.append([App.Vector(-Dist_X + Pt1.x, Pt1.y, Pt1.z), App.Vector(-Dist_X + Pt1.x, Radio + Pt1.y, Pt1.z)])		#Object[A3,B5]
+	geoList.append([App.Vector(          Pt1.x, Pt1.y, Pt1.z), App.Vector(          Pt1.x, Radio + Pt1.y, Pt1.z)])		#Object[A4,B6]
+	geoList.append([App.Vector( Dist_X + Pt1.x, Pt1.y, Pt1.z), App.Vector( Dist_X + Pt1.x, Radio + Pt1.y, Pt1.z)])		#Object[A5,B7]
+	
+	geoList.append([App.Vector( Pt1.x, Pt1.y, Pt1.z),          App.Vector(Radio + Pt1.x, Pt1.y, Pt1.z)])					#Object[A6.,B8.]
+	geoList.append([App.Vector( Pt1.x, Pt1.y, Pt1.z),          App.Vector(Radio + Pt1.x, Pt1.y, Pt1.z)])					#Object[A7.,B9.]
+	if Tipo == 'B':
+		# [Punto inicial, Punto final]
+		geoList.append([App.Vector(-Dist_X + Pt1.x, Pt1.y, Pt1.z), App.Vector(Dist_X + Pt1.x, Pt1.y, Pt1.z)])				#Object[B10]
+		
+	for NewLinea in geoList:
+		# Crear_Linea(Pt1, Pt2, Boceto_X, Guia = False):
+		Crear_Linea(NewLinea[0], NewLinea[1], Boceto_X, True)
+	
+	del geoList
+	
+	# creamos la lista de puntos auxiliares
+	geoList = []
+	# [Punto inicial]
+	geoList.append([App.Vector(Pt1.x, Radio / 2 + Pt1.y, Pt1.z)])														#Object[A8,B11]
+	
+	for NewPunto in geoList:
+		# Crear_Punto(Pt1, Boceto_X, Guia = False):
+		Crear_Punto(NewPunto[0], Boceto_X, True)
+		
+	del geoList
+	
+	# creamos la lista de restricciones
+	constraintList = []
+	constraintList.append(Sketcher.Constraint('Coincident',        lastID + 1,3, lastID + 0,3))					#Constraints[A0,B0]
+	constraintList.append(Sketcher.Constraint('Coincident',        lastID + 1,1, lastID + 0,2))					#Constraints[A1,B1]
+	if Tipo == 'A':
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 2,1, lastID + 1,2))					#Constraints[A2]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 2,2, lastID + 0,1))					#Constraints[A3]
+		constraintList.append(Sketcher.Constraint('PointOnObject', lastID + 0,3, lastID + 2))						#Constraints[A4]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 4,1, lastID + 0,3))					#Constraints[A5]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 4,2, lastID + 0,2))					#Constraints[A6]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 3,1, lastID + 1,2))					#Constraints[A7]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 5,1, lastID + 0,1))					#Constraints[A8]
+		constraintList.append(Sketcher.Constraint('Perpendicular', lastID + 4,   lastID + 2))						#Constraints[A9]
+		constraintList.append(Sketcher.Constraint('Perpendicular', lastID + 3,   lastID + 2))						#Constraints[A10]
+		constraintList.append(Sketcher.Constraint('Perpendicular', lastID + 5,   lastID + 2))						#Constraints[A11]
+		constraintList.append(Sketcher.Constraint('Equal',         lastID + 4,   lastID + 5))						#Constraints[A12]
+		constraintList.append(Sketcher.Constraint('Equal',         lastID + 4,   lastID + 3))						#Constraints[A13]
+		constraintList.append(Sketcher.Constraint('Symmetric',     lastID + 1,2, lastID + 5,2, lastID + 8,1))		#Constraints[A14]
+		constraintList.append(Sketcher.Constraint('Distance',      lastID + 3,2, lastID + 5,2, 2*Dist_X))			#Constraints[A15]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 8,1, lastID + 6,1))					#Constraints[A16]
+		constraintList.append(Sketcher.Constraint('Horizontal',    lastID + 6))									#Constraints[A17]
+		constraintList.append(Sketcher.Constraint('DistanceX',     lastID + 6,1, lastID + 6,2, Radio))			#Constraints[A18]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 8,1, lastID + 7,1))					#Constraints[A19]
+		constraintList.append(Sketcher.Constraint('Parallel',      lastID + 7,   lastID + 2))						#Constraints[A20]
+		constraintList.append(Sketcher.Constraint('Distance',      lastID + 7,1, lastID + 7,2, Radio))			#Constraints[A21]
+		constraintList.append(Sketcher.Constraint('Angle',         lastID + 6,1, lastID + 7,1, Angulo))			#Constraints[A22]
+		constraintList.append(Sketcher.Constraint('DistanceX',     lastID + 8,1, Pt1.x))							#Constraints[A23]
+		constraintList.append(Sketcher.Constraint('DistanceY',     lastID + 8,1, Pt1.y))							#Constraints[A24]
+	
+	if Tipo == 'B':
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 10,1, lastID + 1,2))					#Constraints[B2]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 10,2, lastID + 0,1))					#Constraints[B3]
+		constraintList.append(Sketcher.Constraint('PointOnObject', lastID + 0,3,  lastID + 10))					#Constraints[B4]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 6,1,  lastID + 0,3))					#Constraints[B5]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 6,2,  lastID + 0,2))					#Constraints[B6]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 5,1,  lastID + 1,2))					#Constraints[B7]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 7,1,  lastID + 0,1))					#Constraints[B8]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 3,1,  lastID + 1,2))					#Constraints[B9]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 3,2,  lastID + 2,1))					#Constraints[B10]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 2,2,  lastID + 4,2))					#Constraints[B11]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 4,1,  lastID + 0,1))					#Constraints[B12]
+		constraintList.append(Sketcher.Constraint('Perpendicular', lastID + 6,    lastID + 10))					#Constraints[B13]
+		constraintList.append(Sketcher.Constraint('Perpendicular', lastID + 5,    lastID + 10))					#Constraints[B14]
+		constraintList.append(Sketcher.Constraint('Perpendicular', lastID + 7,    lastID + 10))					#Constraints[B15]
+		constraintList.append(Sketcher.Constraint('Perpendicular', lastID + 3,    lastID + 10))					#Constraints[B16]
+		constraintList.append(Sketcher.Constraint('Perpendicular', lastID + 4,    lastID + 10))					#Constraints[B17]
+		constraintList.append(Sketcher.Constraint('Parallel',      lastID + 10,   lastID + 2))					#Constraints[B18]
+		constraintList.append(Sketcher.Constraint('Equal',         lastID + 6,    lastID + 7))					#Constraints[B19]
+		constraintList.append(Sketcher.Constraint('Equal',         lastID + 6,    lastID + 5))					#Constraints[B20]
+		constraintList.append(Sketcher.Constraint('Symmetric',     lastID + 5,2,  lastID + 2,2, lastID + 11,1))	#Constraints[B21]
+		constraintList.append(Sketcher.Constraint('Distance',      lastID + 5,2,  lastID + 7,2, 2*Dist_X))		#Constraints[B22]
+		constraintList.append(Sketcher.Constraint('Distance',      lastID + 7,2,  lastID + 2,2, Dist_Y))			#Constraints[B23]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 11,1, lastID + 8,1))					#Constraints[B24]
+		constraintList.append(Sketcher.Constraint('Horizontal',    lastID + 8))									#Constraints[B25]
+		constraintList.append(Sketcher.Constraint('DistanceX',     lastID + 8,1,  lastID + 8,2, Radio))			#Constraints[B26]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 11,1, lastID + 9,1))					#Constraints[B27]
+		constraintList.append(Sketcher.Constraint('Parallel',      lastID + 9,    lastID + 10))					#Constraints[B28]
+		constraintList.append(Sketcher.Constraint('Distance',      lastID + 9,1,  lastID + 9,2, Radio))			#Constraints[B29]
+		constraintList.append(Sketcher.Constraint('Angle',         lastID + 8,1,  lastID + 9,1, Angulo))			#Constraints[B30]
+		constraintList.append(Sketcher.Constraint('DistanceX',     lastID + 11,1, Pt1.x))							#Constraints[B31]
+		constraintList.append(Sketcher.Constraint('DistanceY',     lastID + 11,1, Pt1.y))							#Constraints[B32]
+	
+	Boceto_X.addConstraint(constraintList)
+	
+	del constraintList
+	
+	Doc.recompute
+	
 	
 	
 #! Estos son las funciones para crear Modelado 3D
@@ -634,7 +867,7 @@ def Crear_Relleno(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False):
 		Relleno_X.Label = Etiqueta
 	
 	Relleno_X.Profile = (Boceto_X, [''])
-	Relleno_X.ReferenceAxis = (Boceto_X,['N_Axis'])
+	Relleno_X.ReferenceAxis = (Boceto_X, ['N_Axis'])
 	Boceto_X.Visibility = False
 	
 	Doc.recompute()
@@ -655,11 +888,38 @@ def Crear_Hueco(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False):
 		Hueco_X.Label = Etiqueta
 	
 	Hueco_X.Profile = (Boceto_X, [''])
-	Hueco_X.ReferenceAxis = (Boceto_X,['N_Axis'])
+	Hueco_X.ReferenceAxis = (Boceto_X, ['N_Axis'])
 	Boceto_X.Visibility = False
 	
 	Doc.recompute()
 	return Hueco_X
+	
+	
+	
+def Crear_Revolucion(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False, Eje_X = False, Angulo = 360, Reverso = 0):
+	
+	Rev_X = Doc.addObject('PartDesign::Revolution', Titulo)
+	if Objeto_X == False:
+		Doc.Tip = Rev_X
+	else:
+		Objeto_X.addObject(Rev_X)
+	if Etiqueta == '':
+		Rev_X.Label = Titulo
+	else:
+		Rev_X.Label = Etiqueta
+	
+	Rev_X.Profile = (Boceto_X, [''])
+	if Eje_X == False:
+		Rev_X.ReferenceAxis = (Boceto_X, ['V_Axis'])
+	else:
+		Rev_X.ReferenceAxis = (Eje_X, [''])
+		Eje_X.Visibility = False
+	Rev_X.Angle = Angulo
+	Rev_X.Reversed = Reverso
+	Boceto_X.Visibility = False
+	
+	Doc.recompute()
+	return Rev_X
 	
 	
 	
@@ -733,7 +993,7 @@ def Crear_Bastidor_3D():
 	
 	### iniciar la orden PartDesign_Sketch
 	global Boceto_Base
-	# Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = ''):
+	# Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = '', Mapa_X = 'FlatFace'):
 	Boceto_Base = Crear_Boceto('Sketch_Base_B001', 'B_Base_B001', Cuerpo_B1, 'XZ_Plane')
 	
 	# creamos la lista de puntos por cada linea
@@ -795,8 +1055,6 @@ def Crear_Bastidor_3D():
 	Boceto_Base.setExpression('Constraints[21]', u'' + Variable_B1.Name + '.Largo')
 	
 	del constraintList
-	
-	
 	
 	# creamos la lista de puntos por cada linea
 	geoList = []
@@ -866,8 +1124,6 @@ def Crear_Bastidor_3D():
 	# Actualizar_Lista(Boceto_X, Total_Lista):
 	Actualizar_Lista(Boceto_Base, len(Boceto_Base.Geometry))
 	
-	
-	
 	global Relleno_Base
 	# Crear_Relleno(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False):
 	Relleno_Base = Crear_Relleno('Pad_Base_B001', 'Relleno_Base_B001', Cuerpo_B1, Boceto_Base)
@@ -883,24 +1139,22 @@ def Crear_Huecos01_3D():
 	
 	### iniciar la orden PartDesign_Sketch
 	global Boceto_Hueco1
-	# Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = ''):
+	# Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = '', Mapa_X = 'FlatFace'):
 	Boceto_Hueco1 = Crear_Boceto('Sketch_HuecoBase1_B001', 'B_HuecoBase1_B001', Cuerpo_B1, 'Face5', Relleno_Base)
 	
 	# Crear_Cuadrado(Pt1, Boceto_X, Tipo = 'Borde', Dist_X = False, Dist_Y = False, Radio = False, Angulo = 0, Guia = False):
-	Crear_Cuadrado(App.Vector(0, 0, 0), Boceto_Hueco1, 'Borde', 152.4, 50.8, 3)
+	Crear_Cuadrado(App.Vector(0, 0, 0), Boceto_Hueco1, 'Borde', 177.8, 50.8, 3)
 	
 	# Crear_Cuadrado(Pt1, Boceto_X, Tipo = 'Borde', Dist_X = False, Dist_Y = False, Radio = False, Angulo = 0, Guia = False):
-	Crear_Cuadrado(App.Vector(87.3, 0, 0), Boceto_Hueco1, 'Borde', 9.5, 50.8, 3)
+	Crear_Cuadrado(App.Vector(177.8 / 2 + 5 + 10 / 2, 0, 0), Boceto_Hueco1, 'Borde', 10, 50.8, 3)
 	
 	# Crear_Cuadrado(Pt1, Boceto_X, Tipo = 'Borde', Dist_X = False, Dist_Y = False, Radio = False, Angulo = 0, Guia = False):
-	Crear_Cuadrado(App.Vector(-87.3, 0, 0), Boceto_Hueco1, 'Borde', 9.5, 50.8, 3)
+	Crear_Cuadrado(App.Vector(-177.8 / 2 - 5 - 10 / 2, 0, 0), Boceto_Hueco1, 'Borde', 10, 50.8, 3)
 	
 	Doc.recompute()
 	
 	# Actualizar_Lista(Boceto_X, Total_Lista):
 	Actualizar_Lista(Boceto_Hueco1, len(Boceto_Hueco1.Geometry))
-	
-	
 	
 	global Hueco_Base1
 	# Crear_Hueco(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False):
@@ -910,18 +1164,26 @@ def Crear_Huecos01_3D():
 	
 	
 	
-def Crear_Huecos02_3D():
+def Crear_Huecos02_3D(LaT, AnT, AlT):
 	
 	### iniciar la orden PartDesign_Sketch
 	global Boceto_Hueco2
-	# Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = ''):
+	# Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = '', Mapa_X = 'FlatFace'):
 	Boceto_Hueco2 = Crear_Boceto('Sketch_HuecoBase2_B001', 'B_HuecoBase2_B001', Cuerpo_B1, 'Face1', Hueco_Base1)
 	
 	# Crear_Ranura(Pt1, Boceto_X, Dist_X = False, Dist_Y = False, Angulo = 0, Guia = False):
-	Crear_Ranura(App.Vector(-247.65 + 6.35 + 2.5, -44.45 + 12.7, 0), Boceto_Hueco2, 12.7, 6.35)
+	Crear_Ranura(App.Vector(-LaT / 2 + 2.5 + 12.7 / 2, -AnT / 2 + 8 + 6.35 / 2, 0), Boceto_Hueco2, 12.7, 6.35)
 	
 	# Crear_Cuadrado(Pt1, Boceto_X, Tipo = 'Borde', Dist_X = False, Dist_Y = False, Radio = False, Angulo = 0, Guia = False):
-	Crear_Cuadrado(App.Vector(-247.65 + 6.35 + 2.5, -44.45 + 12.7 + 3.175 + 5 + 3.175, 0), Boceto_Hueco2, 'Esquina', 12.7, 6.35)
+	Crear_Cuadrado(App.Vector(-LaT / 2 + 2.5 + 12.7 / 2, -AnT / 2 + 8 + 6.35 + 5 + 6.35 / 2, 0), Boceto_Hueco2, 'Esquina', 12.7, 6.35)
+	
+	# Crear_Semicirculo(Pt1, Boceto_X, Dist_X = False, Dist_Y = False, Tipo = 'A', Angulo = 0, Guia = False):
+	m = 2 * 6.35 * math.sin(math.radians(45))
+	n = AlT - 2 * (6.35 - 6.35 * math.cos(math.radians(45)))
+	Crear_Semicirculo(App.Vector(-241 / 2 - m - n - 5,      -AnT / 2 + 26,      0), Boceto_Hueco2, 10, 12, 'B')
+	Crear_Semicirculo(App.Vector(-241 / 2 - m - n - 5,       AnT / 2 - 26,      0), Boceto_Hueco2, 10, 12, 'B', math.radians(180))
+	Crear_Semicirculo(App.Vector(-241 / 2 - m - n - 5 - 20, -AnT / 2 + 26 - 10, 0), Boceto_Hueco2, 10, 12, 'B', math.radians(90))
+	Crear_Semicirculo(App.Vector(-241 / 2 - m - n - 5 - 20,  AnT / 2 - 26 + 10, 0), Boceto_Hueco2, 10, 12, 'B', math.radians(90))
 	
 	Doc.recompute()
 	
@@ -933,6 +1195,410 @@ def Crear_Huecos02_3D():
 	Hueco_Base2 = Crear_Hueco('Pocket_Base2_B001', 'Hueco_Base2_B001', Cuerpo_B1, Boceto_Hueco2)
 	
 	Doc.recompute()
+	
+	# Crear_LineaRef(Titulo, Etiqueta = '', Objeto_X = False, Eje_X = '', Modelado_X = ''):
+	global DL1
+	global DL2
+	global DL3
+	global DL4
+	DL1 = Crear_LineaRef('DL1_Base2_B001', 'LinRef1_Base2_B001', Cuerpo_B1, 'Edge71',  Hueco_Base2)
+	DL2 = Crear_LineaRef('DL2_Base2_B001', 'LinRef2_Base2_B001', Cuerpo_B1, 'Edge59',  Hueco_Base2)
+	DL3 = Crear_LineaRef('DL3_Base2_B001', 'LinRef3_Base2_B001', Cuerpo_B1, 'Edge119', Hueco_Base2)
+	DL4 = Crear_LineaRef('DL4_Base2_B001', 'LinRef4_Base2_B001', Cuerpo_B1, 'Edge111', Hueco_Base2)
+	DL1.AttachmentOffset = App.Placement(App.Vector(0, -1, -241 / 2 - m - n - 10), App.Rotation(0, 0, 0))
+	DL2.AttachmentOffset = App.Placement(App.Vector(0, -1,  241 / 2 + m + n),      App.Rotation(0, 0, 0))
+	DL3.AttachmentOffset = App.Placement(App.Vector(0, -1,  AnT / 2 - 26 + 5),     App.Rotation(0, 0, 0))
+	DL4.AttachmentOffset = App.Placement(App.Vector(0, -1, -AnT / 2 + 26 - 15),    App.Rotation(0, 0, 0))
+	
+	Doc.recompute()
+	
+	
+	
+def Crear_Huecos03_3D(LaT, AnT, AlT):
+	
+	### iniciar la orden PartDesign_Sketch
+	global Boceto_Hueco3
+	# Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = '', Mapa_X = 'FlatFace'):
+	Boceto_Hueco3 = Crear_Boceto('Sketch_HuecoBase3_B001', 'B_HuecoBase3_B001', Cuerpo_B1, 'Face34', Hueco_Base2)
+	
+	# Crear_Cuadrado(Pt1, Boceto_X, Tipo = 'Borde', Dist_X = False, Dist_Y = False, Radio = False, Angulo = 0, Guia = False):
+	Crear_Cuadrado(App.Vector(LaT / 2 - 2.5 - 12.7 / 2, -AnT / 2 + 8 + 6.35 + 5 + 6.35 / 2, 0), Boceto_Hueco3, 'Esquina', 12.7, 6.35)
+	
+	# Crear_Circulo(Pt1, Eje, Radio, Boceto_X, Guia = False):
+	Cir1 = Crear_Circulo(App.Vector(LaT / 2 - 2.5 - 12.7 / 2, -AnT / 2 + 8 + 6.35 / 2, 0), App.Vector(0, 0, 1), 2.5, Boceto_Hueco3)
+	Boceto_Hueco3.addConstraint(Sketcher.Constraint('Radius',    len(Boceto_Hueco3.Geometry) - 1, 2.5))
+	Boceto_Hueco3.addConstraint(Sketcher.Constraint('DistanceX', len(Boceto_Hueco3.Geometry) - 1, 3, LaT / 2 - 2.5 - 12.7 / 2))
+	Boceto_Hueco3.addConstraint(Sketcher.Constraint('DistanceY', len(Boceto_Hueco3.Geometry) - 1, 3, -AnT / 2 + 8 + 6.35 / 2))
+	
+	# Crear_Semicirculo(Pt1, Boceto_X, Dist_X = False, Dist_Y = False, Tipo = 'A', Angulo = 0, Guia = False):
+	m = 2 * 6.35 * math.sin(math.radians(45))
+	n = AlT - 2 * (6.35 - 6.35 * math.cos(math.radians(45)))
+	Crear_Semicirculo(App.Vector(241 / 2 + m + n + 5,      -AnT / 2 + 26,      0), Boceto_Hueco3, 10, 12, 'B')
+	Crear_Semicirculo(App.Vector(241 / 2 + m + n + 5,       AnT / 2 - 26,      0), Boceto_Hueco3, 10, 12, 'B', math.radians(180))
+	Crear_Semicirculo(App.Vector(LaT / 2 - 2.5 - 12.7 / 2,  AnT / 2 - 5,       0), Boceto_Hueco3,  8, 10, 'B', math.radians(180))
+	Crear_Semicirculo(App.Vector(241 / 2 + m + n + 5 + 20, -AnT / 2 + 26 - 10, 0), Boceto_Hueco3, 10, 12, 'B', math.radians(270))
+	Crear_Semicirculo(App.Vector(241 / 2 + m + n + 5 + 20,  AnT / 2 - 26 + 10, 0), Boceto_Hueco3, 10, 12, 'B', math.radians(270))
+	
+	Doc.recompute()
+	
+	# Actualizar_Lista(Boceto_X, Total_Lista):
+	Actualizar_Lista(Boceto_Hueco3, len(Boceto_Hueco3.Geometry))
+	
+	global Hueco_Base3
+	# Crear_Hueco(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False):
+	Hueco_Base3 = Crear_Hueco('Pocket_Base3_B001', 'Hueco_Base3_B001', Cuerpo_B1, Boceto_Hueco3)
+	
+	Doc.recompute()
+	
+	# Crear_LineaRef(Titulo, Etiqueta = '', Objeto_X = False, Eje_X = '', Modelado_X = ''):
+	global DL5
+	global DL6
+	global DL7
+	global DL8
+	DL5 = Crear_LineaRef('DL5_Base3_B001', 'LinRef5_Base3_B001', Cuerpo_B1, 'Edge173', Hueco_Base3)
+	DL6 = Crear_LineaRef('DL6_Base3_B001', 'LinRef6_Base3_B001', Cuerpo_B1, 'Edge168', Hueco_Base3)
+	DL7 = Crear_LineaRef('DL7_Base3_B001', 'LinRef7_Base3_B001', Cuerpo_B1, 'Edge184', Hueco_Base3)
+	DL8 = Crear_LineaRef('DL8_Base3_B001', 'LinRef8_Base3_B001', Cuerpo_B1, 'Edge175', Hueco_Base3)
+	DL5.AttachmentOffset = App.Placement(App.Vector(0, -1, -241 / 2 - m - n - 10), App.Rotation(0, 0, 0))
+	DL6.AttachmentOffset = App.Placement(App.Vector(0, -1,  241 / 2 + m + n),      App.Rotation(0, 0, 0))
+	DL7.AttachmentOffset = App.Placement(App.Vector(0, -1,  AnT / 2 - 26 + 5),     App.Rotation(0, 0, 0))
+	DL8.AttachmentOffset = App.Placement(App.Vector(0, -1, -AnT / 2 + 26 - 15),    App.Rotation(0, 0, 0))
+	
+	Doc.recompute()
+	
+	
+	
+def Crear_Doblez01():
+	
+	### iniciar la orden PartDesign_Sketch
+	global Boceto_Doblez1
+	# Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = '', Mapa_X = 'FlatFace'):
+	Boceto_Doblez1 = Crear_Boceto('Sketch_Fold1_B001', 'B_Doblez1_B001', Cuerpo_B1, 'Face9', Hueco_Base3, 'InertialCS')
+	
+	Var_E = App.Units.Quantity(Variable_B1.Espesor).Value
+	# Crear_Cuadrado(Pt1, Boceto_X, Tipo = 'Borde', Dist_X = False, Dist_Y = False, Radio = False, Angulo = 0, Guia = False):
+	Crear_Cuadrado(App.Vector(0, 0, 0), Boceto_Doblez1, 'Esquina', Var_E, 9)
+	
+	Doc.recompute()
+	
+	# Actualizar_Lista(Boceto_X, Total_Lista):
+	Actualizar_Lista(Boceto_Doblez1, len(Boceto_Doblez1.Geometry))
+	
+	global Doblez1_Base2
+	# Crear_Revolucion(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False, Eje_X = False, Angulo = 360, Reverso = 0):
+	Doblez1_Base2 = Crear_Revolucion('Rev_Hole1_B001', 'Rev_Hueco1_B001', Cuerpo_B1, Boceto_Doblez1, DL1, 90, 1)
+	
+	Doc.recompute()
+	
+	# Crear_PlanoRef(Titulo, Etiqueta = '', Objeto_X = False, Eje_X = '', Modelado_X = ''):
+	global DP1
+	DP1 = Crear_PlanoRef('DP1_Base2_B001', 'PlanRef1_Base2_B001', Cuerpo_B1, 'Edge264',  Doblez1_Base2)
+	DP1.AttachmentOffset = App.Placement(App.Vector(0, 0, -4.5), App.Rotation(0, 90, 0))
+	DP1.Visibility = False
+	
+	# Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = '', Mapa_X = 'FlatFace'):
+	Boceto_Tab1 = Crear_Boceto('Sketch_Tab1_B001', 'B_Tab1_B001', Cuerpo_B1, Modelado_X = DP1)
+	
+	# Crear_Semicirculo(Pt1, Boceto_X, Dist_X = False, Dist_Y = False, Tipo = 'A', Angulo = 0, Guia = False):
+	Crear_Semicirculo(App.Vector(0, -10 / 2, 0), Boceto_Tab1, 9, 10, 'B', math.radians(180))
+	
+	global Tab1_Base2
+	# Crear_Relleno(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False):
+	Tab1_Base2 = Crear_Relleno('Pad_Tab1_B001', 'Relleno_Tab1_B001', Cuerpo_B1, Boceto_Tab1)
+	Tab1_Base2.setExpression('Length', u'' + Variable_B1.Name + '.Espesor')
+	
+	## TODO
+	
+	Doc.recompute()
+	
+	
+	
+def Crear_Doblez02():
+	
+	### iniciar la orden PartDesign_Sketch
+	global Boceto_Doblez2
+	# Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = '', Mapa_X = 'FlatFace'):
+	Boceto_Doblez2 = Crear_Boceto('Sketch_Fold2_B001', 'B_Doblez2_B001', Cuerpo_B1, 'Face4', Doblez1_Base2, 'InertialCS')
+	
+	Var_E = App.Units.Quantity(Variable_B1.Espesor).Value
+	# Crear_Cuadrado(Pt1, Boceto_X, Tipo = 'Borde', Dist_X = False, Dist_Y = False, Radio = False, Angulo = 0, Guia = False):
+	Crear_Cuadrado(App.Vector(0, 0, 0), Boceto_Doblez2, 'Esquina', Var_E, 9)
+	
+	Doc.recompute()
+	
+	# Actualizar_Lista(Boceto_X, Total_Lista):
+	Actualizar_Lista(Boceto_Doblez2, len(Boceto_Doblez2.Geometry))
+	
+	global Doblez2_Base2
+	# Crear_Revolucion(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False, Eje_X = False, Angulo = 360, Reverso = 0):
+	Doblez2_Base2 = Crear_Revolucion('Rev_Hole2_B001', 'Rev_Hueco2_B001', Cuerpo_B1, Boceto_Doblez2, DL2, 90, 1)
+	
+	Doc.recompute()
+	
+	# Crear_PlanoRef(Titulo, Etiqueta = '', Objeto_X = False, Eje_X = '', Modelado_X = ''):
+	global DP2
+	DP2 = Crear_PlanoRef('DP2_Base2_B001', 'PlanRef2_Base2_B001', Cuerpo_B1, 'Edge273',  Doblez2_Base2)
+	DP2.AttachmentOffset = App.Placement(App.Vector(0, 0, -4.5), App.Rotation(0, 90, 0))
+	
+	Doc.recompute()
+	
+	
+	
+def Crear_Doblez03():
+	
+	### iniciar la orden PartDesign_Sketch
+	global Boceto_Doblez3
+	# Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = '', Mapa_X = 'FlatFace'):
+	Boceto_Doblez3 = Crear_Boceto('Sketch_Fold3_B001', 'B_Doblez3_B001', Cuerpo_B1, 'Face29', Doblez2_Base2, 'InertialCS')
+	
+	Var_E = App.Units.Quantity(Variable_B1.Espesor).Value
+	# Crear_Cuadrado(Pt1, Boceto_X, Tipo = 'Borde', Dist_X = False, Dist_Y = False, Radio = False, Angulo = 0, Guia = False):
+	Crear_Cuadrado(App.Vector(0, 0, 0), Boceto_Doblez3, 'Esquina', Var_E, 9)
+	
+	Doc.recompute()
+	
+	# Actualizar_Lista(Boceto_X, Total_Lista):
+	Actualizar_Lista(Boceto_Doblez3, len(Boceto_Doblez3.Geometry))
+	
+	global Doblez3_Base2
+	# Crear_Revolucion(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False, Eje_X = False, Angulo = 360, Reverso = 0):
+	Doblez3_Base2 = Crear_Revolucion('Rev_Hole3_B001', 'Rev_Hueco3_B001', Cuerpo_B1, Boceto_Doblez3, DL3, 90, 1)
+	
+	Doc.recompute()
+	
+	# Crear_PlanoRef(Titulo, Etiqueta = '', Objeto_X = False, Eje_X = '', Modelado_X = ''):
+	global DP3
+	DP3 = Crear_PlanoRef('DP3_Base2_B001', 'PlanRef3_Base2_B001', Cuerpo_B1, 'Edge293',  Doblez3_Base2)
+	DP3.AttachmentOffset = App.Placement(App.Vector(0, 0, -4.5), App.Rotation(0, 90, 0))
+	
+	Doc.recompute()
+	
+	
+	
+def Crear_Doblez04():
+	
+	### iniciar la orden PartDesign_Sketch
+	global Boceto_Doblez4
+	# Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = '', Mapa_X = 'FlatFace'):
+	Boceto_Doblez4 = Crear_Boceto('Sketch_Fold4_B001', 'B_Doblez4_B001', Cuerpo_B1, 'Face25', Doblez3_Base2, 'InertialCS')
+	
+	Var_E = App.Units.Quantity(Variable_B1.Espesor).Value
+	# Crear_Cuadrado(Pt1, Boceto_X, Tipo = 'Borde', Dist_X = False, Dist_Y = False, Radio = False, Angulo = 0, Guia = False):
+	Crear_Cuadrado(App.Vector(0, 0, 0), Boceto_Doblez4, 'Esquina', Var_E, 9)
+	
+	Doc.recompute()
+	
+	# Actualizar_Lista(Boceto_X, Total_Lista):
+	Actualizar_Lista(Boceto_Doblez4, len(Boceto_Doblez4.Geometry))
+	
+	global Doblez4_Base2
+	# Crear_Revolucion(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False, Eje_X = False, Angulo = 360, Reverso = 0):
+	Doblez4_Base2 = Crear_Revolucion('Rev_Hole4_B001', 'Rev_Hueco4_B001', Cuerpo_B1, Boceto_Doblez4, DL4, 90, 1)
+	
+	Doc.recompute()
+	
+	# Crear_PlanoRef(Titulo, Etiqueta = '', Objeto_X = False, Eje_X = '', Modelado_X = ''):
+	global DP4
+	DP4 = Crear_PlanoRef('DP4_Base2_B001', 'PlanRef4_Base2_B001', Cuerpo_B1, 'Edge302',  Doblez4_Base2)
+	DP4.AttachmentOffset = App.Placement(App.Vector(0, 0, -4.5), App.Rotation(0, 90, 0))
+	
+	Doc.recompute()
+	
+	
+	
+def Crear_Doblez05():
+	
+	### iniciar la orden PartDesign_Sketch
+	global Boceto_Doblez5
+	# Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = '', Mapa_X = 'FlatFace'):
+	Boceto_Doblez5 = Crear_Boceto('Sketch_Fold5_B001', 'B_Doblez5_B001', Cuerpo_B1, 'Face106', Doblez4_Base2, 'InertialCS')
+	
+	Var_E = App.Units.Quantity(Variable_B1.Espesor).Value
+	# Crear_Cuadrado(Pt1, Boceto_X, Tipo = 'Borde', Dist_X = False, Dist_Y = False, Radio = False, Angulo = 0, Guia = False):
+	Crear_Cuadrado(App.Vector(0, 0, 0), Boceto_Doblez5, 'Esquina', Var_E, 9)
+	
+	Doc.recompute()
+	
+	# Actualizar_Lista(Boceto_X, Total_Lista):
+	Actualizar_Lista(Boceto_Doblez5, len(Boceto_Doblez5.Geometry))
+	
+	global Doblez5_Base2
+	# Crear_Revolucion(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False, Eje_X = False, Angulo = 360, Reverso = 0):
+	Doblez5_Base2 = Crear_Revolucion('Rev_Hole5_B001', 'Rev_Hueco5_B001', Cuerpo_B1, Boceto_Doblez5, DL5, 90, 1)
+	
+	Doc.recompute()
+	
+	# Crear_PlanoRef(Titulo, Etiqueta = '', Objeto_X = False, Eje_X = '', Modelado_X = ''):
+	global DP5
+	DP5 = Crear_PlanoRef('DP5_Base2_B001', 'PlanRef5_Base2_B001', Cuerpo_B1, 'Edge349',  Doblez5_Base2)
+	DP5.AttachmentOffset = App.Placement(App.Vector(0, 0, -4.5), App.Rotation(0, 90, 0))
+	
+	Doc.recompute()
+	
+	
+	
+def Crear_Doblez06():
+	
+	### iniciar la orden PartDesign_Sketch
+	global Boceto_Doblez6
+	# Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = '', Mapa_X = 'FlatFace'):
+	Boceto_Doblez6 = Crear_Boceto('Sketch_Fold6_B001', 'B_Doblez6_B001', Cuerpo_B1, 'Face101', Doblez5_Base2, 'InertialCS')
+	
+	Var_E = App.Units.Quantity(Variable_B1.Espesor).Value
+	# Crear_Cuadrado(Pt1, Boceto_X, Tipo = 'Borde', Dist_X = False, Dist_Y = False, Radio = False, Angulo = 0, Guia = False):
+	Crear_Cuadrado(App.Vector(0, 0, 0), Boceto_Doblez6, 'Esquina', Var_E, 9)
+	
+	Doc.recompute()
+	
+	# Actualizar_Lista(Boceto_X, Total_Lista):
+	Actualizar_Lista(Boceto_Doblez6, len(Boceto_Doblez6.Geometry))
+	
+	global Doblez6_Base2
+	# Crear_Revolucion(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False, Eje_X = False, Angulo = 360, Reverso = 0):
+	Doblez6_Base2 = Crear_Revolucion('Rev_Hole6_B001', 'Rev_Hueco6_B001', Cuerpo_B1, Boceto_Doblez6, DL6, 90, 1)
+	
+	Doc.recompute()
+	
+	# Crear_PlanoRef(Titulo, Etiqueta = '', Objeto_X = False, Eje_X = '', Modelado_X = ''):
+	global DP6
+	DP6 = Crear_PlanoRef('DP6_Base2_B001', 'PlanRef6_Base2_B001', Cuerpo_B1, 'Edge349',  Doblez6_Base2)
+	DP6.AttachmentOffset = App.Placement(App.Vector(0, 0, -4.5), App.Rotation(0, 90, 0))
+	
+	Doc.recompute()
+	
+	
+	
+def Crear_Doblez07():
+	
+	### iniciar la orden PartDesign_Sketch
+	global Boceto_Doblez7
+	# Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = '', Mapa_X = 'FlatFace'):
+	Boceto_Doblez7 = Crear_Boceto('Sketch_Fold7_B001', 'B_Doblez7_B001', Cuerpo_B1, 'Face112', Doblez6_Base2, 'InertialCS')
+	
+	Var_E = App.Units.Quantity(Variable_B1.Espesor).Value
+	# Crear_Cuadrado(Pt1, Boceto_X, Tipo = 'Borde', Dist_X = False, Dist_Y = False, Radio = False, Angulo = 0, Guia = False):
+	Crear_Cuadrado(App.Vector(0, 0, 0), Boceto_Doblez7, 'Esquina', Var_E, 9)
+	
+	Doc.recompute()
+	
+	# Actualizar_Lista(Boceto_X, Total_Lista):
+	Actualizar_Lista(Boceto_Doblez7, len(Boceto_Doblez7.Geometry))
+	
+	global Doblez7_Base2
+	# Crear_Revolucion(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False, Eje_X = False, Angulo = 360, Reverso = 0):
+	Doblez7_Base2 = Crear_Revolucion('Rev_Hole7_B001', 'Rev_Hueco7_B001', Cuerpo_B1, Boceto_Doblez7, DL7, 90, 1)
+	
+	Doc.recompute()
+	
+	# Crear_PlanoRef(Titulo, Etiqueta = '', Objeto_X = False, Eje_X = '', Modelado_X = ''):
+	global DP7
+	DP7 = Crear_PlanoRef('DP7_Base2_B001', 'PlanRef7_Base2_B001', Cuerpo_B1, 'Edge369',  Doblez7_Base2)
+	DP7.AttachmentOffset = App.Placement(App.Vector(0, 0, -4.5), App.Rotation(0, 90, 0))
+	
+	Doc.recompute()
+	
+	
+	
+def Crear_Doblez08():
+	
+	### iniciar la orden PartDesign_Sketch
+	global Boceto_Doblez8
+	# Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = '', Mapa_X = 'FlatFace'):
+	Boceto_Doblez8 = Crear_Boceto('Sketch_Fold8_B001', 'B_Doblez8_B001', Cuerpo_B1, 'Face123', Doblez7_Base2, 'InertialCS')
+	
+	Var_E = App.Units.Quantity(Variable_B1.Espesor).Value
+	# Crear_Cuadrado(Pt1, Boceto_X, Tipo = 'Borde', Dist_X = False, Dist_Y = False, Radio = False, Angulo = 0, Guia = False):
+	Crear_Cuadrado(App.Vector(0, 0, 0), Boceto_Doblez8, 'Esquina', Var_E, 9)
+	
+	Doc.recompute()
+	
+	# Actualizar_Lista(Boceto_X, Total_Lista):
+	Actualizar_Lista(Boceto_Doblez8, len(Boceto_Doblez8.Geometry))
+	
+	global Doblez8_Base2
+	# Crear_Revolucion(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False, Eje_X = False, Angulo = 360, Reverso = 0):
+	Doblez8_Base2 = Crear_Revolucion('Rev_Hole8_B001', 'Rev_Hueco8_B001', Cuerpo_B1, Boceto_Doblez8, DL8, 90, 1)
+	
+	Doc.recompute()
+	
+	# Crear_PlanoRef(Titulo, Etiqueta = '', Objeto_X = False, Eje_X = '', Modelado_X = ''):
+	global DP8
+	DP8 = Crear_PlanoRef('DP8_Base2_B001', 'PlanRef8_Base2_B001', Cuerpo_B1, 'Edge387',  Doblez8_Base2)
+	DP8.AttachmentOffset = App.Placement(App.Vector(0, 0, -4.5), App.Rotation(0, 90, 0))
+	
+	Doc.recompute()
+	
+	
+	
+def Crear_Huecos04_3D(LaT, AnT, AlT):
+	
+	### iniciar la orden PartDesign_Sketch
+	global Boceto_Hueco4
+	# Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = '', Mapa_X = 'FlatFace'):
+	Boceto_Hueco4 = Crear_Boceto('Sketch_HuecoBase4_B001', 'B_HuecoBase4_B001', Cuerpo_B1, 'Face36', Hueco_Base3, 'InertialCS')
+	
+	Var_E = App.Units.Quantity(Variable_B1.Espesor).Value
+	Var_R = 6.35 - 6.35 * math.cos(math.radians(45))
+	Var_L = ((AlT - 2 * Var_R) / math.cos(math.radians(45))) / 2
+	
+	# Crear_Ranura(Pt1, Boceto_X, Dist_X = False, Dist_Y = False, Angulo = 0, Guia = False):
+	Crear_Ranura(App.Vector(-Var_L + 9.5 / 2 + 5, 0, 0), Boceto_Hueco4, 50.8, 9.5, math.radians(90))
+	
+	# Crear_Cuadrado(Pt1, Boceto_X, Tipo = 'Borde', Dist_X = False, Dist_Y = False, Radio = False, Angulo = 0, Guia = False):
+	Crear_Cuadrado(App.Vector(-Var_L + 5 / 2, 0, 0), Boceto_Hueco4, 'Esquina', 31.75, 5, Angulo = math.radians(90))
+	
+	Doc.recompute()
+	
+	# Actualizar_Lista(Boceto_X, Total_Lista):
+	Actualizar_Lista(Boceto_Hueco4, len(Boceto_Hueco4.Geometry))
+	
+	global Hueco_Base4
+	# Crear_Hueco(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False):
+	Hueco_Base4 = Crear_Hueco('Pocket_Base4_B001', 'Hueco_Base4_B001', Cuerpo_B1, Boceto_Hueco4)
+	
+	Doc.recompute()
+	
+	
+	
+def Crear_Huecos05_3D(LaT, AnT, AlT):
+	
+	### iniciar la orden PartDesign_Sketch
+	global Boceto_Hueco5
+	# Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = '', Mapa_X = 'FlatFace'):
+	Boceto_Hueco5 = Crear_Boceto('Sketch_HuecoBase5_B001', 'B_HuecoBase5_B001', Cuerpo_B1, 'Face26', Hueco_Base4, 'InertialCS')
+	
+	Var_E = App.Units.Quantity(Variable_B1.Espesor).Value
+	Var_R = 6.35 - 6.35 * math.cos(math.radians(45))
+	Var_L = ((AlT - 2 * Var_R) / math.cos(math.radians(45))) / 2
+	
+	# Crear_Ranura(Pt1, Boceto_X, Dist_X = False, Dist_Y = False, Angulo = 0, Guia = False):
+	Crear_Ranura(App.Vector(-Var_L + 9.5 / 2 + 5, 0, 0), Boceto_Hueco5, 50.8, 9.5, math.radians(90))
+	
+	# Crear_Cuadrado(Pt1, Boceto_X, Tipo = 'Borde', Dist_X = False, Dist_Y = False, Radio = False, Angulo = 0, Guia = False):
+	Crear_Cuadrado(App.Vector(-Var_L + 5 / 2, 0, 0), Boceto_Hueco5, 'Esquina', 31.75, 5, Angulo = math.radians(90))
+	
+	Doc.recompute()
+	
+	# Actualizar_Lista(Boceto_X, Total_Lista):
+	Actualizar_Lista(Boceto_Hueco5, len(Boceto_Hueco5.Geometry))
+	
+	global Hueco_Base5
+	# Crear_Hueco(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False):
+	Hueco_Base5 = Crear_Hueco('Pocket_Base5_B001', 'Hueco_Base5_B001', Cuerpo_B1, Boceto_Hueco5)
+	#Hueco_Base5.Reversed = 1
+	
+	Doc.recompute()
+	
+	
+	
+
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -952,7 +1618,7 @@ Ini = time.time()
 
 #! Esta es la funcion que inicia la Macro
 # Crear_Hoop2(Largo_Total, Ancho_Total, Alto_Total):
-Crear_Hoop2('19.5 in', '3.5 in', '3/4 in')
+Crear_Hoop2('495 mm', '90 mm', '19 mm')
 
 
 # Imprimir_Lista(Lista_X, Nom_Lista = 'Lista X'):
