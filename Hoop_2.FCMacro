@@ -189,6 +189,16 @@ def Crear_Hoop2(Largo_Total, Ancho_Total, Alto_Total):
 	# Crear_Huecos05_3D(LaT, AnT, AlT):
 	Crear_Huecos05_3D(LaT, AnT, AlT)
 	
+	# Crear_Relleno01_3D(LaT, AnT, AlT):
+	Crear_Relleno01_3D(LaT, AnT, AlT)
+	
+	# Crear_Relleno02_3D(LaT, AnT, AlT):
+	Crear_Relleno02_3D(LaT, AnT, AlT)
+	
+	
+	
+	
+	
 	
 	
 	
@@ -1849,21 +1859,24 @@ def Crear_Huecos04_3D(LaT, AnT, AlT):
 	
 	Var_E = App.Units.Quantity(Variable_B1.Espesor).Value
 	Var_R = 6.35 * (1 - math.cos(math.radians(45)))
-	Var_L = ((AlT - 2 * Var_R) / math.cos(math.radians(45))) / 2
+	Var_L = ((AlT - 2 * Var_R) / math.cos(math.radians(45)) + 2 * 6.35 * math.cos(math.radians(45))) / 2
 	
 	# Crear_Ranura(Pt1, Boceto_X, Dist_X = False, Dist_Y = False, Angulo = 0, Guia = False, Grupo = '-'):
-	Crear_Ranura(App.Vector(-Var_L + 9.5 / 2 + 5, 0, 0), Boceto_Hueco4, 51.9, 9.5, math.radians(90), Grupo = 'R1')
+	Crear_Ranura(App.Vector(Var_L - 9.5 / 2 - 8, 0, 0), Boceto_Hueco4, 51.9, 9.5, math.radians(90), Grupo = 'R1')
 	Boceto_Hueco4.setExpression('Constraints[32]', u'' + Variable_B1.Name + '.Ancho - 38.1 mm')
 	Boceto_Hueco4.renameConstraint(32, u'' + Pieza_B1.Name + '_H4-R1_H')
-	#Boceto_Hueco4.setExpression('Constraints[41]', u'-((' + Variable_B1.Name + '.Alto - 2 * 6.35 * (1 - math.cos(math.radians(45)))) / math.cos(math.radians(45))) / 2 + ' + str(9.5 / 2 + 5) + ' mm')
+	#Boceto_Hueco4.setExpression('Constraints[41]', u'((' + Variable_B1.Name + '.Alto - 2 * 6.35 * (1 - math.cos(math.radians(45)))) / math.cos(math.radians(45))) / 2 - ' + str(9.5 / 2 + 5) + ' mm')
 	#Boceto_Hueco4.renameConstraint(41, u'' + Pieza_B1.Name + '_H4-R1_X')
 	
+	
 	# Crear_Cuadrado(Pt1, Boceto_X, Tipo = 'Borde', Dist_X = False, Dist_Y = False, Radio = False, Angulo = 0, Guia = False, Grupo = '-'):
-	Crear_Cuadrado(App.Vector(-Var_L + 5 / 2, 0, 0), Boceto_Hueco4, 'Esquina', 32.85, 5, Angulo = math.radians(90), Grupo = 'C2')
+	Crear_Cuadrado(App.Vector(Var_L - 8 / 2, 0, 0), Boceto_Hueco4, 'Esquina', 32.85, 8, Angulo = math.radians(90), Grupo = 'C2')
 	Boceto_Hueco4.setExpression('Constraints[50]', u'' + Variable_B1.Name + '.Ancho - 57.15 mm')
 	Boceto_Hueco4.renameConstraint(50, u'' + Pieza_B1.Name + '_H4-C2_H')
-	#Boceto_Hueco4.setExpression('Constraints[60]', u'-((' + Variable_B1.Name + '.Alto - 2 * 6.35 * (1 - math.cos(math.radians(45)))) / math.cos(math.radians(45))) / 2 + ' + str(5 / 2) + ' mm')
+	#Boceto_Hueco4.setExpression('Constraints[60]', u'((' + Variable_B1.Name + '.Alto - 2 * 6.35 * (1 - math.cos(math.radians(45)))) / math.cos(math.radians(45))) / 2 - ' + str(5 / 2) + ' mm')
 	#Boceto_Hueco4.renameConstraint(60, u'' + Pieza_B1.Name + '_H4-C2_X')
+	Boceto_Hueco4.AttachmentOffset = App.Placement(App.Vector(0, 0, 0), App.Rotation(App.Vector(0, 0, 1), 180))
+	
 	
 	Doc.recompute()
 	
@@ -1874,6 +1887,8 @@ def Crear_Huecos04_3D(LaT, AnT, AlT):
 	global Hueco_Base4
 	# Crear_Hueco(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False):
 	Hueco_Base4 = Crear_Hueco('Pocket_Base4_B001', 'Hueco_Base4_B001', Cuerpo_B1, Boceto_Hueco4)
+	Hueco_Base4.SideType = 2
+	Hueco_Base4.Type = 1
 	
 	Doc.recompute()
 	
@@ -1888,21 +1903,24 @@ def Crear_Huecos05_3D(LaT, AnT, AlT):
 	
 	Var_E = App.Units.Quantity(Variable_B1.Espesor).Value
 	Var_R = 6.35 * (1 - math.cos(math.radians(45)))
-	Var_L = ((AlT - 2 * Var_R) / math.cos(math.radians(45))) / 2
+	Var_L = ((AlT - 2 * Var_R) / math.cos(math.radians(45)) + 2 * 6.35 * math.cos(math.radians(45))) / 2
 	
 	# Crear_Ranura(Pt1, Boceto_X, Dist_X = False, Dist_Y = False, Angulo = 0, Guia = False, Grupo = '-'):
-	Crear_Ranura(App.Vector(-Var_L + 9.5 / 2 + 5, 0, 0), Boceto_Hueco5, 51.9, 9.5, math.radians(90), Grupo = 'R1')
+	Crear_Ranura(App.Vector(Var_L - 9.5 / 2 - 8, 0, 0), Boceto_Hueco5, 51.9, 9.5, math.radians(90), Grupo = 'R1')
 	Boceto_Hueco5.setExpression('Constraints[32]', u'' + Variable_B1.Name + '.Ancho - 38.1 mm')
 	Boceto_Hueco5.renameConstraint(32, u'' + Pieza_B1.Name + '_H5-R1_H')
-	#Boceto_Hueco5.setExpression('Constraints[41]', u'-((' + Variable_B1.Name + '.Alto - 2 * 6.35 * (1 - math.cos(math.radians(45)))) / math.cos(math.radians(45))) / 2 + ' + str(9.5 / 2 + 5) + ' mm')
+	#Boceto_Hueco5.setExpression('Constraints[41]', u'((' + Variable_B1.Name + '.Alto - 2 * 6.35 * (1 - math.cos(math.radians(45)))) / math.cos(math.radians(45))) / 2 - ' + str(9.5 / 2 + 5) + ' mm')
 	#Boceto_Hueco5.renameConstraint(41, u'' + Pieza_B1.Name + '_H5-R1_X')
 	
+	
 	# Crear_Cuadrado(Pt1, Boceto_X, Tipo = 'Borde', Dist_X = False, Dist_Y = False, Radio = False, Angulo = 0, Guia = False, Grupo = '-'):
-	Crear_Cuadrado(App.Vector(-Var_L + 5 / 2, 0, 0), Boceto_Hueco5, 'Esquina', 32.85, 5, Angulo = math.radians(90), Grupo = 'C2')
+	Crear_Cuadrado(App.Vector(Var_L - 8 / 2, 0, 0), Boceto_Hueco5, 'Esquina', 32.85, 8, Angulo = math.radians(90), Grupo = 'C2')
 	Boceto_Hueco5.setExpression('Constraints[50]', u'' + Variable_B1.Name + '.Ancho - 57.15 mm')
 	Boceto_Hueco5.renameConstraint(50, u'' + Pieza_B1.Name + '_H5-C2_H')
-	#Boceto_Hueco5.setExpression('Constraints[60]', u'-((' + Variable_B1.Name + '.Alto - 2 * 6.35 * (1 - math.cos(math.radians(45)))) / math.cos(math.radians(45))) / 2 + ' + str(5 / 2) + ' mm')
+	#Boceto_Hueco5.setExpression('Constraints[60]', u'((' + Variable_B1.Name + '.Alto - 2 * 6.35 * (1 - math.cos(math.radians(45)))) / math.cos(math.radians(45))) / 2 - ' + str(5 / 2) + ' mm')
 	#Boceto_Hueco5.renameConstraint(60, u'' + Pieza_B1.Name + '_H5-C2_X')
+	Boceto_Hueco5.MapReversed = True
+	
 	
 	Doc.recompute()
 	
@@ -1913,13 +1931,91 @@ def Crear_Huecos05_3D(LaT, AnT, AlT):
 	global Hueco_Base5
 	# Crear_Hueco(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False):
 	Hueco_Base5 = Crear_Hueco('Pocket_Base5_B001', 'Hueco_Base5_B001', Cuerpo_B1, Boceto_Hueco5)
-	#Hueco_Base5.Reversed = 1
+	Hueco_Base5.SideType = 2
+	Hueco_Base5.Type = 1
 	
 	Doc.recompute()
 	
 	
 	
-
+def Crear_Relleno01_3D(LaT, AnT, AlT):
+	
+	### iniciar la orden PartDesign_Sketch
+	global Boceto_Relleno1
+	# Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = '', Mapa_X = 'FlatFace'):
+	Boceto_Relleno1 = Crear_Boceto('Sketch_RellenoBase6_B001', 'B_RellenoBase6_B001', Cuerpo_B1, 'Face52', Tab8_Base3, 'InertialCS')
+	
+	Var_E = App.Units.Quantity(Variable_B1.Espesor).Value
+	Var_R = 6.35 * (1 - math.cos(math.radians(45)))
+	Var_L = ((AlT - 2 * Var_R) / math.cos(math.radians(45)) + 2 * 6.35 * math.cos(math.radians(45))) / 2
+	
+	# Crear_Cuadrado(Pt1, Boceto_X, Tipo = 'Borde', Dist_X = False, Dist_Y = False, Radio = False, Angulo = 0, Guia = False, Grupo = '-'):
+	Crear_Cuadrado(App.Vector(Var_L - 8 / 2, 0, 0), Boceto_Relleno1, 'Esquina', 32.85, 8, Angulo = math.radians(90), Grupo = 'C1')
+	Crear_Cuadrado(App.Vector(Var_L - 8 / 2, 0, 0), Boceto_Relleno1, 'Esquina', 32.85 - 2 * Var_E, 8 - 2 * Var_E, Angulo = math.radians(90), Grupo = 'C2')
+	#Boceto_Hueco5.setExpression('Constraints[50]', u'' + Variable_B1.Name + '.Ancho - 57.15 mm')
+	#Boceto_Hueco5.renameConstraint(50, u'' + Pieza_B1.Name + '_H6-C1_H')
+	#Boceto_Hueco5.setExpression('Constraints[60]', u'((' + Variable_B1.Name + '.Alto - 2 * 6.35 * (1 - math.cos(math.radians(45)))) / math.cos(math.radians(45))) / 2 - ' + str(5 / 2) + ' mm')
+	#Boceto_Hueco5.renameConstraint(60, u'' + Pieza_B1.Name + '_H6-C1_X')
+	Boceto_Relleno1.AttachmentOffset = App.Placement(App.Vector(0, 0, -3),  App.Rotation(0, 0, 0))
+	Boceto_Relleno1.MapReversed = True
+	
+	Doc.recompute()
+	
+	# Actualizar_Lista(Boceto_X):
+	Actualizar_Lista(Boceto_Relleno1)
+	Actualizar_Lista2(Boceto_Relleno1)
+	
+	global Relleno_Base6
+	# Crear_Relleno(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False):
+	Relleno_Base6 = Crear_Relleno('Pad_Base6_B001', 'Relleno_Base6_B001', Cuerpo_B1, Boceto_Relleno1)
+	Relleno_Base6.Length = 25.4
+	
+	Doc.recompute()
+	
+	
+	
+def Crear_Relleno02_3D(LaT, AnT, AlT):
+	
+	### iniciar la orden PartDesign_Sketch
+	global Boceto_Relleno2
+	# Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = '', Mapa_X = 'FlatFace'):
+	Boceto_Relleno2 = Crear_Boceto('Sketch_RellenoBase7_B001', 'B_RellenoBase7_B001', Cuerpo_B1, 'Face48', Hueco_Base4, 'InertialCS')
+	
+	Var_E = App.Units.Quantity(Variable_B1.Espesor).Value
+	Var_R = 6.35 * (1 - math.cos(math.radians(45)))
+	Var_L = ((AlT - 2 * Var_R) / math.cos(math.radians(45)) + 2 * 6.35 * math.cos(math.radians(45))) / 2
+	
+	# Crear_Cuadrado(Pt1, Boceto_X, Tipo = 'Borde', Dist_X = False, Dist_Y = False, Radio = False, Angulo = 0, Guia = False, Grupo = '-'):
+	Crear_Cuadrado(App.Vector(-Var_L + 8 / 2, 0, 0), Boceto_Relleno2, 'Esquina', 32.85, 8, Angulo = math.radians(90), Grupo = 'C3')
+	Crear_Cuadrado(App.Vector(-Var_L + 8 / 2, 0, 0), Boceto_Relleno2, 'Esquina', 32.85 - 2 * Var_E, 8 - 2 * Var_E, Angulo = math.radians(90), Grupo = 'C4')
+	#Boceto_Hueco5.setExpression('Constraints[50]', u'' + Variable_B1.Name + '.Ancho - 57.15 mm')
+	#Boceto_Hueco5.renameConstraint(50, u'' + Pieza_B1.Name + '_H6-C1_H')
+	#Boceto_Hueco5.setExpression('Constraints[60]', u'((' + Variable_B1.Name + '.Alto - 2 * 6.35 * (1 - math.cos(math.radians(45)))) / math.cos(math.radians(45))) / 2 - ' + str(5 / 2) + ' mm')
+	#Boceto_Hueco5.renameConstraint(60, u'' + Pieza_B1.Name + '_H6-C1_X')
+	Boceto_Relleno2.AttachmentOffset = App.Placement(App.Vector(0, 0, -3),  App.Rotation(0, 0, 0))
+	#Boceto_Relleno2.MapReversed = True
+	
+	Doc.recompute()
+	
+	# Actualizar_Lista(Boceto_X):
+	Actualizar_Lista(Boceto_Relleno2)
+	Actualizar_Lista2(Boceto_Relleno2)
+	
+	global Relleno_Base7
+	# Crear_Relleno(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False):
+	Relleno_Base7 = Crear_Relleno('Pad_Base7_B001', 'Relleno_Base7_B001', Cuerpo_B1, Boceto_Relleno2)
+	Relleno_Base7.Length = 25.4
+	
+	Doc.recompute()
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
