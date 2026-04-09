@@ -169,7 +169,7 @@ def Crear_Hoop2(Largo_Total, Ancho_Total, Alto_Total):
 	
 	# Crear_Huecos02_3D(LaT, AnT, AlT):
 	Crear_Huecos02_3D(LaT, AnT, AlT)
-	
+	'''
 	# Crear_Huecos03_3D(LaT, AnT, AlT):
 	Crear_Huecos03_3D(LaT, AnT, AlT)
 	
@@ -194,7 +194,7 @@ def Crear_Hoop2(Largo_Total, Ancho_Total, Alto_Total):
 	
 	# Crear_Relleno02_3D(LaT, AnT, AlT):
 	Crear_Relleno02_3D(LaT, AnT, AlT)
-	
+	'''
 	
 	
 	
@@ -927,6 +927,100 @@ def Crear_Semicirculo(Pt1, Boceto_X, Dist_X = False, Dist_Y = False, Tipo = 'B',
 	
 	
 	
+def Crear_Estrella(Pt1, Boceto_X, Radio1, Radio2, Puntas = 5, Angulo = 0, Grupo = '-'):
+	
+	lastID = len(Boceto_X.Geometry)
+	
+	# creamos la lista de puntos por cada circulo
+	geoList = []
+	# [centro curva, Eje, Radio, Angulo inicial, Angulo final]
+	geoList.append([App.Vector(Pt1.x, Pt1.y, Pt1.z), App.Vector(0, 0, 1), Radio1])		#Object[0]
+	geoList.append([App.Vector(Pt1.x, Pt1.y, Pt1.z), App.Vector(0, 0, 1), Radio2])		#Object[1]
+	
+	for NewCirculo in geoList:
+		# Crear_Circulo(Pt1, Eje, Radio, Boceto_X, Guia = False, Grupo_X = '-'):
+		Crear_Circulo(NewCirculo[0], NewCirculo[1], NewCirculo[2], Boceto_X, True, Grupo + '_G')
+	
+	del geoList
+	
+	# creamos la lista de puntos por cada linea auxiliar
+	geoList = []
+	# [Punto inicial, Punto final]
+	geoList.append([App.Vector(Pt1.x, Pt1.y, Pt1.z), App.Vector(Pt1.x + Radio1, Pt1.y, Pt1.z)])	#Object[2]
+	geoList.append([App.Vector(Pt1.x, Pt1.y, Pt1.z), App.Vector(Pt1.x + Radio2, Pt1.y, Pt1.z)])	#Object[3]
+	
+	for NewLinea in geoList:
+		# Crear_Linea(Pt1, Pt2, Boceto_X, Guia = False, Grupo_X = '-'):
+		Crear_Linea(NewLinea[0], NewLinea[1], Boceto_X, True, Grupo + '_G')
+	
+	del geoList
+	
+	Ang = 360 / Puntas
+	Ang2 = Ang / 2
+	
+	# creamos la lista de puntos por cada linea
+	geoList = []
+	for k in range(0, Puntas):
+		Rx = Radio1 * math.cos(math.radians(k * Ang))
+		Ry = Radio1 * math.sin(math.radians(k * Ang))
+		R1x = Radio2 * math.cos(math.radians(k * Ang - Ang2))
+		R1y = Radio2 * math.sin(math.radians(k * Ang - Ang2))
+		R2x = Radio2 * math.cos(math.radians(k * Ang + Ang2))
+		R2y = Radio2 * math.sin(math.radians(k * Ang + Ang2))
+		
+		# [Punto inicial, Punto final]
+		geoList.append([App.Vector(Pt1.x + Rx, Pt1.y + Ry, Pt1.z), App.Vector(Pt1.x + R1x, Pt1.y + R1y, Pt1.z)])	#Object[4]
+		geoList.append([App.Vector(Pt1.x + Rx, Pt1.y + Ry, Pt1.z), App.Vector(Pt1.x + R2x, Pt1.y + R2y, Pt1.z)])	#Object[n]
+		
+	for NewLinea in geoList:
+		# Crear_Linea(Pt1, Pt2, Boceto_X, Guia = False, Grupo_X = '-'):
+		Crear_Linea(NewLinea[0], NewLinea[1], Boceto_X, Grupo_X = Grupo)
+	
+	del geoList
+	
+	
+	
+	Doc.recompute
+	
+	# creamos la lista de restricciones
+	constraintList = []
+	constraintList.append(Sketcher.Constraint('Coincident',    lastID + 0,3, lastID + 1,3))	#Constraints[0]
+	constraintList.append(Sketcher.Constraint('Coincident',    lastID + 0,3, lastID + 2,1))	#Constraints[1]
+	constraintList.append(Sketcher.Constraint('Coincident',    lastID + 0,3, lastID + 3,1))	#Constraints[2]
+	constraintList.append(Sketcher.Constraint('PointOnObject', lastID + 3,2, lastID + 1))		#Constraints[3]
+	constraintList.append(Sketcher.Constraint('Horizontal',    lastID + 3))					#Constraints[4]
+	constraintList.append(Sketcher.Constraint('Radius',        lastID + 0, Radio1))			#Constraints[5]
+	constraintList.append(Sketcher.Constraint('Radius',        lastID + 1, Radio2))			#Constraints[6]
+	
+	for NewConstr in range(0, Puntas):
+		if NewConstr == Puntas - 1:
+			constraintList.append(Sketcher.Constraint('Coincident', lastID + 2 * NewConstr + 4,1, lastID + 2 * NewConstr + 5,1))	#Constraints[7]
+			constraintList.append(Sketcher.Constraint('Coincident', lastID + 2 * NewConstr + 5,2, lastID + 4, 2))					#Constraints[8]
+		else:
+			constraintList.append(Sketcher.Constraint('Coincident', lastID + 2 * NewConstr + 4,1, lastID + 2 * NewConstr + 5,1))	#Constraints[7]
+			constraintList.append(Sketcher.Constraint('Coincident', lastID + 2 * NewConstr + 5,2, lastID + 2 * NewConstr + 6,2))	#Constraints[8]
+	
+	constraintList.append(Sketcher.Constraint('Coincident', lastID + 2,2, lastID + 4,1))											#Constraints[9]
+	
+	for NewConstr in range(0, 2 * Puntas - 1):
+		constraintList.append(Sketcher.Constraint('Equal', lastID + NewConstr + 4, lastID + NewConstr + 5))						#Constraints[10]
+	
+	for NewConstr in range(0, Puntas):
+		constraintList.append(Sketcher.Constraint('PointOnObject', lastID + 2 * NewConstr + 4,1,  lastID + 0))					#Constraints[11]
+		constraintList.append(Sketcher.Constraint('PointOnObject', lastID + 2 * NewConstr + 5,2,  lastID + 1))					#Constraints[12]
+	
+	constraintList.append(Sketcher.Constraint('Angle', lastID + 3,1, lastID + 2,1, Angulo))
+	constraintList.append(Sketcher.Constraint('DistanceX', lastID + 0,3, Pt1.x))
+	constraintList.append(Sketcher.Constraint('DistanceY', lastID + 0,3, Pt1.y))
+	
+	Boceto_X.addConstraint(constraintList)
+	
+	del constraintList
+	
+	Doc.recompute
+	
+	
+	
 #! Estos son las funciones para crear Modelado 3D
 def Crear_Relleno(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False):
 	
@@ -1326,7 +1420,7 @@ def Crear_Huecos02_3D(LaT, AnT, AlT):
 	global Boceto_Hueco2
 	# Crear_Boceto(Titulo, Etiqueta = '', Objeto_X = False, Plano_X = '', Modelado_X = '', Mapa_X = 'FlatFace'):
 	Boceto_Hueco2 = Crear_Boceto('Sketch_HuecoBase2_B001', 'B_HuecoBase2_B001', Cuerpo_B1, 'Face1', Hueco_Base1)
-	
+	'''
 	# Crear_Ranura(Pt1, Boceto_X, Dist_X = False, Dist_Y = False, Angulo = 0, Guia = False, Grupo = '-'):
 	Crear_Ranura(App.Vector(-LaT / 2 + 2.5 + 12.7 / 2, -AnT / 2 + 8 + 6.35 / 2, 0), Boceto_Hueco2, 12.7, 6.35, Grupo = 'Ra1')
 	Boceto_Hueco2.setExpression('Constraints[41]', u'-' + Variable_B1.Name + '.Largo / 2 + ' + str(2.5 + 12.7 / 2) + ' mm')
@@ -1358,6 +1452,10 @@ def Crear_Huecos02_3D(LaT, AnT, AlT):
 	Boceto_Hueco2.renameConstraint(193, u'' + Pieza_B1.Name + '_H2-SC4_Y')
 	
 	Doc.recompute()
+	'''
+	# Crear_Estrella(Pt1, Boceto_X, Radio1, Radio2, Puntas = 5, Angulo = 0,  Grupo = '-'):
+	Crear_Estrella(App.Vector(-200, 10, 0), Boceto_Hueco2, 20, 10, 8, math.radians(45), 'Estrella1')
+	Crear_Estrella(App.Vector(-200, -25, 0), Boceto_Hueco2, 10, 5, 4, math.radians(90), 'Estrella2')
 	
 	# Actualizar_Lista(Boceto_X):
 	Actualizar_Lista(Boceto_Hueco2)
@@ -1368,7 +1466,7 @@ def Crear_Huecos02_3D(LaT, AnT, AlT):
 	Hueco_Base2 = Crear_Hueco('Pocket_Base2_B001', 'Hueco_Base2_B001', Cuerpo_B1, Boceto_Hueco2)
 	
 	Doc.recompute()
-	
+	'''
 	# Crear_LineaRef(Titulo, Etiqueta = '', Objeto_X = False, Eje_X = '', Modelado_X = ''):
 	global DL1
 	global DL2
@@ -1384,7 +1482,7 @@ def Crear_Huecos02_3D(LaT, AnT, AlT):
 	DL4.AttachmentOffset = App.Placement(App.Vector(0, -1, -AnT / 2 + 26 - 15),    App.Rotation(0, 0, 0))
 	
 	Doc.recompute()
-	
+	'''
 	
 	
 def Crear_Huecos03_3D(LaT, AnT, AlT):
