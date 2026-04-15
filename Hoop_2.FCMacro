@@ -927,15 +927,21 @@ def Crear_Semicirculo(Pt1, Boceto_X, Dist_X = False, Dist_Y = False, Tipo = 'B',
 	
 	
 	
-def Crear_Estrella(Pt1, Boceto_X, Radio1, Radio2, Puntas = 5, Angulo = 0, Grupo = '-'):
+def Crear_Estrella(Pt1, Boceto_X, Radio1, Radio2, Puntas = 5, Angulo = 0, Tipo = 'TA', Radio3 = 5, Angulo2 = 0, Grupo = '-'):
+	
+	# Tipos de estrellas
+	# TA = Normal
+	# TB = dos puntas diferentes
 	
 	lastID = len(Boceto_X.Geometry)
 	
 	# creamos la lista de puntos por cada circulo
 	geoList = []
 	# [centro curva, Eje, Radio, Angulo inicial, Angulo final]
-	geoList.append([App.Vector(Pt1.x, Pt1.y, Pt1.z), App.Vector(0, 0, 1), Radio1])		#Object[0]
-	geoList.append([App.Vector(Pt1.x, Pt1.y, Pt1.z), App.Vector(0, 0, 1), Radio2])		#Object[1]
+	geoList.append([App.Vector(Pt1.x, Pt1.y, Pt1.z), App.Vector(0, 0, 1), Radio1])		#Object[A0,B0]
+	geoList.append([App.Vector(Pt1.x, Pt1.y, Pt1.z), App.Vector(0, 0, 1), Radio2])		#Object[A1,B1]
+	if Tipo == 'TB':
+		geoList.append([App.Vector(Pt1.x, Pt1.y, Pt1.z), App.Vector(0, 0, 1), Radio3])	#Object[B2]
 	
 	for NewCirculo in geoList:
 		# Crear_Circulo(Pt1, Eje, Radio, Boceto_X, Guia = False, Grupo_X = '-'):
@@ -946,8 +952,8 @@ def Crear_Estrella(Pt1, Boceto_X, Radio1, Radio2, Puntas = 5, Angulo = 0, Grupo 
 	# creamos la lista de puntos por cada linea auxiliar
 	geoList = []
 	# [Punto inicial, Punto final]
-	geoList.append([App.Vector(Pt1.x, Pt1.y, Pt1.z), App.Vector(Pt1.x + Radio1, Pt1.y, Pt1.z)])	#Object[2]
-	geoList.append([App.Vector(Pt1.x, Pt1.y, Pt1.z), App.Vector(Pt1.x + Radio2, Pt1.y, Pt1.z)])	#Object[3]
+	geoList.append([App.Vector(Pt1.x, Pt1.y, Pt1.z), App.Vector(Pt1.x + Radio1, Pt1.y, Pt1.z)])	#Object[A2,B3]
+	geoList.append([App.Vector(Pt1.x, Pt1.y, Pt1.z), App.Vector(Pt1.x + Radio2, Pt1.y, Pt1.z)])	#Object[A3,B4]
 	
 	for NewLinea in geoList:
 		# Crear_Linea(Pt1, Pt2, Boceto_X, Guia = False, Grupo_X = '-'):
@@ -958,6 +964,21 @@ def Crear_Estrella(Pt1, Boceto_X, Radio1, Radio2, Puntas = 5, Angulo = 0, Grupo 
 	Ang = 360 / Puntas
 	Ang2 = Ang / 2
 	
+	if Tipo == 'TB':
+		Ang3 = Ang2
+		Ang2 = Ang2 / 2
+		Dx = Radio1 - Radio2 * math.cos(math.radians(Ang3))
+		Dy = Radio2 * math.sin(math.radians(Ang3))
+		AngMax = 2 * math.atan2(Dy, Dx)
+		Angulo2 = abs(Angulo2)
+		if Angulo2 >= AngMax:
+			Angulo2 = AngMax - 1
+	
+	if Angulo2 == 0:
+		Dx = Radio1 - Radio2 * math.cos(math.radians(Ang2))
+		Dy = Radio2 * math.sin(math.radians(Ang2))
+		Angulo2 = 2 * math.atan2(Dy, Dx)
+	
 	# creamos la lista de puntos por cada linea
 	geoList = []
 	for k in range(0, Puntas):
@@ -967,10 +988,20 @@ def Crear_Estrella(Pt1, Boceto_X, Radio1, Radio2, Puntas = 5, Angulo = 0, Grupo 
 		R1y = Radio2 * math.sin(math.radians(k * Ang - Ang2))
 		R2x = Radio2 * math.cos(math.radians(k * Ang + Ang2))
 		R2y = Radio2 * math.sin(math.radians(k * Ang + Ang2))
+		if Tipo == 'TB':
+			R3x = Radio3 * math.cos(math.radians(k * Ang + Ang3))
+			R3y = Radio3 * math.sin(math.radians(k * Ang + Ang3))
+			R4x = Radio2 * math.cos(math.radians(k * Ang - Ang2 + Ang3))
+			R4y = Radio2 * math.sin(math.radians(k * Ang - Ang2 + Ang3))
+			R5x = Radio2 * math.cos(math.radians(k * Ang + Ang2 + Ang3))
+			R5y = Radio2 * math.sin(math.radians(k * Ang + Ang2 + Ang3))
 		
 		# [Punto inicial, Punto final]
-		geoList.append([App.Vector(Pt1.x + Rx, Pt1.y + Ry, Pt1.z), App.Vector(Pt1.x + R1x, Pt1.y + R1y, Pt1.z)])	#Object[4]
-		geoList.append([App.Vector(Pt1.x + Rx, Pt1.y + Ry, Pt1.z), App.Vector(Pt1.x + R2x, Pt1.y + R2y, Pt1.z)])	#Object[n]
+		geoList.append([App.Vector(Pt1.x + Rx, Pt1.y + Ry, Pt1.z), App.Vector(Pt1.x + R1x, Pt1.y + R1y, Pt1.z)])			#Object[A4,B5]
+		geoList.append([App.Vector(Pt1.x + Rx, Pt1.y + Ry, Pt1.z), App.Vector(Pt1.x + R2x, Pt1.y + R2y, Pt1.z)])			#Object[An,Bn]
+		if Tipo == 'TB':
+			geoList.append([App.Vector(Pt1.x + R3x, Pt1.y + R3y, Pt1.z), App.Vector(Pt1.x + R4x, Pt1.y + R4y, Pt1.z)])	#Object[Bn+1]
+			geoList.append([App.Vector(Pt1.x + R3x, Pt1.y + R3y, Pt1.z), App.Vector(Pt1.x + R5x, Pt1.y + R5y, Pt1.z)])	#Object[Bm]
 		
 	for NewLinea in geoList:
 		# Crear_Linea(Pt1, Pt2, Boceto_X, Guia = False, Grupo_X = '-'):
@@ -978,40 +1009,88 @@ def Crear_Estrella(Pt1, Boceto_X, Radio1, Radio2, Puntas = 5, Angulo = 0, Grupo 
 	
 	del geoList
 	
-	
-	
 	Doc.recompute
 	
 	# creamos la lista de restricciones
 	constraintList = []
-	constraintList.append(Sketcher.Constraint('Coincident',    lastID + 0,3, lastID + 1,3))	#Constraints[0]
-	constraintList.append(Sketcher.Constraint('Coincident',    lastID + 0,3, lastID + 2,1))	#Constraints[1]
-	constraintList.append(Sketcher.Constraint('Coincident',    lastID + 0,3, lastID + 3,1))	#Constraints[2]
-	constraintList.append(Sketcher.Constraint('PointOnObject', lastID + 3,2, lastID + 1))		#Constraints[3]
-	constraintList.append(Sketcher.Constraint('Horizontal',    lastID + 3))					#Constraints[4]
-	constraintList.append(Sketcher.Constraint('Radius',        lastID + 0, Radio1))			#Constraints[5]
-	constraintList.append(Sketcher.Constraint('Radius',        lastID + 1, Radio2))			#Constraints[6]
-	
+	# hacemos los circulos concentricos
+	constraintList.append(Sketcher.Constraint('Coincident',        lastID + 0,3, lastID + 1,3))	#Constraints[A0,B0]
+	if Tipo == 'TB':
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 0,3, lastID + 2,3))	#Constraints[B1]
+	# fijamos las lineas guias a los circulos guia
+	if Tipo == 'TA':
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 0,3, lastID + 2,1))	#Constraints[A1]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 0,3, lastID + 3,1))	#Constraints[A2]
+		constraintList.append(Sketcher.Constraint('PointOnObject', lastID + 2,2, lastID + 0))		#Constraints[A2]
+		constraintList.append(Sketcher.Constraint('PointOnObject', lastID + 3,2, lastID + 1))		#Constraints[A3]
+		constraintList.append(Sketcher.Constraint('Horizontal',    lastID + 3))					#Constraints[A4]
+	if Tipo == 'TB':
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 0,3, lastID + 3,1))	#Constraints[B2]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 0,3, lastID + 4,1))	#Constraints[B3]
+		constraintList.append(Sketcher.Constraint('PointOnObject', lastID + 3,2, lastID + 0))		#Constraints[B4]
+		constraintList.append(Sketcher.Constraint('PointOnObject', lastID + 4,2, lastID + 1))		#Constraints[B5]
+		constraintList.append(Sketcher.Constraint('Horizontal',    lastID + 4))					#Constraints[B6]
+	# fijamos el radio de cada circulo guia
+	constraintList.append(Sketcher.Constraint('Radius',            lastID + 0, Radio1))			#Constraints[A5,B7]
+	constraintList.append(Sketcher.Constraint('Radius',            lastID + 1, Radio2))			#Constraints[A6,B8]
+	if Tipo == 'TB':
+		constraintList.append(Sketcher.Constraint('Radius',        lastID + 2, Radio3))			#Constraints[B9]
+	# unimos los extremos de dos lineas creando las puntas de la estrella
 	for NewConstr in range(0, Puntas):
 		if NewConstr == Puntas - 1:
-			constraintList.append(Sketcher.Constraint('Coincident', lastID + 2 * NewConstr + 4,1, lastID + 2 * NewConstr + 5,1))	#Constraints[7]
-			constraintList.append(Sketcher.Constraint('Coincident', lastID + 2 * NewConstr + 5,2, lastID + 4, 2))					#Constraints[8]
+			if Tipo == 'TA':
+				constraintList.append(Sketcher.Constraint('Coincident', lastID + 2 * NewConstr + 4,1, lastID + 2 * NewConstr + 5,1))	#Constraints[A7]
+				constraintList.append(Sketcher.Constraint('Coincident', lastID + 2 * NewConstr + 5,2, lastID + 4,2))					#Constraints[A8]
+			if Tipo == 'TB':
+				constraintList.append(Sketcher.Constraint('Coincident', lastID + 4 * NewConstr + 5,1, lastID + 4 * NewConstr + 6,1))	#Constraints[B10]
+				constraintList.append(Sketcher.Constraint('Coincident', lastID + 4 * NewConstr + 6,2, lastID + 4 * NewConstr + 7,2))	#Constraints[B11]
+				constraintList.append(Sketcher.Constraint('Coincident', lastID + 4 * NewConstr + 7,1, lastID + 4 * NewConstr + 8,1))	#Constraints[B12]
+				constraintList.append(Sketcher.Constraint('Coincident', lastID + 4 * NewConstr + 8,2, lastID + 5,2))					#Constraints[B13]
 		else:
-			constraintList.append(Sketcher.Constraint('Coincident', lastID + 2 * NewConstr + 4,1, lastID + 2 * NewConstr + 5,1))	#Constraints[7]
-			constraintList.append(Sketcher.Constraint('Coincident', lastID + 2 * NewConstr + 5,2, lastID + 2 * NewConstr + 6,2))	#Constraints[8]
-	
-	constraintList.append(Sketcher.Constraint('Coincident', lastID + 2,2, lastID + 4,1))											#Constraints[9]
-	
-	for NewConstr in range(0, 2 * Puntas - 1):
-		constraintList.append(Sketcher.Constraint('Equal', lastID + NewConstr + 4, lastID + NewConstr + 5))						#Constraints[10]
-	
+			if Tipo == 'TA':
+				constraintList.append(Sketcher.Constraint('Coincident', lastID + 2 * NewConstr + 4,1, lastID + 2 * NewConstr + 5,1))	#Constraints[A7]
+				constraintList.append(Sketcher.Constraint('Coincident', lastID + 2 * NewConstr + 5,2, lastID + 2 * NewConstr + 6,2))	#Constraints[A8]
+			if Tipo == 'TB':
+				constraintList.append(Sketcher.Constraint('Coincident', lastID + 4 * NewConstr + 5,1, lastID + 4 * NewConstr + 6,1))	#Constraints[B10]
+				constraintList.append(Sketcher.Constraint('Coincident', lastID + 4 * NewConstr + 6,2, lastID + 4 * NewConstr + 7,2))	#Constraints[B11]
+				constraintList.append(Sketcher.Constraint('Coincident', lastID + 4 * NewConstr + 7,1, lastID + 4 * NewConstr + 8,1))	#Constraints[B12]
+				constraintList.append(Sketcher.Constraint('Coincident', lastID + 4 * NewConstr + 8,2, lastID + 4 * NewConstr + 9,2))	#Constraints[B13]
+	# unimos la linea guia a la primer punta de la estrella
+	if Tipo == 'TA':
+		constraintList.append(Sketcher.Constraint('Coincident', lastID + 2,2, lastID + 4,1))									#Constraints[A9]
+	if Tipo == 'TB':
+		constraintList.append(Sketcher.Constraint('Coincident', lastID + 3,2, lastID + 5,1))									#Constraints[B14]
+	# igulamos las lineas de cada punta de la estrella
+	if Tipo == 'TA':
+		for NewConstr in range(0, 2 * Puntas - 1):
+			constraintList.append(Sketcher.Constraint('Equal', lastID + NewConstr + 4, lastID + NewConstr + 5))				#Constraints[A10]
+	if Tipo == 'TB':
+		for NewConstr in range(0, 4 * Puntas - 2, 4):
+			constraintList.append(Sketcher.Constraint('Equal', lastID + NewConstr + 5, lastID + NewConstr + 6))				#Constraints[B15]
+			constraintList.append(Sketcher.Constraint('Equal', lastID + NewConstr + 7, lastID + NewConstr + 8))				#Constraints[B16]
+		for NewConstr in range(0, 4 * Puntas - 4, 4):
+			constraintList.append(Sketcher.Constraint('Equal', lastID + NewConstr + 6, lastID + NewConstr + 9))				#Constraints[B17]
+			constraintList.append(Sketcher.Constraint('Equal', lastID + NewConstr + 8, lastID + NewConstr + 11))				#Constraints[B18]
+	# unimos las puntas de la estrella a los circulos guia
 	for NewConstr in range(0, Puntas):
-		constraintList.append(Sketcher.Constraint('PointOnObject', lastID + 2 * NewConstr + 4,1,  lastID + 0))					#Constraints[11]
-		constraintList.append(Sketcher.Constraint('PointOnObject', lastID + 2 * NewConstr + 5,2,  lastID + 1))					#Constraints[12]
-	
-	constraintList.append(Sketcher.Constraint('Angle', lastID + 3,1, lastID + 2,1, Angulo))
-	constraintList.append(Sketcher.Constraint('DistanceX', lastID + 0,3, Pt1.x))
-	constraintList.append(Sketcher.Constraint('DistanceY', lastID + 0,3, Pt1.y))
+		if Tipo == 'TA':
+			if NewConstr != 0:
+				constraintList.append(Sketcher.Constraint('PointOnObject', lastID + 2 * NewConstr + 4,1,  lastID + 0))		#Constraints[A11]
+			constraintList.append(Sketcher.Constraint('PointOnObject',     lastID + 2 * NewConstr + 5,2,  lastID + 1))		#Constraints[A12]
+		if Tipo == 'TB':
+			if NewConstr != 0:
+				constraintList.append(Sketcher.Constraint('PointOnObject', lastID + 4 * NewConstr + 5,1,  lastID + 0))		#Constraints[B19]
+			constraintList.append(Sketcher.Constraint('PointOnObject',     lastID + 4 * NewConstr + 6,2,  lastID + 1))		#Constraints[B20]
+			constraintList.append(Sketcher.Constraint('PointOnObject',     lastID + 4 * NewConstr + 7,1,  lastID + 2))		#Constraints[B21]
+			constraintList.append(Sketcher.Constraint('PointOnObject',     lastID + 4 * NewConstr + 8,2,  lastID + 1))		#Constraints[B22]
+	# ubicamos la posicion y el angulo de la estrella
+	if Tipo == 'TA':
+		constraintList.append(Sketcher.Constraint('Angle', lastID + 3,1, lastID + 2,1, Angulo))								#Constraints[A13]
+	if Tipo == 'TB':
+		constraintList.append(Sketcher.Constraint('Angle', lastID + 6,1, lastID + 5,1, Angulo2))
+		constraintList.append(Sketcher.Constraint('Angle', lastID + 4,1, lastID + 3,1, Angulo))								#Constraints[B23]
+	constraintList.append(Sketcher.Constraint('DistanceX', lastID + 0,3, Pt1.x))												#Constraints[A14,B24]
+	constraintList.append(Sketcher.Constraint('DistanceY', lastID + 0,3, Pt1.y))												#Constraints[A15,B25]
 	
 	Boceto_X.addConstraint(constraintList)
 	
@@ -1453,9 +1532,10 @@ def Crear_Huecos02_3D(LaT, AnT, AlT):
 	
 	Doc.recompute()
 	'''
-	# Crear_Estrella(Pt1, Boceto_X, Radio1, Radio2, Puntas = 5, Angulo = 0,  Grupo = '-'):
-	Crear_Estrella(App.Vector(-200, 10, 0), Boceto_Hueco2, 20, 10, 8, math.radians(45), 'Estrella1')
-	Crear_Estrella(App.Vector(-200, -25, 0), Boceto_Hueco2, 10, 5, 4, math.radians(90), 'Estrella2')
+	
+	# Crear_Estrella(Pt1, Boceto_X, Radio1, Radio2, Puntas = 5, Angulo = 0, Tipo = 'TA', Radio3 = 5, Angulo2 = 36, Grupo = '-'):
+	Crear_Estrella(App.Vector(-200, 10, 0), Boceto_Hueco2, 20, 15, 4, math.radians(45), 'TB', 5, math.radians(0), Grupo = 'Estrella1')
+	#Crear_Estrella(App.Vector(-200, -25, 0), Boceto_Hueco2, 10, 5, 4, math.radians(90), 'TA', Grupo = 'Estrella2')
 	
 	# Actualizar_Lista(Boceto_X):
 	Actualizar_Lista(Boceto_Hueco2)
