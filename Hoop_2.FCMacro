@@ -1100,6 +1100,112 @@ def Crear_Estrella(Pt1, Boceto_X, Radio1, Radio2, Puntas = 5, Angulo = 0, Tipo =
 	
 	
 	
+def Crear_Keyhole(Pt1, Boceto_X, Radio1, Radio2, Largo, Angulo = 0, Tipo = 'TA', Grupo = '-'):
+	
+	lastID = len(Boceto_X.Geometry)
+	
+	if Tipo == 'TA':
+		h = Largo - Radio1 - Radio2
+		j = Largo / 2 - Radio1
+	if Tipo == 'TB':
+		h = Largo - Radio2
+		j = Largo / 2
+	k = Largo / 2 - Radio2
+	Ang1 = math.pi - math.acos(Radio1 / Radio2)
+	Ang2 = 2 * math.pi + math.acos(Radio1 / Radio2)
+	d = math.sqrt(math.pow(Radio2, 2) - math.pow(Radio1, 2))
+	
+	# creamos la lista de puntos por cada linea auxiliar
+	geoList = []
+	# [Punto inicial, Punto final]
+	geoList.append([App.Vector(Pt1.x, Pt1.y + h, Pt1.z), App.Vector(Pt1.x, Pt1.y, Pt1.z)])								#Object[A0,B0]
+	geoList.append([App.Vector(Pt1.x, Pt1.y + k, Pt1.z), App.Vector(Pt1.x + Radio1, Pt1.y + k, Pt1.z)])					#Object[A1,B1]
+	geoList.append([App.Vector(Pt1.x, Pt1.y + k, Pt1.z), App.Vector(Pt1.x + Radio2, Pt1.y + k, Pt1.z)])					#Object[A2,B2]
+	
+	for NewLinea in geoList:
+		# Crear_Linea(Pt1, Pt2, Boceto_X, Guia = False, Grupo_X = '-'):
+		Crear_Linea(NewLinea[0], NewLinea[1], Boceto_X, True, Grupo + '_G')
+	
+	del geoList
+	
+	# creamos la lista de puntos por cada arco
+	geoList = []
+	# [centro curva, Eje, Radio, Angulo inicial, Angulo final]
+	if Tipo == 'TA':
+		geoList.append([App.Vector(Pt1.x, Pt1.y + h, Pt1.z), App.Vector(0, 0, 1), Radio1, math.radians(0), math.radians(180)])	#Object[A3]
+	geoList.append([App.Vector(Pt1.x, Pt1.y, Pt1.z), App.Vector(0, 0, 1), Radio2, Ang1, Ang2])									#Object[A4,B3]
+	
+	for NewArco in geoList:
+		# Crear_Arco(Pt1, Eje, Radio, Boceto_X, Ang_Ini, Ang_Fin, Guia = False, Grupo_X = '-'):
+		Crear_Arco(NewArco[0], NewArco[1], NewArco[2], Boceto_X, NewArco[3], NewArco[4], Grupo_X = Grupo)
+	
+	del geoList
+	
+	# creamos la lista de puntos por cada linea
+	geoList = []
+	# [Punto inicial, Punto final]
+	if Tipo == 'TB':
+		geoList.append([App.Vector(Pt1.x - Radio1, Pt1.y + h, Pt1.z), App.Vector(Pt1.x + Radio1, Pt1.y + h, Pt1.z)])	#Object[B4]
+	geoList.append([App.Vector(Pt1.x - Radio1, Pt1.y + h, Pt1.z), App.Vector(Pt1.x - Radio1, Pt1.y + d, Pt1.z)])		#Object[A5,B5]
+	geoList.append([App.Vector(Pt1.x + Radio1, Pt1.y + h, Pt1.z), App.Vector(Pt1.x + Radio1, Pt1.y + d, Pt1.z)])		#Object[A6,B6]
+	
+	for NewLinea in geoList:
+		# Crear_Linea(Pt1, Pt2, Boceto_X, Guia = False, Grupo_X = '-'):
+		Crear_Linea(NewLinea[0], NewLinea[1], Boceto_X, Grupo_X = Grupo)
+	
+	del geoList
+	
+	# creamos la lista de restricciones
+	constraintList = []
+	# fijamos las lineas guias		
+	constraintList.append(Sketcher.Constraint('Distance',          lastID + 0,2, lastID + 1,1, k))				#Constraints[A0,B0]
+	constraintList.append(Sketcher.Constraint('Distance',          lastID + 0,1, lastID + 1,1, j))				#Constraints[A1,B1]
+	constraintList.append(Sketcher.Constraint('PointOnObject',     lastID + 1,1, lastID + 0))						#Constraints[A2,B2]
+	constraintList.append(Sketcher.Constraint('Coincident',        lastID + 1,1, lastID + 2,1))					#Constraints[A3,B3]
+	constraintList.append(Sketcher.Constraint('Horizontal',        lastID + 1))									#Constraints[A4,B4]
+	constraintList.append(Sketcher.Constraint('Perpendicular',     lastID + 0,   lastID + 2))						#Constraints[A5,B4]
+	constraintList.append(Sketcher.Constraint('Distance',          lastID + 1,   Radio1))							#Constraints[A6,B6]
+	constraintList.append(Sketcher.Constraint('Distance',          lastID + 2,   Radio2))							#Constraints[A7,B7]
+	# fijamos los arcos a la linea guia
+	if Tipo == 'TA':
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 3,3, lastID + 0,1))					#Constraints[A8]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 0,2, lastID + 4,3))					#Constraints[A9]
+		constraintList.append(Sketcher.Constraint('Radius',        lastID + 3,   Radio1))							#Constraints[A10]
+		constraintList.append(Sketcher.Constraint('Radius',        lastID + 4,   Radio2))							#Constraints[A11]
+	if Tipo == 'TB':
+		constraintList.append(Sketcher.Constraint('Symmetric',     lastID + 4,1, lastID + 4,2, lastID + 0,1))		#Constraints[B8]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 0,2, lastID + 3,3))					#Constraints[B9]
+		constraintList.append(Sketcher.Constraint('Distance',      lastID + 0,1, lastID + 4,2, Radio1))			#Constraints[B10]
+		constraintList.append(Sketcher.Constraint('Radius',        lastID + 3,   Radio2))							#Constraints[B11]
+	# ajustamos las lineas
+	constraintList.append(Sketcher.Constraint('Parallel',          lastID + 0,   lastID + 5))						#Constraints[A12,B12]
+	constraintList.append(Sketcher.Constraint('Parallel',          lastID + 0,   lastID + 6))						#Constraints[A13,B13]
+	if Tipo == 'TB':
+		constraintList.append(Sketcher.Constraint('Perpendicular', lastID + 0,   lastID + 4))						#Constraints[B14]
+	# unimos los puntos de las lineas con los arcos
+	if Tipo == 'TA':
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 4,1, lastID + 5,2))					#Constraints[A14]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 4,2, lastID + 6,2))					#Constraints[A15]
+		constraintList.append(Sketcher.Constraint('Tangent',       lastID + 5,1, lastID + 3,2))					#Constraints[A16]
+		constraintList.append(Sketcher.Constraint('Tangent',       lastID + 6,1, lastID + 3,1))					#Constraints[A17]
+	if Tipo == 'TB':
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 4,1, lastID + 5,1))					#Constraints[B15]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 4,2, lastID + 6,1))					#Constraints[B16]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 3,1, lastID + 5,2))					#Constraints[B17]
+		constraintList.append(Sketcher.Constraint('Coincident',    lastID + 3,2, lastID + 6,2))					#Constraints[B18]
+	# ubicamos la posicion y el angulo
+	constraintList.append(Sketcher.Constraint('Angle',             lastID + 1,1, lastID + 2,1, Angulo))			#Constraints[A18,B19]
+	constraintList.append(Sketcher.Constraint('DistanceX',         lastID + 1,1, Pt1.x))							#Constraints[A19,B20]
+	constraintList.append(Sketcher.Constraint('DistanceY',         lastID + 1,1, Pt1.y))							#Constraints[A20,B21]
+	
+	Boceto_X.addConstraint(constraintList)
+	
+	del constraintList
+	
+	Doc.recompute
+	
+	
+	
 #! Estos son las funciones para crear Modelado 3D
 def Crear_Relleno(Titulo, Etiqueta = '', Objeto_X = False, Boceto_X = False):
 	
@@ -1534,8 +1640,11 @@ def Crear_Huecos02_3D(LaT, AnT, AlT):
 	'''
 	
 	# Crear_Estrella(Pt1, Boceto_X, Radio1, Radio2, Puntas = 5, Angulo = 0, Tipo = 'TA', Radio3 = 5, Angulo2 = 36, Grupo = '-'):
-	Crear_Estrella(App.Vector(-200, 10, 0), Boceto_Hueco2, 20, 15, 4, math.radians(45), 'TB', 5, math.radians(0), Grupo = 'Estrella1')
+	#Crear_Estrella(App.Vector(-200, 10, 0), Boceto_Hueco2, 20, 15, 4, math.radians(30), 'TB', 5, math.radians(90), Grupo = 'Estrella1')
 	#Crear_Estrella(App.Vector(-200, -25, 0), Boceto_Hueco2, 10, 5, 4, math.radians(90), 'TA', Grupo = 'Estrella2')
+	
+	# Crear_Keyhole(Pt1, Boceto_X, Radio1, Radio2, Largo, Angulo = 0, Tipo = 'TA', Grupo = '-'):
+	Crear_Keyhole(App.Vector(-200, -10, 0), Boceto_Hueco2, 5, 15, 50, math.radians(90), 'TB')
 	
 	# Actualizar_Lista(Boceto_X):
 	Actualizar_Lista(Boceto_Hueco2)
